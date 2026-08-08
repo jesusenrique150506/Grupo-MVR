@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo MVR | Portal de Promotoras y Vales</title>
+    <link rel="stylesheet" href="CSS/opticas-styles.css">
+    <style>
+        .form-container, .cartera-container {
+            max-width: 650px;
+            margin: 2rem auto;
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.2rem;
+        }
+        .form-group { text-align: left; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            color: #002b55;
+            font-size: 0.95rem;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+        }
+
+        /* --- TARJETA DE RESULTADO DEL VALE --- */
+        #resultadoVale {
+            display: none;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .logo-vale-head {
+            max-height: 60px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 0.5rem;
+        }
+        .folio-box {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 0.8rem 0;
+            background: #ffffff;
+            padding: 0.5rem;
+            border-radius: 6px;
+        }
+        .btn-imprimir {
+            color: white;
+            border: none;
+            padding: 0.8rem 1.4rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        /* TEMAS DE COLOR DINÁMICOS PARA EL VALE */
+        .tema-dvilla {
+            background-color: #f0f7ff !important;
+            border: 2px dashed #0059b3 !important;
+        }
+        .tema-dvilla .titulo-vale { color: #0059b3 !important; }
+        .tema-dvilla .folio-box { color: #0059b3 !important; border: 1px solid #0059b3 !important; }
+        .tema-dvilla .monto-destacado { color: #0059b3 !important; }
+        .tema-dvilla .btn-imprimir { background-color: #0059b3 !important; }
+
+        .tema-ravali {
+            background-color: #fdf2f2 !important;
+            border: 2px dashed #a80f14 !important;
+        }
+        .tema-ravali .titulo-vale { color: #a80f14 !important; }
+        .tema-ravali .folio-box { color: #a80f14 !important; border: 1px solid #a80f14 !important; }
+        .tema-ravali .monto-destacado { color: #a80f14 !important; }
+        .tema-ravali .btn-imprimir { background-color: #a80f14 !important; }
+
+        .tema-marcel {
+            background-color: #fce4ec !important;
+            border: 2px dashed #880e4f !important;
+        }
+        .tema-marcel .titulo-vale { color: #880e4f !important; }
+        .tema-marcel .folio-box { color: #880e4f !important; border: 1px solid #880e4f !important; }
+        .tema-marcel .monto-destacado { color: #880e4f !important; }
+        .tema-marcel .btn-imprimir { background-color: #880e4f !important; }
+
+        /* --- ESTILOS DE LA TABLA DE CARTERA Y COLORES DE RENGLÓN --- */
+        .tabla-cartera {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .tabla-cartera th {
+            background-color: #002b55;
+            color: white;
+            padding: 0.8rem;
+            text-align: left;
+        }
+        .tabla-cartera td {
+            padding: 0.8rem;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
+        }
+        
+        .row-dvilla {
+            background-color: #eef6ff !important;
+            border-left: 4px solid #0059b3 !important;
+        }
+        .row-ravali {
+            background-color: #fff0f0 !important;
+            border-left: 4px solid #a80f14 !important;
+        }
+        .row-marcel {
+            background-color: #fff0f5 !important;
+            border-left: 4px solid #880e4f !important;
+        }
+        .badge-optica {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        .badge-dvilla { color: #0059b3; }
+        .badge-ravali { color: #a80f14; }
+        .badge-marcel { color: #880e4f; }
+
+        /* --- BOTÓN FLOTANTE WHATSAPP --- */
+        .btn-whatsapp {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background-color: #25d366;
+            color: white;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        .btn-whatsapp:hover {
+            transform: scale(1.08);
+            background-color: #20ba5a;
+        }
+
+        /* --- REGLAS DE IMPRESIÓN Y EXPORTACIÓN PDF --- */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            header, footer, .hero, #valeForm, .btn-whatsapp, .btn-imprimir, button, label, input, select {
+                display: none !important;
+            }
+            
+            body.imprimiendo-vale .cartera-container { display: none !important; }
+            body.imprimiendo-vale .form-container {
+                box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important;
+            }
+
+            body.imprimiendo-cartera .form-container { display: none !important; }
+            body.imprimiendo-cartera .cartera-container {
+                box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important;
+            }
+            body.imprimiendo-cartera .tabla-cartera th {
+                background-color: #002b55 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .row-dvilla, .row-ravali, .row-marcel {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ENCABEZADO INSTITUCIONAL -->
+    <header class="main-header" style="background-color: #002b55;">
+        <div class="logo">
+            <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <img src="mvr.jpg" onerror="this.onerror=null; this.src='mvr.png';" alt="Logo Grupo MVR" style="height: 45px; width: auto; object-fit: contain; border-radius: 4px; background: #fff; padding: 2px;">
+                <h1 style="margin: 0; font-size: 1.5rem; color: white;">Grupo MVR | Vales</h1>
+            </a>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="D´villa.html">Óptica D'villa</a></li>
+                <li><a href="Ravali.html">Óptica Ravali</a></li>
+                <li><a href="Marcel.html">Marcel Boutique</a></li>
+                <li><a href="Promotoras.html" class="active" style="background-color: #0d233a;">Promotoras / Vales</a></li>
+                
+            </ul>
+        </nav>
+    </header>
+
+    <!-- BANNER DE BIENVENIDA -->
+    <section class="hero" style="background-color: #e6f0fa; text-align: center; padding: 2rem 1rem;">
+        <h2 style="color: #002b55;">Portal Oficial para Promotoras</h2>
+        <p style="font-style: italic; color: #555;">"Donde la salud, la visión y el estilo se encuentran"</p>
+        <p>Emite vales digitales con folio de compra y consulta tu cartera por quincena.</p>
+    </section>
+
+    <!-- 1. FORMULARIO DE EMISIÓN DE VALES -->
+    <main class="form-container">
+        <h3 style="text-align: center; color: #002b55; margin-bottom: 1.5rem;">✍️ Registro de Vale Digital</h3>
+        
+        <form id="valeForm" onsubmit="generarFolio(event)">
+            <div class="form-grid">
+                
+                <div class="form-group">
+                    <label for="numPromotora">N° Promotora Autorizada:</label>
+                    <input type="text" id="numPromotora" placeholder="Ej. P-4502" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="sucursalVale">Óptica/Boutique de Atención:</label>
+                    <select id="sucursalVale" required>
+                        <option value="Óptica D'villa">Óptica D'villa</option>
+                        <option value="Óptica Ravali">Óptica Ravali</option>
+                        <option value="Marcel Boutique">Marcel Boutique</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="nombreCliente">Nombre Completo del Cliente:</label>
+                    <input type="text" id="nombreCliente" placeholder="Ej. María López Hernández" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="telefonoCliente">Teléfono de Contacto:</label>
+                    <input type="tel" id="telefonoCliente" placeholder="Ej. 833 123 4567" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="direccionCliente">Dirección Completa:</label>
+                    <input type="text" id="direccionCliente" placeholder="Calle, número, colonia y ciudad" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="montoVale">Monto Autorizado ($ MXN):</label>
+                    <input type="number" id="montoVale" placeholder="Ej. 1500" min="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="quincenasVale">Plazo de Pago:</label>
+                    <select id="quincenasVale" required>
+                        <option value="2 Quincenas">2 Quincenas</option>
+                        <option value="4 Quincenas">4 Quincenas</option>
+                        <option value="6 Quincenas">6 Quincenas</option>
+                        <option value="8 Quincenas">8 Quincenas</option>
+                        <option value="10 Quincenas">10 Quincenas</option>
+                        <option value="12 Quincenas">12 Quincenas</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 1rem; font-size: 1.1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1.5rem;">
+                🎟️ Generar Folio de Vale
+            </button>
+        </form>
+
+        <!-- TARJETA DE RESULTADO CON LOGO DE LA SUCURSAL SELECCIONADA -->
+        <div id="resultadoVale">
+            <img id="logoValeDinamico" src="dvilla.jpg" onerror="this.onerror=null; this.src='dvilla.png';" class="logo-vale-head" alt="Logo Sucursal">
+            
+            <h2 id="tituloValeVisual" class="titulo-vale" style="margin: 0; text-transform: uppercase;">Vale Autorizado</h2>
+            <p style="margin-top: 0.3rem; color: #555; font-size: 0.9rem;">"Donde la salud, la visión y el estilo se encuentran"</p>
+            
+            <div class="folio-box" id="codigoFolio">MVR-00000</div>
+            
+            <div id="detallesVale" style="font-size: 1rem; color: #333; line-height: 1.7; text-align: left; background: #fff; padding: 1.2rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 1rem;"></div>
+
+            <button onclick="imprimirElemento('vale')" class="btn-imprimir">🖨️ Imprimir / Guardar Vale en PDF</button>
+        </div>
+    </main>
+
+    <!-- 2. APARTADO DE CONSULTA DE CARTERA POR QUINCENA -->
+    <section class="cartera-container">
+        <h3 id="tituloReporteCartera" style="text-align: center; color: #002b55; margin-bottom: 0.5rem;">📂 Consulta de Cartera de Clientes</h3>
+        <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Filtra tus vales colocados por número de promotora.</p>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="buscarPromotora">N° de Promotora:</label>
+                <input type="text" id="buscarPromotora" placeholder="Ej. P-4502">
+            </div>
+            <div class="form-group">
+                <label for="buscarQuincena">Seleccionar Quincena:</label>
+                <select id="buscarQuincena">
+                    <option value="1a Quincena de Agosto">1a Quincena de Agosto</option>
+                    <option value="2a Quincena de Agosto">2a Quincena de Agosto</option>
+                    <option value="1a Quincena de Septiembre">1a Quincena de Septiembre</option>
+                    <option value="2a Quincena de Septiembre">2a Quincena de Septiembre</option>
+                </select>
+            </div>
+        </div>
+
+        <button onclick="buscarCartera()" class="btn" style="width: 100%; background-color: #28a745; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
+            🔍 Consultar Cartera
+        </button>
+
+        <div id="tablaCarteraResultado" style="display: none; margin-top: 1.5rem;">
+            <table class="tabla-cartera">
+                <thead>
+                    <tr>
+                        <th>Folio</th>
+                        <th>Cliente</th>
+                        <th>Monto</th>
+                        <th>Plazo</th>
+                        <th>Sucursal</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTablaCartera">
+                </tbody>
+            </table>
+
+            <button onclick="imprimirElemento('cartera')" class="btn-imprimir" style="width: 100%; background-color: #002b55; margin-top: 1.5rem;">
+                🖨️ Exportar / Imprimir Cartera en PDF
+            </button>
+        </div>
+    </section>
+
+    <!-- 3. BOTÓN FLOTANTE DE WHATSAPP -->
+    <a href="https://wa.me/8332854129?text=Hola,%20soy%20promotora%20de%20Grupo%20MVR%20y%20requiero%20asistencia%20con%20un%20vale." target="_blank" class="btn-whatsapp">
+        💬 Soporte Promotoras
+    </a>
+
+    <!-- PIE DE PÁGINA -->
+    <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
+        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR (D'villa, Ravali & Marcel). Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT CON SINCRONIZACIÓN EN TIEMPO REAL (LOCALSTORAGE) -->
+    <script>
+        function generarFolio(event) {
+            event.preventDefault();
+
+            const aleatorio = Math.floor(10000 + Math.random() * 90000);
+            const folio = "MVR-" + aleatorio;
+
+            const promotora = document.getElementById('numPromotora').value.trim().toUpperCase();
+            const sucursal = document.getElementById('sucursalVale').value;
+            const cliente = document.getElementById('nombreCliente').value;
+            const telefono = document.getElementById('telefonoCliente').value;
+            const direccion = document.getElementById('direccionCliente').value;
+            const montoRaw = parseFloat(document.getElementById('montoVale').value) || 0;
+            const quincenas = document.getElementById('quincenasVale').value;
+
+            const montoFormateado = new Intl.NumberFormat('es-MX', {
+                style: 'currency',
+                currency: 'MXN'
+            }).format(montoRaw);
+
+            // Objeto del nuevo vale
+            const nuevoVale = {
+                folio: folio,
+                promotora: promotora,
+                cliente: cliente,
+                telefono: telefono,
+                direccion: direccion,
+                monto: montoRaw,
+                montoStr: montoFormateado,
+                quincenas: quincenas,
+                empresa: sucursal,
+                sucursal: sucursal,
+                fecha: new Date().toLocaleDateString('es-MX')
+            };
+
+            // Guardar en localStorage para sincronizar con el panel de administración
+            let valesGuardados = JSON.parse(localStorage.getItem('mvr_vales_emitidos')) || [];
+            valesGuardados.push(nuevoVale);
+            localStorage.setItem('mvr_vales_emitidos', JSON.stringify(valesGuardados));
+
+            const contenedorResultado = document.getElementById('resultadoVale');
+            const tituloVisual = document.getElementById('tituloValeVisual');
+            const imgLogo = document.getElementById('logoValeDinamico');
+            
+            contenedorResultado.classList.remove('tema-dvilla', 'tema-ravali', 'tema-marcel');
+
+            // INTERCAMBIO DE TEMA Y LOGO SEGÚN SUCURSAL (CORREGIDO A .PNG PARA MARCEL)
+            if (sucursal === "Óptica Ravali") {
+                contenedorResultado.classList.add('tema-ravali');
+                tituloVisual.innerText = "Óptica Ravali - Vale Autorizado";
+                imgLogo.src = "ravali.jpg";
+                imgLogo.onerror = function() { this.src = "ravali.png"; };
+            } else if (sucursal === "Marcel Boutique") {
+                contenedorResultado.classList.add('tema-marcel');
+                tituloVisual.innerText = "Marcel Boutique - Vale Autorizado";
+                imgLogo.src = "marcel.png"; // <-- Corregido a formato PNG
+                imgLogo.onerror = function() { this.src = "mvr.png"; };
+            } else {
+                contenedorResultado.classList.add('tema-dvilla');
+                tituloVisual.innerText = "Óptica D'villa - Vale Autorizado";
+                imgLogo.src = "dvilla.jpg";
+                imgLogo.onerror = function() { this.src = "dvilla.png"; };
+            }
+
+            document.getElementById('codigoFolio').innerText = folio;
+            document.getElementById('detallesVale').innerHTML = `
+                <strong>Titular del Vale:</strong> ${cliente}<br>
+                <strong>Teléfono:</strong> ${telefono}<br>
+                <strong>Dirección:</strong> ${direccion}<br>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 0.5rem 0;">
+                <strong>Monto Autorizado:</strong> <span class="monto-destacado" style="font-weight: bold; font-size: 1.1rem;">${montoFormateado} MXN</span><br>
+                <strong>Plazo de Pago:</strong> ${quincenas}<br>
+                <strong>Sucursal Canje:</strong> ${sucursal}<br>
+                <strong>Promotora ID:</strong> ${promotora}<br>
+                <strong>Fecha de Emisión:</strong> ${new Date().toLocaleDateString('es-MX')}
+            `;
+
+            contenedorResultado.style.display = 'block';
+            
+            // Limpiar formulario opcionalmente o avisar
+            document.getElementById('valeForm').reset();
+            alert("¡Vale generado con éxito y registrado en el sistema administrativo en tiempo real!");
+        }
+
+        // CARTERA DE CLIENTES LEYENDO DESDE LOCALSTORAGE
+        function buscarCartera() {
+            const numBuscado = document.getElementById('buscarPromotora').value.trim().toUpperCase();
+            const cuerpo = document.getElementById('cuerpoTablaCartera');
+            cuerpo.innerHTML = "";
+
+            let valesGuardados = JSON.parse(localStorage.getItem('mvr_vales_emitidos')) || [];
+            const filtrados = valesGuardados.filter(v => v.promotora === numBuscado);
+
+            if (filtrados.length === 0) {
+                cuerpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No se encontraron registros para la promotora "${numBuscado}".</td></tr>`;
+            } else {
+                filtrados.forEach(v => {
+                    const esRavali = v.sucursal === "Óptica Ravali";
+                    const esMarcel = v.sucursal === "Marcel Boutique";
+
+                    const claseFila = esRavali ? "row-ravali" : (esMarcel ? "row-marcel" : "row-dvilla");
+                    
+                    // CORRECCIÓN DE LOGOTIPOS EN LA TABLA DE CARTERA (MARCEL EN .PNG)
+                    const logoImg = esRavali ? "ravali.jpg" : (esMarcel ? "marcel.png" : "dvilla.jpg");
+                    const logoFallback = esRavali ? "ravali.png" : (esMarcel ? "mvr.png" : "dvilla.png");
+                    const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
+
+                    cuerpo.innerHTML += `
+                        <tr class="${claseFila}">
+                            <td><strong>${v.folio}</strong></td>
+                            <td>${v.cliente}</td>
+                            <td>${v.montoStr}</td>
+                            <td>${v.quincenas}</td>
+                            <td>
+                                <span class="badge-optica ${claseBadge}">
+                                    <img src="${logoImg}" onerror="this.onerror=null; this.src='${logoFallback}';" style="height: 18px; width: auto; border-radius: 2px;">
+                                    ${v.sucursal}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('tablaCarteraResultado').style.display = 'block';
+        }
+
+        function imprimirElemento(tipo) {
+            document.body.classList.remove('imprimiendo-vale', 'imprimiendo-cartera');
+            
+            if (tipo === 'vale') {
+                document.body.classList.add('imprimiendo-vale');
+            } else if (tipo === 'cartera') {
+                document.body.classList.add('imprimiendo-cartera');
+            }
+
+            window.print();
+        }
+    </script>
+
+</body>
+</html>

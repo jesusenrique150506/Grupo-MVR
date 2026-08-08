@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo MVR | Marcel Boutique</title>
+    
+    <!-- Enlace a la hoja de estilos global -->
+    <link rel="stylesheet" href="CSS/opticas-styles.css">
+    
+    <style>
+        /* ESTILOS EXCLUSIVOS PARA MARCEL BOUTIQUE */
+        .grid-productos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 2rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card-producto {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-top: 4px solid #880e4f; /* Magenta oscuro */
+            border-radius: 8px;
+            padding: 1.2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-producto:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+        .card-producto img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            background-color: #f9f9f9;
+        }
+        .card-producto h3 {
+            margin: 0.5rem 0;
+            color: #222;
+            font-size: 1.15rem;
+        }
+        .card-producto p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+        .precio {
+            font-size: 1.3rem;
+            color: #880e4f;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .botones-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn-secundario {
+            background-color: #fce4ec; /* Rosa claro */
+            color: #880e4f;
+            border: 2px solid #880e4f;
+            padding: 0.7rem;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-secundario:hover {
+            background-color: #880e4f;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* --- ESTILOS DE LA VENTANA EMERGENTE (MODAL) --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 450px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border-top: 5px solid #880e4f;
+        }
+        .cerrar-modal {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+        }
+        .cerrar-modal:hover { color: #880e4f; }
+        .promo-box {
+            background-color: #fff6e5;
+            border-left: 4px solid #ffa500;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            color: #a66a00;
+        }
+        .tabla-quincenas {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        .tabla-quincenas th, .tabla-quincenas td {
+            padding: 0.8rem;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+        .tabla-quincenas th { 
+            color: #880e4f;
+            border-bottom: 2px solid #880e4f;
+        }
+        .fila-destacada { background-color: #fce4ec; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- ENCABEZADO EXCLUSIVO MARCEL BOUTIQUE -->
+    <header class="main-header" style="background-color: #880e4f;">
+        <div class="logo">
+            <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <!-- AQUÍ SE CORRIGIÓ LA EXTENSIÓN A PNG -->
+                <img src="marcel.png" onerror="this.onerror=null; this.src='mvr.jpg';" alt="Logo Marcel Boutique" style="height: 45px; width: auto; object-fit: contain; border-radius: 4px; background: white; padding: 2px;">
+                <h1 style="margin: 0; font-size: 1.5rem; color: white;">Marcel Boutique</h1>
+            </a>
+        </div>
+        <nav class="main-nav">
+    <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="D´villa.html">Óptica D'villa</a></li>
+        <li><a href="Ravali.html">Óptica Ravali</a></li>
+        <li><a href="Marcel.html">Marcel Boutique</a></li>
+        <li><a href="Promotoras.html">Promotoras / Vales</a></li>
+        
+    </ul>
+</nav>
+    </header>
+
+    <!-- BANNER DE BIENVENIDA MARCEL BOUTIQUE -->
+    <section class="hero" style="background-color: #fce4ec; text-align: center; padding: 2.5rem 1rem;">
+        <h2 style="color: #880e4f; font-size: 2rem; margin-bottom: 0.5rem;">Moda, Estilo y Elegancia</h2>
+        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem;">"Viste tu mejor versión todos los días"</p>
+        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto;">Descubre nuestra nueva colección de vestidos, conjuntos y accesorios diseñados para resaltar tu personalidad y belleza.</p>
+        <a href="https://maps.google.com/?q=Marcel+Boutique" target="_blank" class="btn" style="background-color: #880e4f; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            📍 Cómo llegar a Marcel Boutique
+        </a>
+    </section>
+
+    <!-- CATÁLOGO DE PRODUCTOS MARCEL BOUTIQUE -->
+    <main>
+        <section class="grid-productos">
+            
+            <!-- PRODUCTO 1 -->
+            <div class="card-producto">
+                <div>
+                    <!-- Actualizado a ropa1.jpg -->
+                    <img src="imagenes/marcel/ropa1.jpg" alt="Vestido de Noche Elegante" onerror="this.src='https://via.placeholder.com/300x400?text=Vestido+Elegante'">
+                    <h3>Vestido de Noche Elegante</h3>
+                    <p>Corte sirena con detalles en pedrería. Ideal para eventos de gala y graduaciones.</p>
+                </div>
+                <div>
+                    <div class="precio">$1,850.00 MXN</div>
+                    <div class="botones-card">
+                        <button class="btn-secundario" onclick="abrirModalPagos('Vestido de Noche Elegante', 1850)">💳 Ver Quincenas y Promos</button>
+                        <a href="Promotoras.html" class="btn" style="background-color: #880e4f; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCTO 2 -->
+            <div class="card-producto">
+                <div>
+                    <!-- Actualizado a ropa2.jpg -->
+                    <img src="imagenes/marcel/ropa2.jpg" alt="Conjunto Casual Chic" onerror="this.src='https://via.placeholder.com/300x400?text=Conjunto+Casual'">
+                    <h3>Conjunto Casual Chic</h3>
+                    <p>Blusa de seda y pantalón de vestir de tiro alto. Comodidad sin perder el estilo.</p>
+                </div>
+                <div>
+                    <div class="precio">$950.00 MXN</div>
+                    <div class="botones-card">
+                        <button class="btn-secundario" onclick="abrirModalPagos('Conjunto Casual Chic', 950)">💳 Ver Quincenas y Promos</button>
+                        <a href="Promotoras.html" class="btn" style="background-color: #880e4f; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCTO 3 -->
+            <div class="card-producto">
+                <div>
+                    <!-- Actualizado a ropa3.jpg -->
+                    <img src="imagenes/marcel/ropa3.jpg" alt="Bolso de Mano Premium" onerror="this.src='https://via.placeholder.com/300x400?text=Bolso+Premium'">
+                    <h3>Bolso de Mano Premium</h3>
+                    <p>Acabado en cuero sintético de alta calidad con herrajes dorados. Amplio y elegante.</p>
+                </div>
+                <div>
+                    <div class="precio">$780.00 MXN</div>
+                    <div class="botones-card">
+                        <button class="btn-secundario" onclick="abrirModalPagos('Bolso de Mano Premium', 780)">💳 Ver Quincenas y Promos</button>
+                        <a href="Promotoras.html" class="btn" style="background-color: #880e4f; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PRODUCTO 4 -->
+            <div class="card-producto">
+                <div>
+                    <!-- Actualizado a ropa4.jpg -->
+                    <img src="imagenes/marcel/ropa4.jpg" alt="Zapatillas Clásicas Nude" onerror="this.src='https://via.placeholder.com/300x400?text=Zapatillas+Nude'">
+                    <h3>Zapatillas Clásicas Nude</h3>
+                    <p>Tacón de 10 cm súper cómodas. El básico perfecto que combina con todo tu clóset.</p>
+                </div>
+                <div>
+                    <div class="precio">$650.00 MXN</div>
+                    <div class="botones-card">
+                        <button class="btn-secundario" onclick="abrirModalPagos('Zapatillas Clásicas Nude', 650)">💳 Ver Quincenas y Promos</button>
+                        <a href="Promotoras.html" class="btn" style="background-color: #880e4f; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- VENTANA EMERGENTE (MODAL) DE PROMOCIONES Y PAGOS -->
+    <div id="modalPagos" class="modal-overlay">
+        <div class="modal-content">
+            <span class="cerrar-modal" onclick="cerrarModal()">&times;</span>
+            <h3 id="modalTitulo" style="color: #880e4f; margin-top: 0; font-size: 1.4rem;">Nombre del Producto</h3>
+            
+            <div class="promo-box">
+                <strong>🎁 Promoción del Mes:</strong><br>
+                En compras mayores a $1,000 MXN llévate un accesorio sorpresa ¡Totalmente Gratis!
+            </div>
+
+            <p style="color: #555; margin-bottom: 0.5rem; font-size: 0.95rem;">Selecciona el plazo de tu vale que mejor se adapte a ti:</p>
+            
+            <table class="tabla-quincenas">
+                <thead>
+                    <tr>
+                        <th>Plazo</th>
+                        <th>Pago por Quincena</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoQuincenas">
+                    <!-- Los pagos se calculan e insertan aquí por Javascript -->
+                </tbody>
+            </table>
+
+            <a href="Promotoras.html" class="btn" style="background-color: #880e4f; color: white; display: block; padding: 1rem; text-align: center; text-decoration: none; border-radius: 5px; font-weight: bold; transition: all 0.3s ease;">
+                🎟️ Solicitar Vale con mi Promotora
+            </a>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA MARCEL BOUTIQUE -->
+    <footer style="background-color: #880e4f; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
+        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Marcel Boutique (Grupo MVR). Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT PARA CALCULAR PAGOS Y ABRIR MODAL -->
+    <script>
+        function abrirModalPagos(nombreProducto, precioTotal) {
+            document.getElementById('modalTitulo').innerText = nombreProducto;
+            
+            const quincenas = [2, 4, 6, 8, 10, 12];
+            const cuerpoTabla = document.getElementById('cuerpoQuincenas');
+            cuerpoTabla.innerHTML = ''; 
+
+            quincenas.forEach(q => {
+                const pagoCalculado = (precioTotal / q).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+                
+                const claseFila = (q === 8) ? 'fila-destacada' : '';
+                const textoPlazo = (q === 8) ? `${q} Quincenas ⭐` : `${q} Quincenas`;
+
+                cuerpoTabla.innerHTML += `
+                    <tr class="${claseFila}">
+                        <td>${textoPlazo}</td>
+                        <td style="font-weight: bold;">${pagoCalculado}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('modalPagos').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalPagos').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalPagos');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+
+</body>
+</html>
