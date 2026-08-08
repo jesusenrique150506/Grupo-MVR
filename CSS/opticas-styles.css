@@ -1,0 +1,394 @@
+/* ==========================================
+   ESTILOS GENERALES Y D'VILLA (Azul Clínico)
+   ========================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+    color: #333333;
+    background-color: #f4f7f9;
+}
+
+/* ENCABEZADO BASE (Azul para Index, D'villa y Vales) */
+.main-header {
+    background-color: #004080;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.main-header .logo h1 {
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+}
+
+.main-nav a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.main-nav a.active, 
+.main-nav a:hover {
+    color: #80c1ff;
+}
+
+/* BANNER HERO BASE */
+.hero {
+    background-color: #e6f2ff;
+    padding: 3.5rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid #cce0ff;
+}
+
+.hero h2 {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+    color: #004080;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    color: #444444;
+}
+
+.hero-btns {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* BOTONES BASE */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary { 
+    background-color: #0059b3; 
+    color: #ffffff; 
+}
+
+.btn-primary:hover {
+    background-color: #004080;
+}
+
+.btn-secondary { 
+    background-color: #008060; 
+    color: #ffffff; 
+}
+
+.btn-secondary:hover {
+    background-color: #005942;
+}
+
+/* TARJETAS Y GRID */
+.sucursales {
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.sucursales h2 {
+    color: #004080;
+    margin-bottom: 1.5rem;
+}
+
+.grid-sucursales {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.card-sucursal {
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    padding: 1.5rem;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-sucursal h3 {
+    margin-bottom: 0.5rem;
+    color: #004080;
+}
+
+/* MÉTODOS DE PAGO Y VALES */
+.metodos-pago {
+    background: #ffffff;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.metodos-pago h2 {
+    color: #004080;
+}
+
+.grid-pagos {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.pago-item {
+    background: #f9f9f9;
+    padding: 1.8rem;
+    border-radius: 8px;
+    max-width: 380px;
+    border: 1px solid #eeeeee;
+    text-align: left;
+}
+
+.pago-item h3 {
+    margin-bottom: 0.8rem;
+    color: #004080;
+}
+
+.pago-item.destacado {
+    border: 2px solid #008060;
+    background: #e6fffa;
+}
+
+/* PIE DE PÁGINA */
+footer {
+    background-color: #00264d;
+    color: #ffffff;
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 3rem;
+}
+
+/* BOTÓN FLOTANTE DE WHATSAPP */
+.btn-whatsapp {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #25d366;
+    color: #ffffff;
+    border-radius: 50px;
+    padding: 12px 22px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 2px 4px 12px rgba(0,0,0,0.25);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-whatsapp:hover {
+    background-color: #128c7e;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+
+
+/* ==========================================
+   ESTILOS EXCLUSIVOS PARA ÓPTICA RAVALI
+   ========================================== */
+
+/* Solo cuando la página tiene la clase 'pagina-ravali' en el body */
+body.pagina-ravali .main-header {
+    background-color: #a80f14; /* Rojo Ravali solo en su menú */
+}
+
+body.pagina-ravali .main-nav a.active, 
+body.pagina-ravali .main-nav a:hover {
+    color: #fca5a5;
+}
+
+body.pagina-ravali .hero {
+    background-color: #fdf2f2;
+    border-bottom-color: #f8d7da;
+}
+
+body.pagina-ravali .hero h2,
+body.pagina-ravali .sucursales h2,
+body.pagina-ravali .card-sucursal h3 {
+    color: #a80f14;
+}
+
+body.pagina-ravali .btn-primary {
+    background-color: #a80f14;
+}
+
+body.pagina-ravali .btn-primary:hover {
+    background-color: #7f0a0d;
+}
+
+/* --- ANIMACIÓN Y EFECTOS PARA TODOS LOS BOTONES --- */
+.btn, .btn-primary, .btn-secondary, .btn-ubicacion-dvilla, .btn-ubicacion-ravali {
+    /* Suaviza cualquier cambio de estado en 0.3 segundos */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* 1. EFECTO AL PASAR EL RATÓN (HOVER): Elevación + Sombra */
+.btn:hover, .btn-primary:hover, .btn-secondary:hover, .btn-ubicacion-dvilla:hover, .btn-ubicacion-ravali:hover {
+    transform: translateY(-4px) scale(1.02); /* El botón sube ligeramente y crece un 2% */
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2); /* Crea sombra de profundidad */
+    filter: brightness(1.1); /* Brillo sutil */
+}
+
+/* 2. EFECTO AL HACER CLIC (ACTIVE): Presión hacia abajo */
+.btn:active, .btn-primary:active, .btn-secondary:active, .btn-ubicacion-dvilla:active, .btn-ubicacion-ravali:active {
+    transform: translateY(-1px) scale(0.98); /* Se hunde ligeramente para simular un botón físico */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* --- ANIMACIÓN EN LAS TARJETAS DE LENTES (OPCIONAL) --- */
+.card-producto, .card-sucursal {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-producto:hover, .card-sucursal:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* --- ANIMACIÓN DE TRANSICIÓN AL CAMBIAR DE PÁGINA --- */
+
+/* Definición del movimiento y desvanecimiento */
+@keyframes fadeInPage {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Aplicación de la animación a los elementos principales al cargar la vista */
+body {
+    animation: fadeInPage 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Retardo sutil en las tarjetas para efecto en cascada */
+.card-sucursal, .card-producto, .form-container {
+    animation: fadeInPage 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Color del título en el modal para Ravali */
+#modalTitulo {
+    color: #a80f14 !important;
+    margin-top: 0;
+    font-size: 1.4rem;
+}
+
+/* Encabezados de la tabla de quincenas */
+.tabla-quincenas th { 
+    color: #a80f14; 
+    border-bottom: 2px solid #a80f14;
+}
+
+/* --- ADAPTABILIDAD PARA CELULARES Y TABLETAS (RESPONSIVE) --- */
+
+/* Pantallas medianas (Tablets y laptops pequeñas) */
+@media screen and (max-width: 900px) {
+    .main-header {
+        flex-direction: column;
+        padding: 1rem;
+        text-align: center;
+    }
+    .main-nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .grid-productos, .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Pantallas pequeñas (Celulares) */
+@media screen and (max-width: 600px) {
+    .grid-productos, .dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .main-nav ul {
+        gap: 5px;
+    }
+    .main-nav a {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
+    .hero h2 {
+        font-size: 1.5rem !important;
+    }
+    /* Tablas adaptables para que no rompan el diseño en móviles */
+    .admin-table, .tabla-quincenas {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+/* --- CORRECCIÓN RESPONSIVE PARA EL ENCABEZADO Y MENÚ EN CELULARES --- */
+@media screen and (max-width: 768px) {
+    .main-header {
+        flex-direction: column !important;
+        padding: 1rem !important;
+        text-align: center !important;
+    }
+    
+    .main-header .logo {
+        margin-bottom: 0.8rem;
+    }
+
+    .main-nav ul {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .main-nav li {
+        margin: 0 !important;
+    }
+
+    .main-nav a {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.6rem !important;
+        border-radius: 4px;
+    }
+}
