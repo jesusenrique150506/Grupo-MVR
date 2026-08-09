@@ -39,12 +39,7 @@
         }
 
         #panelProtegido { display: none; }
-        .tab-buttons { display: flex; gap: 10px; margin-bottom: 1.5rem; }
-        .tab-btn { flex: 1; padding: 0.7rem; background: #e9ecef; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #555; }
-        .tab-btn.active { background: #002b55; color: white; }
-        .auth-form { display: none; }
-        .auth-form.active { display: block; }
-
+        
         #resultadoVale { display: none; margin-top: 2rem; padding: 1.5rem; border-radius: 8px; text-align: center; }
         .logo-vale-head { max-height: 60px; width: auto; object-fit: contain; margin-bottom: 0.5rem; }
         .folio-box { font-size: 1.8rem; font-weight: bold; letter-spacing: 2px; margin: 0.8rem 0; background: #ffffff; padding: 0.5rem; border-radius: 6px; }
@@ -110,14 +105,12 @@
         <p style="font-style: italic; color: #555;">"Donde la salud, la visión y el estilo se encuentran"</p>
     </section>
 
+    <!-- ACCESO EXCLUSIVO DE PROMOTORAS (SIN AUTORREGISTRO) -->
     <main id="panelLogin" class="login-promotora-container">
-        <div class="tab-buttons">
-            <button class="tab-btn active" onclick="cambiarTab('login')">Iniciar Sesión</button>
-            <button class="tab-btn" onclick="cambiarTab('registro')">Registrar Nueva Promotora</button>
-        </div>
-
-        <form id="formLogin" class="auth-form active" onsubmit="iniciarSesion(event)">
-            <h3 style="color: #002b55; margin-bottom: 1rem;">🔐 Iniciar Sesión</h3>
+        <form id="formLogin" onsubmit="iniciarSesion(event)">
+            <h3 style="color: #002b55; margin-bottom: 1rem; text-align: center;">🔐 Acceso Exclusivo para Promotoras</h3>
+            <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Ingresa con el ID y contraseña proporcionados por administración.</p>
+            
             <div class="form-group">
                 <label for="loginNum">N° o ID de Promotora:</label>
                 <input type="text" id="loginNum" placeholder="Ej. P-4502" required>
@@ -130,22 +123,7 @@
                 <a href="#" onclick="pedirAyudaPassword(event)" style="font-size: 0.85rem; color: #0059b3; text-decoration: none; font-weight: bold;">¿Olvidaste tu contraseña?</a>
             </div>
             <button type="submit" id="btnAcceso" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
-                🔓 Ingresar al Portal
-            </button>
-        </form>
-
-        <form id="formRegistro" class="auth-form" onsubmit="registrarPromotora(event)">
-            <h3 style="color: #002b55; margin-bottom: 1rem;">📝 Registro de Promotora</h3>
-            <div class="form-group">
-                <label for="regNum">N° o ID de Promotora:</label>
-                <input type="text" id="regNum" placeholder="Ej. P-4502" required>
-            </div>
-            <div class="form-group">
-                <label for="regPass">Elige tu Contraseña:</label>
-                <input type="password" id="regPass" placeholder="Crea una contraseña segura" required>
-            </div>
-            <button type="submit" id="btnRegistro" class="btn" style="width: 100%; background-color: #28a745; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
-                ✨ Registrarme Ahora
+                🔓 Ingresar al Portal de Vales
             </button>
         </form>
     </main>
@@ -237,59 +215,18 @@
     </footer>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbz03wTEzuYN_VPXLAZ8HVFJ_CpelV7xGer_pZULIaosLPO6M1UPSG3vINIw3G_mU1rTjA/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzLXvnYcDYeyub8wYYyTBSdDGVW5Kvzvh5yJbbsL1e3SYfq79x8DsXn1v0403VvySqzaQ/exec";
 
         window.onload = function() {
             const activa = localStorage.getItem('mvr_promotora_activa');
             if (activa) activarPortal(activa);
         };
 
-        function cambiarTab(tipo) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
-            if (tipo === 'login') {
-                document.querySelectorAll('.tab-btn')[0].classList.add('active');
-                document.getElementById('formLogin').classList.add('active');
-            } else {
-                document.querySelectorAll('.tab-btn')[1].classList.add('active');
-                document.getElementById('formRegistro').classList.add('active');
-            }
-        }
-
         function pedirAyudaPassword(event) {
             event.preventDefault();
             const numIngresado = document.getElementById('loginNum').value.trim().toUpperCase();
             const mensaje = encodeURIComponent(`Hola, soy la promotora con ID *${numIngresado || "Desconocido"}* y olvidé mi contraseña. ¿Me ayudan a restablecerla?`);
             window.open(`https://wa.me/528332854129?text=${mensaje}`, '_blank');
-        }
-
-        async function registrarPromotora(event) {
-            event.preventDefault();
-            const num = document.getElementById('regNum').value.trim().toUpperCase();
-            const pass = document.getElementById('regPass').value.trim();
-            if (!num || pass.length < 4) return alert("Ingresa un número y contraseña de al menos 4 caracteres.");
-            
-            document.getElementById('btnRegistro').innerText = "Cargando...";
-            try {
-                let res = await fetch(`${API_URL}?accion=obtenerPromotoras`);
-                let credenciales = await res.json();
-
-                if (credenciales[num]) {
-                    alert("Este número ya está registrado. Inicia sesión.");
-                    cambiarTab('login');
-                } else {
-                    await fetch(API_URL, {
-                        method: 'POST', mode: 'no-cors',
-                        body: JSON.stringify({ accion: "guardarPromotora", promotora: { id: num, password: pass } })
-                    });
-                    alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
-                    document.getElementById('formRegistro').reset();
-                    cambiarTab('login');
-                }
-            } catch (error) {
-                alert("Hubo un error de conexión.");
-            }
-            document.getElementById('btnRegistro').innerText = "✨ Registrarme Ahora";
         }
 
         async function iniciarSesion(event) {
@@ -303,7 +240,7 @@
                 let credenciales = await res.json();
 
                 if (!credenciales[num]) {
-                    alert("Promotora no registrada. Regístrate primero.");
+                    alert("ID de promotora no autorizado. Favor de solicitar su cuenta en administración.");
                 } else {
                     const datosProm = credenciales[num];
                     const passwordReal = typeof datosProm === 'object' ? datosProm.password : datosProm;
@@ -321,7 +258,7 @@
             } catch (error) {
                 alert("Hubo un error de conexión al iniciar sesión.");
             }
-            document.getElementById('btnAcceso').innerText = "🔓 Ingresar al Portal";
+            document.getElementById('btnAcceso').innerText = "🔓 Ingresar al Portal de Vales";
         }
 
         function activarPortal(num) {
@@ -336,7 +273,6 @@
             document.getElementById('panelProtegido').style.display = 'none';
             document.getElementById('panelLogin').style.display = 'block';
             document.getElementById('formLogin').reset();
-            cambiarTab('login');
         }
 
         async function generarFolio(event) {
