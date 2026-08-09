@@ -105,7 +105,7 @@
         <p style="font-style: italic; color: #555;">"Donde la salud, la visión y el estilo se encuentran"</p>
     </section>
 
-    <!-- ACCESO EXCLUSIVO DE PROMOTORAS (SIN AUTORREGISTRO) -->
+    <!-- ACCESO EXCLUSIVO DE PROMOTORAS -->
     <main id="panelLogin" class="login-promotora-container">
         <form id="formLogin" onsubmit="iniciarSesion(event)">
             <h3 style="color: #002b55; margin-bottom: 1rem; text-align: center;">🔐 Acceso Exclusivo para Promotoras</h3>
@@ -215,7 +215,7 @@
     </footer>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzLXvnYcDYeyub8wYYyTBSdDGVW5Kvzvh5yJbbsL1e3SYfq79x8DsXn1v0403VvySqzaQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyFf14ZRHDPDneVR-rmDKgLCxqEk8TMgW9lvxcwX0DrierfhNRPFunFGW4PXV0-G372Qw/exec";
 
         window.onload = function() {
             const activa = localStorage.getItem('mvr_promotora_activa');
@@ -236,7 +236,7 @@
             
             document.getElementById('btnAcceso').innerText = "Verificando...";
             try {
-                let res = await fetch(`${API_URL}?accion=obtenerPromotoras`);
+                let res = await fetch(`${API_URL}?accion=obtenerPromotoras&nocache=${new Date().getTime()}`);
                 let credenciales = await res.json();
 
                 if (!credenciales[num]) {
@@ -247,7 +247,7 @@
                     const estadoReal = typeof datosProm === 'object' ? datosProm.estado : "Activa";
 
                     if (estadoReal === "Bloqueada") {
-                        alert("⚠️ Acceso suspendido por adeudo en cartera. Favor de comunicarse a administración.");
+                        alert("⚠️ Acceso suspendido por adeudo en cartera vencida. Favor de comunicarse a administración.");
                     } else if (passwordReal === pass) {
                         localStorage.setItem('mvr_promotora_activa', num);
                         activarPortal(num);
@@ -299,7 +299,7 @@
 
             try {
                 await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors',
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ accion: "guardarVale", vale: nuevoVale })
                 });
 
@@ -322,11 +322,12 @@
                         <img src="${urlQrNativo}" style="padding: 6px; background: white; border-radius: 6px; border: 2px dashed #002b55;">
                     </div>
                     <div style="font-size: 1rem; color: #333; line-height: 1.7; text-align: left; background: #fff; padding: 1.2rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 1rem;">
-                        <strong>Cliente:</strong> ${cliente}<br><strong>Monto:</strong> <span class="monto-destacado" style="font-weight: bold; font-size: 1.1rem;">${montoFormateado} MXN</span><br>
+                        <strong>Cliente:</strong> ${cliente}<br><strong>Monto:</strong> <span style="font-weight: bold; font-size: 1.1rem;">${montoFormateado} MXN</span><br>
                         <strong>Plazo:</strong> ${quincenas}<br><strong>Promotora:</strong> ${promotora}
                     </div>
                     <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem;">
                         <a href="${urlWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.8rem 1.2rem; border-radius: 5px; text-decoration: none; font-weight: bold;">💬 Enviar por WhatsApp</a>
+                        <button onclick="canjearValeDirecto('${folio}')" style="background-color: #ff8c00; color: white; border: none; padding: 0.8rem 1.2rem; border-radius: 5px; font-weight: bold; cursor: pointer;">⚡ Marcar como Canjeado</button>
                         <button onclick="imprimirElemento('vale')" style="background-color: #002b55; color: white; border: none; padding: 0.8rem 1.4rem; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer;">🖨️ Guardar PDF</button>
                     </div>`;
                 contenedor.style.display = 'block';
@@ -339,6 +340,19 @@
             btn.disabled = false;
         }
 
+        async function canjearValeDirecto(folio) {
+            if (!confirm(`¿Confirmas que deseas canjear el folio ${folio}? Esta acción actualizará el sistema en tiempo real.`)) return;
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ accion: "canjearVale", folio: folio })
+                });
+                alert(`✅ ¡El vale ${folio} ha sido registrado como CANJEADO con éxito en la nube!`);
+            } catch (e) {
+                alert("Error al procesar el canje.");
+            }
+        }
+
         async function buscarCartera() {
             const btn = document.getElementById('btnConsultarCartera');
             btn.innerText = "Descargando Cartera...";
@@ -347,7 +361,7 @@
             cuerpo.innerHTML = "";
 
             try {
-                let res = await fetch(`${API_URL}?accion=obtenerVales`);
+                let res = await fetch(`${API_URL}?accion=obtenerVales&nocache=${new Date().getTime()}`);
                 let valesGuardados = await res.json();
                 
                 const filtrados = valesGuardados.filter(v => String(v.promotora).toUpperCase().includes(busqueda));
