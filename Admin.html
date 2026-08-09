@@ -55,9 +55,10 @@
         </nav>
     </header>
 
-    <section class="hero" style="background-color: #e6f0fa; text-align: center; padding: 1.5rem 1rem;">
-        <h2 style="color: #002b55; margin:0;">Centro de Control MVR</h2>
-        <p style="color: #555; margin-top: 5px;">Supervisión conectada a la Nube.</p>
+    <!-- BANNER DE ADMINISTRACIÓN CON LOGO DE FONDO -->
+    <section class="hero" style="background-color: #e6f0fa; background-image: linear-gradient(rgba(230, 240, 250, 0.92), rgba(230, 240, 250, 0.92)), url('mvr.jpg'); background-size: cover; background-position: center; text-align: center; padding: 3rem 1rem; position: relative;">
+        <h2 style="color: #002b55; font-size: 2rem; margin: 0; position: relative; z-index: 2;">Centro de Control MVR</h2>
+        <p style="color: #555; margin-top: 5px; position: relative; z-index: 2;">Supervisión conectada a la Nube.</p>
     </section>
 
     <!-- PANEL DE LOGIN / REGISTRO ADMIN -->
@@ -285,7 +286,7 @@
 
     <!-- LÓGICA JAVASCRIPT MAESTRA DEL PANEL ADMIN -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxS4scgnF4qFdz6EgLBErgxAFDe6DEZjv1gD8VDbYHqbzg0YIDcZVoOIwb_nIWp35VLCQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxS4scgnF4qFdz6EgLBErgxAFDe6DEZjv1gD8VDbYHqbzg0YIDcZVoOIwb_nIWp35VLCQ/execc";
 
         window.onload = function() {
             const adminActivo = localStorage.getItem('mvr_admin_activo');
