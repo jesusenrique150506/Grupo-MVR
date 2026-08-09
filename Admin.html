@@ -12,13 +12,12 @@
         .login-admin-container { max-width: 450px; margin: 4rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
         .form-group { text-align: left; margin-bottom: 1.2rem; }
         .form-group label { display: block; margin-bottom: 0.4rem; font-weight: bold; color: #002b55; font-size: 0.95rem; }
-        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 1px solid #ccd1d9; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem; transition: border-color 0.2s; }
-        .form-group input:focus, .form-group select:focus { border-color: #002b55; outline: none; }
+        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 1px solid #ccd1d9; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem; }
         #panelProtegidoAdmin { display: none; }
         
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .card-resumen { background: #f8f9fa; border-left: 5px solid #002b55; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .card-resumen h4 { margin: 0 0 0.5rem 0; color: #555; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-resumen h4 { margin: 0 0 0.5rem 0; color: #555; font-size: 0.85rem; text-transform: uppercase; }
         .card-resumen .valor { font-size: 1.8rem; font-weight: bold; color: #002b55; margin: 0; }
         
         .tabla-admin { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
@@ -26,52 +25,23 @@
         .tabla-admin td { padding: 0.8rem; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
         .tabla-admin tr:hover { background-color: #f8fafc; }
 
-        /* --- BOTONES ACORDEÓN MODERNOS --- */
         .btn-acordeon {
-            width: 100%;
-            background: #ffffff;
-            color: #002b55;
-            border: 2px solid #002b55;
-            padding: 1rem 1.2rem;
-            font-size: 1.05rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 1.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            width: 100%; background: #ffffff; color: #002b55; border: 2px solid #002b55;
+            padding: 1rem 1.2rem; font-size: 1.05rem; font-weight: bold; border-radius: 8px;
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            margin-top: 1.5rem; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
-        .btn-acordeon:hover {
-            background-color: #002b55;
-            color: #ffffff;
-        }
-        .btn-acordeon .icono-flecha {
-            transition: transform 0.3s ease;
-        }
-        .btn-acordeon.activo .icono-flecha {
-            transform: rotate(180deg);
-        }
+        .btn-acordeon:hover { background-color: #002b55; color: #ffffff; }
+        .btn-acordeon .icono-flecha { transition: transform 0.3s ease; }
+        .btn-acordeon.activo .icono-flecha { transform: rotate(180deg); }
 
-        /* --- CONTENIDO ANIMADO DESPLEGABLE --- */
         .contenido-desplegable {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out, padding 0.3s ease;
-            background: #ffffff;
-            border-radius: 0 0 8px 8px;
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.3s ease;
+            background: #ffffff; border-radius: 0 0 8px 8px;
         }
         .contenido-desplegable.abierto {
-            max-height: 2000px; /* Altura suficiente para desplegar el contenido */
-            transition: max-height 0.6s ease-in;
-            padding: 1.5rem 0;
-            border: 1px solid #e2e8f0;
-            border-top: none;
-            padding-left: 1rem;
-            padding-right: 1rem;
-            margin-bottom: 1rem;
+            max-height: 2500px; transition: max-height 0.6s ease-in;
+            padding: 1.5rem 1rem; border: 1px solid #e2e8f0; border-top: none; margin-bottom: 1rem;
         }
 
         .badge-optica { display: inline-flex; align-items: center; gap: 6px; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
@@ -79,8 +49,6 @@
         .badge-ravali { color: #a80f14; background: #fff0f0; }
         .badge-marcel { color: #880e4f; background: #fff0f5; }
         .pass-badge { background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 1rem; color: #d32f2f; font-weight: bold; }
-        
-        @media print { body { background: #ffffff !important; color: #000000 !important; } header, footer, .hero, .login-admin-container, button, a, .btn-acordeon { display: none !important; } .admin-container { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; } .contenido-desplegable { max-height: none !important; display: block !important; } }
     </style>
 </head>
 <body>
@@ -109,12 +77,10 @@
         <p style="color: #555; margin-top: 5px; position: relative; z-index: 2;">Supervisión conectada a la Nube.</p>
     </section>
 
-    <!-- PANEL DE LOGIN SEGURO -->
+    <!-- LOGIN ADMIN -->
     <main id="panelLoginAdmin" class="login-admin-container">
         <form id="formLoginAdmin" onsubmit="iniciarSesionAdmin(event)">
             <h3 style="color: #002b55; margin-bottom: 1rem; text-align: center;">🛡️ Acceso Administrativo Restringido</h3>
-            <p style="text-align: center; color: #666; font-size: 0.85rem; margin-bottom: 1.5rem;">Área exclusiva para personal autorizado.</p>
-            
             <div class="form-group">
                 <label>Usuario Administrador:</label>
                 <input type="text" id="loginUsuarioAdmin" placeholder="Ej. ADMIN-MASTER" required>
@@ -129,7 +95,7 @@
         </form>
     </main>
 
-    <!-- PANEL DE CONTROL PROTEGIDO -->
+    <!-- PANEL PROTEGIDO -->
     <main id="panelProtegidoAdmin" class="admin-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
             <div>
@@ -157,27 +123,7 @@
             </div>
         </div>
 
-        <!-- Desglose por Sucursal -->
-        <h4 style="color: #002b55; margin-bottom: 1rem; margin-top: 1rem;">🏢 Desglose por Sucursal</h4>
-        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-            <div class="card-resumen" style="border-left-color: #0059b3; background-color: #eef6ff; background-image: linear-gradient(rgba(238, 246, 255, 0.92), rgba(238, 246, 255, 0.92)), url('dvilla.jpg'); background-size: cover; background-position: center; padding: 1rem; position: relative;">
-                <h4 style="color: #0059b3; font-size: 0.85rem; position: relative; z-index: 2;">Óptica D'villa</h4>
-                <p class="valor" id="totalDvilla" style="font-size: 1.4rem; color: #002b55; position: relative; z-index: 2;">0 vales</p>
-                <p style="margin: 0; color: #555; font-size: 0.9rem; position: relative; z-index: 2;">Monto: <strong id="montoDvilla">$0.00</strong></p>
-            </div>
-            <div class="card-resumen" style="border-left-color: #a80f14; background-color: #fff0f0; background-image: linear-gradient(rgba(255, 240, 240, 0.92), rgba(255, 240, 240, 0.92)), url('ravali.jpg'); background-size: cover; background-position: center; padding: 1rem; position: relative;">
-                <h4 style="color: #a80f14; font-size: 0.85rem; position: relative; z-index: 2;">Óptica Ravali</h4>
-                <p class="valor" id="totalRavali" style="font-size: 1.4rem; color: #002b55; position: relative; z-index: 2;">0 vales</p>
-                <p style="margin: 0; color: #555; font-size: 0.9rem; position: relative; z-index: 2;">Monto: <strong id="montoRavali">$0.00</strong></p>
-            </div>
-            <div class="card-resumen" style="border-left-color: #880e4f; background-color: #fff0f5; background-image: linear-gradient(rgba(255, 240, 245, 0.92), rgba(255, 240, 245, 0.92)), url('marcel.png'); background-size: cover; background-position: center; padding: 1rem; position: relative;">
-                <h4 style="color: #880e4f; font-size: 0.85rem; position: relative; z-index: 2;">Marcel Boutique</h4>
-                <p class="valor" id="totalMarcel" style="font-size: 1.4rem; color: #002b55; position: relative; z-index: 2;">0 vales</p>
-                <p style="margin: 0; color: #555; font-size: 0.9rem; position: relative; z-index: 2;">Monto: <strong id="montoMarcel">$0.00</strong></p>
-            </div>
-        </div>
-
-        <!-- ================= MÓDULO 1: INVENTARIO ================= -->
+        <!-- MÓDULO 1: INVENTARIO -->
         <button class="btn-acordeon" onclick="toggleSeccion('seccionInventario')">
             <span>📦 Gestor Dinámico de Productos e Inventario</span>
             <span class="icono-flecha">▼</span>
@@ -187,162 +133,77 @@
                 <h4 style="color: #0059b3; margin-bottom: 1rem;">Agregar Nuevo Producto a la Tienda</h4>
                 <form id="formNuevoProducto" onsubmit="agregarNuevoProducto(event)">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
-                        <div class="form-group">
-                            <label>ID / Código Único:</label>
-                            <input type="text" id="nuevoId" placeholder="Ej. DV-001" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Empresa / Sucursal:</label>
-                            <select id="nuevaSucursal" required>
-                                <option value="Óptica D'villa">Óptica D'villa</option>
-                                <option value="Óptica Ravali">Óptica Ravali</option>
-                                <option value="Marcel Boutique">Marcel Boutique</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Nombre del Producto:</label>
-                            <input type="text" id="nuevoNombre" placeholder="Ej. Lentes Sol" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Stock Inicial:</label>
-                            <input type="number" id="nuevoStock" placeholder="Ej. 10" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Precio ($ MXN):</label>
-                            <input type="number" id="nuevoPrecio" placeholder="Ej. 1200" step="0.01" min="0" required>
-                        </div>
+                        <div class="form-group"><label>ID / Código:</label><input type="text" id="nuevoId" placeholder="Ej. DV-001" required></div>
+                        <div class="form-group"><label>Sucursal:</label><select id="nuevaSucursal" required><option value="Óptica D'villa">Óptica D'villa</option><option value="Óptica Ravali">Óptica Ravali</option><option value="Marcel Boutique">Marcel Boutique</option></select></div>
+                        <div class="form-group"><label>Nombre:</label><input type="text" id="nuevoNombre" placeholder="Lentes" required></div>
+                        <div class="form-group"><label>Stock:</label><input type="number" id="nuevoStock" min="0" required></div>
+                        <div class="form-group"><label>Precio ($):</label><input type="number" id="nuevoPrecio" step="0.01" min="0" required></div>
                         <div class="form-group" style="grid-column: 1 / -1; background: #f8f9fa; padding: 1rem; border: 1px dashed #0059b3; border-radius: 6px;">
-                            <label style="color: #0059b3;">📸 Imagen del Producto (Seleccionar archivo):</label>
-                            <input type="file" id="nuevoImagenFile" accept="image/*" required style="background: #fff; padding: 0.5rem; cursor: pointer; width: 100%;">
+                            <label style="color: #0059b3;">📸 Imagen:</label><input type="file" id="nuevoImagenFile" accept="image/*" required style="width: 100%;">
                         </div>
                     </div>
-                    <button type="submit" id="btnGuardarProd" style="width: 100%; background-color: #0059b3; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
-                        ➕ Dar de Alta Producto en la Nube
-                    </button>
+                    <button type="submit" id="btnGuardarProd" style="width: 100%; background-color: #0059b3; color: white; padding: 0.8rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 1rem;">➕ Guardar Producto</button>
                 </form>
             </div>
-
             <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
-                <h4 style="margin-top: 0; color: #555; text-transform: uppercase; font-size: 0.9rem;">Catálogo e Inventario Actual en la Nube</h4>
-                <table class="tabla-admin" style="margin-top: 0;">
-                    <thead style="background-color: #0059b3;">
-                        <tr>
-                            <th style="background-color: #0059b3;">Imagen</th>
-                            <th style="background-color: #0059b3;">ID</th>
-                            <th style="background-color: #0059b3;">Sucursal</th>
-                            <th style="background-color: #0059b3;">Producto</th>
-                            <th style="background-color: #0059b3;">Precio</th>
-                            <th style="background-color: #0059b3;">Stock Actual</th>
-                            <th style="background-color: #0059b3; text-align: center;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoTablaInventarioAdmin">
-                        <tr><td colspan="7" style="text-align:center; color:#888;">Cargando inventario...</td></tr>
-                    </tbody>
+                <table class="tabla-admin">
+                    <thead><tr><th>Imagen</th><th>ID</th><th>Sucursal</th><th>Producto</th><th>Precio</th><th>Stock</th><th style="text-align: center;">Acciones</th></tr></thead>
+                    <tbody id="cuerpoTablaInventarioAdmin"><tr><td colspan="7" style="text-align:center;">Cargando...</td></tr></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ================= MÓDULO 2: PROMOTORAS ================= -->
+        <!-- MÓDULO 2: PROMOTORAS -->
         <button class="btn-acordeon" onclick="toggleSeccion('seccionPromotoras')">
             <span>👥 Gestor de Cuentas de Promotoras</span>
             <span class="icono-flecha">▼</span>
         </button>
         <div id="seccionPromotoras" class="contenido-desplegable">
             <div class="card-resumen" style="border-left-color: #d32f2f; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h4 style="color: #d32f2f; margin-bottom: 1rem;">Dar de Alta Nueva Promotora</h4>
+                <h4 style="color: #d32f2f; margin-bottom: 1rem;">Dar de Alta Promotora</h4>
                 <form id="formNuevaPromotora" onsubmit="darDeAltaPromotora(event)">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        <div class="form-group">
-                            <label>ID / Número de Promotora:</label>
-                            <input type="text" id="regIdPromotora" placeholder="Ej. P-4505" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Contraseña Asignada:</label>
-                            <input type="text" id="regPassPromotora" placeholder="Contraseña segura" required>
-                        </div>
+                        <div class="form-group"><label>ID Promotora:</label><input type="text" id="regIdPromotora" placeholder="Ej. P-4505" required></div>
+                        <div class="form-group"><label>Contraseña:</label><input type="text" id="regPassPromotora" placeholder="Contraseña" required></div>
                     </div>
-                    <button type="submit" id="btnRegPromotora" style="width: 100%; background-color: #d32f2f; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
-                        ✨ Crear Cuenta de Promotora en la Nube
-                    </button>
+                    <button type="submit" id="btnRegPromotora" style="width: 100%; background-color: #d32f2f; color: white; padding: 0.8rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 1rem;">✨ Crear Cuenta</button>
                 </form>
             </div>
-
             <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
-                <h4 style="margin-top: 0; color: #555; text-transform: uppercase; font-size: 0.9rem;">Directorio y Control de Promotoras</h4>
-                <table class="tabla-admin" style="margin-top: 0;">
-                    <thead style="background-color: #d32f2f;">
-                        <tr>
-                            <th style="background-color: #d32f2f;">ID / Nombre Promotora</th>
-                            <th style="background-color: #d32f2f;">Contraseña</th>
-                            <th style="background-color: #d32f2f;">Estado de Cuenta</th>
-                            <th style="background-color: #d32f2f; text-align: center;">Acciones & Control</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoTablaPromotoras"></tbody>
+                <table class="tabla-admin">
+                    <thead><tr><th>ID Promotora</th><th>Contraseña</th><th>Estado</th><th style="text-align: center;">Acciones</th></tr></thead>
+                    <tbody id="cuerpoTablaPromotoras"><tr><td colspan="4" style="text-align:center;">Cargando...</td></tr></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ================= MÓDULO 3: PROMOCIONES ================= -->
+        <!-- MÓDULO 3: PROMOCIONES -->
         <button class="btn-acordeon" onclick="toggleSeccion('seccionPromos')">
-            <span>📢 Gestor de Promociones (Tienda Online)</span>
+            <span>📢 Gestor de Promociones</span>
             <span class="icono-flecha">▼</span>
         </button>
         <div id="seccionPromos" class="contenido-desplegable">
             <div class="card-resumen" style="border-left-color: #ff8c00; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h4 style="color: #ff8c00; margin-bottom: 1rem;">Crear Nueva Promoción</h4>
+                <h4 style="color: #ff8c00; margin-bottom: 1rem;">Crear Promoción</h4>
                 <form id="formPromo" onsubmit="guardarPromocion(event)">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        <div class="form-group">
-                            <label>Aplica en Sucursal:</label>
-                            <select id="promoSucursal" required>
-                                <option value="General">Todas (General)</option>
-                                <option value="Óptica D'villa">Óptica D'villa</option>
-                                <option value="Óptica Ravali">Óptica Ravali</option>
-                                <option value="Marcel Boutique">Marcel Boutique</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Título de la Promo:</label>
-                            <input type="text" id="promoTitulo" placeholder="Ej. ¡Buen Fin!" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Descripción / Condiciones:</label>
-                            <input type="text" id="promoDesc" placeholder="Ej. 20% de descuento" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Estado Inicial:</label>
-                            <select id="promoEstado" required>
-                                <option value="Activa">🟢 Activa (Visible)</option>
-                                <option value="Inactiva">🔴 Inactiva (Oculta)</option>
-                            </select>
-                        </div>
+                        <div class="form-group"><label>Sucursal:</label><select id="promoSucursal"><option value="General">Todas</option><option value="Óptica D'villa">Óptica D'villa</option><option value="Óptica Ravali">Óptica Ravali</option><option value="Marcel Boutique">Marcel Boutique</option></select></div>
+                        <div class="form-group"><label>Título:</label><input type="text" id="promoTitulo" required></div>
+                        <div class="form-group"><label>Descripción:</label><input type="text" id="promoDesc" required></div>
+                        <div class="form-group"><label>Estado:</label><select id="promoEstado"><option value="Activa">Activa</option><option value="Inactiva">Inactiva</option></select></div>
                     </div>
-                    <button type="submit" id="btnGuardarPromo" style="width: 100%; background-color: #ff8c00; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
-                        ➕ Agregar Promoción
-                    </button>
+                    <button type="submit" id="btnGuardarPromo" style="width: 100%; background-color: #ff8c00; color: white; padding: 0.8rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 1rem;">➕ Agregar</button>
                 </form>
             </div>
-
             <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
-                <h4 style="margin-top: 0; color: #555; text-transform: uppercase; font-size: 0.9rem;">Promociones Registradas</h4>
-                <table class="tabla-admin" style="margin-top: 0;">
-                    <thead style="background-color: #ff8c00;">
-                        <tr>
-                            <th style="background-color: #ff8c00;">ID</th>
-                            <th style="background-color: #ff8c00;">Sucursal</th>
-                            <th style="background-color: #ff8c00;">Título</th>
-                            <th style="background-color: #ff8c00;">Estado</th>
-                            <th style="background-color: #ff8c00; text-align: center;">Control / Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoTablaPromos"></tbody>
+                <table class="tabla-admin">
+                    <thead><tr><th>ID</th><th>Sucursal</th><th>Título</th><th>Estado</th><th style="text-align: center;">Acciones</th></tr></thead>
+                    <tbody id="cuerpoTablaPromos"><tr><td colspan="5" style="text-align:center;">Cargando...</td></tr></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ================= MÓDULO 4: VALES ================= -->
+        <!-- MÓDULO 4: VALES -->
         <button class="btn-acordeon" onclick="toggleSeccion('seccionVales')">
             <span>📋 Historial Global de Vales</span>
             <span class="icono-flecha">▼</span>
@@ -350,35 +211,30 @@
         <div id="seccionVales" class="contenido-desplegable">
             <div style="overflow-x: auto;">
                 <table class="tabla-admin">
-                    <thead><tr><th>Folio</th><th>Fecha</th><th>Promotora</th><th>Cliente</th><th>Monto</th><th>Plazo</th><th>Sucursal</th></tr></thead>
-                    <tbody id="cuerpoTablaAdmin"></tbody>
+                    <thead><tr><th>Folio</th><th>Fecha</th><th>Promotora</th><th>Cliente</th><th>Monto</th><th>Plazo</th><th>Sucursal</th><th>Pago</th><th>Canje</th></tr></thead>
+                    <tbody id="cuerpoTablaAdmin"><tr><td colspan="9" style="text-align:center;">Cargando...</td></tr></tbody>
                 </table>
             </div>
         </div>
 
-        <button onclick="window.print()" style="width: 100%; background-color: #002b55; color: white; border: none; padding: 1rem; font-weight: bold; border-radius: 6px; margin-top: 2.5rem; cursor: pointer; font-size: 1.1rem;">
-            🖨️ Exportar Reporte Global a PDF
-        </button>
+        <button onclick="window.print()" style="width: 100%; background-color: #002b55; color: white; border: none; padding: 1rem; font-weight: bold; border-radius: 6px; margin-top: 2.5rem; cursor: pointer; font-size: 1.1rem;">🖨️ Exportar Reporte Global a PDF</button>
     </main>
 
     <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT MAESTRA DEL PANEL ADMIN -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycby9kbQrvUOqMEBQ-Aut2VbcMOXfc48AxdVUXHS-MjsJtwxcw90rnq6irSkIaG9zwlP3iw/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzlabxub8xOhUM9gevHDcedz1ni7MAkxRlk-KMoSGyf_tzZQaRvr8-lIjsgQL0-G7lhoA/exec";
 
         window.onload = function() {
             const adminActivo = localStorage.getItem('mvr_admin_activo');
             if (adminActivo) activarPanelAdmin(adminActivo);
         };
 
-        // --- FUNCIÓN DE ANIMACIÓN PARA DESPLEGAR MENÚS ---
         function toggleSeccion(idSeccion) {
             const seccion = document.getElementById(idSeccion);
             const boton = seccion.previousElementSibling;
-            
             seccion.classList.toggle('abierto');
             boton.classList.toggle('activo');
         }
@@ -428,16 +284,10 @@
             document.getElementById('formLoginAdmin').reset();
         }
 
-        // --- MÓDULO DE ALTA Y CONTROL DE PROMOTORAS ---
         async function darDeAltaPromotora(event) {
             event.preventDefault();
-            const btn = document.getElementById('btnRegPromotora');
-            btn.innerText = "Guardando en la Nube...";
-            btn.disabled = true;
-
             const idPromo = document.getElementById('regIdPromotora').value.trim().toUpperCase();
             const passPromo = document.getElementById('regPassPromotora').value.trim();
-
             try {
                 await fetch(API_URL, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -446,11 +296,7 @@
                 alert(`✅ ¡Promotora "${idPromo}" registrada con éxito!`);
                 document.getElementById('formNuevaPromotora').reset();
                 cargarTodoDesdeLaNube();
-            } catch (error) {
-                alert("Error al registrar la promotora.");
-            }
-            btn.innerText = "✨ Crear Cuenta de Promotora en la Nube";
-            btn.disabled = false;
+            } catch (e) { alert("Error al registrar promotora."); }
         }
 
         async function cambiarEstadoPromotora(nombrePromotora, estadoActual) {
@@ -460,53 +306,37 @@
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ accion: "cambiarEstadoPromotora", promotora: nombrePromotora, estado: nuevoEstado })
                 });
-                alert(`Estado actualizado para ${nombrePromotora}`);
                 cargarTodoDesdeLaNube();
-            } catch (e) {
-                alert("Error al actualizar el estado.");
-            }
+            } catch (e) {}
         }
 
         async function eliminarPromotora(nombrePromotora) {
-            if (!confirm(`¿Estás seguro de eliminar a la promotora "${nombrePromotora}"?`)) return;
+            if (!confirm(`¿Eliminar promotora "${nombrePromotora}"?`)) return;
             try {
                 await fetch(API_URL, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ accion: "eliminarPromotora", promotora: nombrePromotora })
                 });
-                alert("🗑️ Promotora eliminada.");
                 cargarTodoDesdeLaNube();
-            } catch (e) {
-                alert("Error al eliminar.");
-            }
+            } catch (e) {}
         }
 
-        // --- MÓDULO DE PROMOCIONES ---
         async function guardarPromocion(event) {
             event.preventDefault();
-            const btn = document.getElementById('btnGuardarPromo');
-            btn.innerText = "Subiendo...";
-            btn.disabled = true;
-
             const sucursal = document.getElementById('promoSucursal').value;
             const titulo = document.getElementById('promoTitulo').value.trim();
             const desc = document.getElementById('promoDesc').value.trim();
             const estado = document.getElementById('promoEstado').value; 
             const idPromo = "PROM-" + Math.floor(100 + Math.random() * 900); 
-
             try {
                 await fetch(API_URL, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ accion: "guardarPromocion", promocion: { id: idPromo, sucursal: sucursal, titulo: titulo, descripcion: desc, estado: estado } })
                 });
-                alert("✅ Promoción guardada con éxito.");
+                alert("✅ Promoción guardada.");
                 document.getElementById('formPromo').reset();
                 cargarTodoDesdeLaNube(); 
-            } catch (error) {
-                alert("Error al guardar.");
-            }
-            btn.innerText = "➕ Agregar Promoción";
-            btn.disabled = false;
+            } catch (e) {}
         }
 
         async function cambiarEstadoPromo(idPromo, estadoActual) {
@@ -531,13 +361,8 @@
             } catch (e) {}
         }
 
-        // --- INVENTARIO Y PRODUCTOS ---
         async function agregarNuevoProducto(event) {
             event.preventDefault();
-            const btn = document.getElementById('btnGuardarProd');
-            btn.innerText = "Procesando...";
-            btn.disabled = true;
-
             const id = document.getElementById('nuevoId').value.trim().toUpperCase();
             const sucursal = document.getElementById('nuevaSucursal').value;
             const nombre = document.getElementById('nuevoNombre').value.trim();
@@ -545,37 +370,25 @@
             const precio = parseFloat(document.getElementById('nuevoPrecio').value) || 0;
             const inputFile = document.getElementById('nuevoImagenFile').files[0];
 
-            if (!inputFile) {
-                alert("Selecciona una imagen.");
-                btn.innerText = "➕ Dar de Alta Producto en la Nube";
-                btn.disabled = false;
-                return;
-            }
+            if (!inputFile) { alert("Selecciona una imagen."); return; }
 
             const reader = new FileReader();
             reader.onload = async function(uploadEvent) {
-                const base64Image = uploadEvent.target.result;
                 try {
                     await fetch(API_URL, {
                         method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ accion: "actualizarStock", inventario: { id: id, sucursal: sucursal, nombre: nombre, stock: stock, precio: precio, imagen: base64Image } })
+                        body: JSON.stringify({ accion: "actualizarStock", inventario: { id: id, sucursal: sucursal, nombre: nombre, stock: stock, precio: precio, imagen: uploadEvent.target.result } })
                     });
-                    alert("✅ ¡Producto registrado con éxito!");
+                    alert("✅ ¡Producto registrado!");
                     document.getElementById('formNuevoProducto').reset();
                     cargarTodoDesdeLaNube();
-                } catch (error) {
-                    alert("Error al registrar producto.");
-                }
-                btn.innerText = "➕ Dar de Alta Producto en la Nube";
-                btn.disabled = false;
+                } catch (e) {}
             };
             reader.readAsDataURL(inputFile);
         }
 
         async function guardarStockIndividual(id, sucursal, nombre, precio, imagenActual) {
-            const inputStock = document.getElementById(`stock-${id}`);
-            const nuevoStock = parseInt(inputStock.value) || 0;
-
+            const nuevoStock = parseInt(document.getElementById(`stock-${id}`).value) || 0;
             try {
                 await fetch(API_URL, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -583,7 +396,7 @@
                 });
                 alert(`✅ Stock actualizado para ${nombre}`);
                 cargarTodoDesdeLaNube();
-            } catch (error) {}
+            } catch (e) {}
         }
 
         async function eliminarProductoInventario(id, nombre) {
@@ -594,10 +407,10 @@
                     body: JSON.stringify({ accion: "eliminarStock", id: id })
                 });
                 cargarTodoDesdeLaNube();
-            } catch (error) {}
+            } catch (e) {}
         }
 
-        // --- SINCRONIZACIÓN GENERAL CON LA NUBE ---
+        // --- SINCRONIZACIÓN MAESTRA DE DATOS ---
         async function cargarTodoDesdeLaNube() {
             const btn = document.getElementById('btnActualizarDatos');
             if (btn) btn.innerText = "Sincronizando con Google Sheets...";
@@ -607,148 +420,115 @@
                 let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
                 let inventarioRemoto = await resInv.json();
                 const cuerpoInv = document.getElementById('cuerpoTablaInventarioAdmin');
-                if (cuerpoInv) {
-                    cuerpoInv.innerHTML = "";
-                    let ids = Object.keys(inventarioRemoto);
-                    if (ids.length === 0) {
-                        cuerpoInv.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No hay productos registrados.</td></tr>`;
-                    } else {
-                        ids.forEach(id => {
-                            let prod = inventarioRemoto[id];
-                            let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(prod.precio || 0);
-                            let imgSrc = prod.imagen ? prod.imagen : 'mvr.jpg';
-
-                            cuerpoInv.innerHTML += `
-                                <tr>
-                                    <td><img src="${imgSrc}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;" onerror="this.src='mvr.jpg';"></td>
-                                    <td><strong>${id}</strong></td>
-                                    <td>${prod.sucursal}</td>
-                                    <td>${prod.nombre}</td>
-                                    <td>${precioFmt}</td>
-                                    <td><input type="number" id="stock-${id}" value="${prod.stock}" min="0" style="width: 70px; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #ccc; border-radius: 4px;"></td>
-                                    <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
-                                        <button onclick="guardarStockIndividual('${id}', '${prod.sucursal}', '${String(prod.nombre).replace(/'/g, "")}', ${prod.precio}, '${prod.imagen || ''}')" style="background-color: #28a745; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">💾 Guardar</button>
-                                        <button onclick="eliminarProductoInventario('${id}', '${prod.nombre}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🗑️ Eliminar</button>
-                                    </td>
-                                </tr>`;
-                        });
-                    }
+                cuerpoInv.innerHTML = "";
+                let ids = Object.keys(inventarioRemoto);
+                if (ids.length === 0) {
+                    cuerpoInv.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No hay productos registrados.</td></tr>`;
+                } else {
+                    ids.forEach(id => {
+                        let prod = inventarioRemoto[id];
+                        let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(prod.precio || 0);
+                        let imgSrc = prod.imagen ? prod.imagen : 'mvr.jpg';
+                        cuerpoInv.innerHTML += `
+                            <tr>
+                                <td><img src="${imgSrc}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;" onerror="this.src='mvr.jpg';"></td>
+                                <td><strong>${id}</strong></td><td>${prod.sucursal}</td><td>${prod.nombre}</td><td>${precioFmt}</td>
+                                <td><input type="number" id="stock-${id}" value="${prod.stock}" min="0" style="width: 70px; text-align: center; font-weight: bold;"></td>
+                                <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
+                                    <button onclick="guardarStockIndividual('${id}', '${prod.sucursal}', '${String(prod.nombre).replace(/'/g, "")}', ${prod.precio}, '${prod.imagen || ''}')" style="background-color: #28a745; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 Guardar</button>
+                                    <button onclick="eliminarProductoInventario('${id}', '${prod.nombre}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
+                                </td>
+                            </tr>`;
+                    });
                 }
 
                 // 2. PROMOTORAS
                 let resProm = await fetch(`${API_URL}?accion=obtenerPromotoras&nocache=${new Date().getTime()}`);
                 let credencialesPromotoras = await resProm.json();
-                const cuerpoTablaPromotoras = document.getElementById('cuerpoTablaPromotoras');
-                if (cuerpoTablaPromotoras) {
-                    cuerpoTablaPromotoras.innerHTML = "";
-                    let listaPromotoras = Object.keys(credencialesPromotoras);
-                    if (listaPromotoras.length === 0) {
-                        cuerpoTablaPromotoras.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No hay promotoras registradas.</td></tr>`;
-                    } else {
-                        listaPromotoras.forEach(promotora => {
-                            const datosProm = credencialesPromotoras[promotora];
-                            const password = typeof datosProm === 'object' ? datosProm.password : datosProm;
-                            const estado = typeof datosProm === 'object' ? datosProm.estado : "Activa";
+                const cuerpoProm = document.getElementById('cuerpoTablaPromotoras');
+                cuerpoProm.innerHTML = "";
+                let listaProm = Object.keys(credencialesPromotoras);
+                if (listaProm.length === 0) {
+                    cuerpoProm.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No hay promotoras.</td></tr>`;
+                } else {
+                    listaProm.forEach(prom => {
+                        let datosP = credencialesPromotoras[prom];
+                        let pass = typeof datosP === 'object' ? datosP.password : datosP;
+                        let estado = typeof datosP === 'object' ? datosP.estado : "Activa";
+                        let colorEstado = estado === "Bloqueada" ? "#d32f2f" : "#28a745";
+                        let textoBoton = estado === "Bloqueada" ? "🟢 Desbloquear" : "🔴 Bloquear";
 
-                            const colorEstadoBadge = estado === "Bloqueada" ? "#d32f2f" : "#28a745";
-                            const textoBotonBloqueo = estado === "Bloqueada" ? "🟢 Desbloquear" : "🔴 Bloquear";
-                            const colorBotonBloqueo = estado === "Bloqueada" ? "#28a745" : "#ff8c00";
-                            const mensajeWsp = encodeURIComponent(`Hola ${promotora}, te contactamos de administración de Grupo MVR. Tu contraseña de acceso es: *${password}*`);
-                            
-                            cuerpoTablaPromotoras.innerHTML += `
-                                <tr>
-                                    <td><strong>${promotora}</strong></td>
-                                    <td><span class="pass-badge">${password}</span></td>
-                                    <td><span style="background-color: ${colorEstadoBadge}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${estado}</span></td>
-                                    <td style="text-align: center; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
-                                        <a href="https://wa.me/?text=${mensajeWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.4rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.75rem; font-weight: bold;">💬 WhatsApp</a>
-                                        <button onclick="cambiarEstadoPromotora('${promotora}', '${estado}')" style="background-color: ${colorBotonBloqueo}; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75rem;">${textoBotonBloqueo}</button>
-                                        <button onclick="eliminarPromotora('${promotora}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75rem;">🗑️ Eliminar</button>
-                                    </td>
-                                </tr>`;
-                        });
-                    }
+                        cuerpoProm.innerHTML += `
+                            <tr>
+                                <td><strong>${prom}</strong></td><td><span class="pass-badge">${pass}</span></td>
+                                <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold;">${estado}</span></td>
+                                <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
+                                    <button onclick="cambiarEstadoPromotora('${prom}', '${estado}')" style="background-color: #ff8c00; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">${textoBoton}</button>
+                                    <button onclick="eliminarPromotora('${prom}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
+                                </td>
+                            </tr>`;
+                    });
                 }
 
                 // 3. PROMOCIONES
                 let resPromos = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
                 let promosGuardadas = await resPromos.json();
                 const cuerpoPromos = document.getElementById('cuerpoTablaPromos');
-                if (cuerpoPromos) {
-                    cuerpoPromos.innerHTML = "";
-                    if (promosGuardadas.length === 0) {
-                        cuerpoPromos.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No hay promociones.</td></tr>`;
-                    } else {
-                        promosGuardadas.slice().reverse().forEach(p => {
-                            let colorEstado = p.estado === 'Activa' ? '#28a745' : '#d32f2f';
-                            let textoBotonEstado = p.estado === 'Activa' ? '🔴 Desactivar' : '🟢 Activar';
-                            let colorBotonEstado = p.estado === 'Activa' ? '#ff8c00' : '#28a745';
-
-                            cuerpoPromos.innerHTML += `
-                                <tr>
-                                    <td><strong>${p.id}</strong></td>
-                                    <td>${p.sucursal}</td>
-                                    <td>${p.titulo}</td>
-                                    <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${p.estado}</span></td>
-                                    <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
-                                        <button onclick="cambiarEstadoPromo('${p.id}', '${p.estado}')" style="background-color: ${colorBotonEstado}; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">${textoBotonEstado}</button>
-                                        <button onclick="eliminarPromocion('${p.id}', '${String(p.titulo).replace(/'/g, "")}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🗑️ Eliminar</button>
-                                    </td>
-                                </tr>`;
-                        });
-                    }
+                cuerpoPromos.innerHTML = "";
+                if (promosGuardadas.length === 0) {
+                    cuerpoPromos.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No hay promociones.</td></tr>`;
+                } else {
+                    promosGuardadas.slice().reverse().forEach(p => {
+                        let colorEstado = p.estado === 'Activa' ? '#28a745' : '#d32f2f';
+                        let textoBoton = p.estado === 'Activa' ? '🔴 Desactivar' : '🟢 Activar';
+                        cuerpoPromos.innerHTML += `
+                            <tr>
+                                <td><strong>${p.id}</strong></td><td>${p.sucursal}</td><td>${p.titulo}</td>
+                                <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold;">${p.estado}</span></td>
+                                <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
+                                    <button onclick="cambiarEstadoPromo('${p.id}', '${p.estado}')" style="background-color: #ff8c00; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">${textoBoton}</button>
+                                    <button onclick="eliminarPromocion('${p.id}', '${String(p.titulo).replace(/'/g, "")}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
+                                </td>
+                            </tr>`;
+                    });
                 }
 
                 // 4. VALES Y MÉTRICAS
                 let resVales = await fetch(`${API_URL}?accion=obtenerVales&nocache=${new Date().getTime()}`);
                 let valesGuardados = await resVales.json();
-                const cuerpoTabla = document.getElementById('cuerpoTablaAdmin');
-                if (cuerpoTabla) {
-                    cuerpoTabla.innerHTML = "";
-                    let totalVales = 0, montoTotalCalculado = 0;
-                    let contDvilla = 0, montoDvilla = 0;
-                    let contRavali = 0, montoRavali = 0;
-                    let contMarcel = 0, montoMarcel = 0;
+                const cuerpoVales = document.getElementById('cuerpoTablaAdmin');
+                cuerpoVales.innerHTML = "";
+                let totalVales = 0, montoTotal = 0;
 
-                    if (valesGuardados.length === 0) {
-                        cuerpoTabla.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No hay vales registrados.</td></tr>`;
-                    } else {
-                        valesGuardados.slice().reverse().forEach(v => {
-                            let valorMonto = parseFloat(v.monto) || 0;
-                            totalVales++;
-                            montoTotalCalculado += valorMonto;
+                if (valesGuardados.length === 0) {
+                    cuerpoVales.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#888;">No hay vales registrados.</td></tr>`;
+                } else {
+                    valesGuardados.slice().reverse().forEach(v => {
+                        let monto = parseFloat(v.monto) || 0;
+                        totalVales++;
+                        montoTotal += monto;
 
-                            if (v.sucursal === "Óptica Ravali") { contRavali++; montoRavali += valorMonto; }
-                            else if (v.sucursal === "Marcel Boutique") { contMarcel++; montoMarcel += valorMonto; }
-                            else { contDvilla++; montoDvilla += valorMonto; }
+                        let claseBadge = v.sucursal === "Óptica Ravali" ? "badge-ravali" : (v.sucursal === "Marcel Boutique" ? "badge-marcel" : "badge-dvilla");
+                        let montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(monto);
+                        let pagoColor = v.estatusPago === "Vencido" ? "#d32f2f" : "#28a745";
+                        let canjeColor = v.estatusCanje === "Canjeado" ? "#0059b3" : "#888";
 
-                            const esRavali = v.sucursal === "Óptica Ravali";
-                            const esMarcel = v.sucursal === "Marcel Boutique";
-                            const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
-                            const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(valorMonto);
-
-                            cuerpoTabla.innerHTML += `
-                                <tr>
-                                    <td><strong>${v.folio}</strong></td><td>${v.fecha}</td><td>${v.promotora}</td>
-                                    <td>${v.cliente}</td><td style="font-weight: bold; color: #28a745;">${montoF}</td>
-                                    <td>${v.quincenas}</td><td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
-                                </tr>`;
-                        });
-                    }
-
-                    const formatear = (m) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(m);
-                    document.getElementById('resumenTotalVales').innerText = totalVales;
-                    document.getElementById('resumenMontoTotal').innerText = formatear(montoTotalCalculado);
-                    document.getElementById('totalDvilla').innerText = `${contDvilla} vales`;
-                    document.getElementById('montoDvilla').innerText = formatear(montoDvilla);
-                    document.getElementById('totalRavali').innerText = `${contRavali} vales`;
-                    document.getElementById('montoRavali').innerText = formatear(montoRavali);
-                    document.getElementById('totalMarcel').innerText = `${contMarcel} vales`;
-                    document.getElementById('montoMarcel').innerText = formatear(montoMarcel);
+                        cuerpoVales.innerHTML += `
+                            <tr>
+                                <td><strong>${v.folio}</strong></td><td>${v.fecha}</td><td>${v.promotora}</td><td>${v.cliente}</td>
+                                <td style="font-weight: bold; color: #28a745;">${montoF}</td><td>${v.quincenas}</td>
+                                <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
+                                <td><strong style="color: ${pagoColor};">${v.estatusPago}</strong></td>
+                                <td><strong style="color: ${canjeColor};">${v.estatusCanje}</strong></td>
+                            </tr>`;
+                    });
                 }
 
+                document.getElementById('resumenTotalVales').innerText = totalVales;
+                document.getElementById('resumenMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoTotal);
+
             } catch (error) {
-                console.error("Error sincronizando con la nube", error);
+                console.error("Error cargando datos de la nube:", error);
             }
             if (btn) btn.innerText = "🔄 Sincronizar Todo con la Nube";
         }
