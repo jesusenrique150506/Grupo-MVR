@@ -202,7 +202,7 @@
             btn.innerText = "✨ Registrar Administrador";
         }
 
-        async function iniciarSesionAdmin(event) {
+       async function iniciarSesionAdmin(event) {
             event.preventDefault();
             const usuario = document.getElementById('loginUsuarioAdmin').value.trim().toUpperCase();
             const pass = document.getElementById('loginPassAdmin').value.trim();
@@ -212,16 +212,23 @@
 
             try {
                 let res = await fetch(`${API_URL}?accion=obtenerAdmins`);
-                let admins = await res.json();
-
-                if (admins[usuario] && admins[usuario] === pass) {
-                    localStorage.setItem('mvr_admin_activo', usuario);
-                    activarPanelAdmin(usuario);
-                } else {
-                    alert("Credenciales incorrectas o usuario no registrado.");
+                let textoRespuesta = await res.text(); // Leemos qué nos está respondiendo Google realmente
+                
+                try {
+                    let admins = JSON.parse(textoRespuesta); // Intentamos procesarlo
+                    if (admins[usuario] && admins[usuario] === pass) {
+                        localStorage.setItem('mvr_admin_activo', usuario);
+                        activarPanelAdmin(usuario);
+                    } else {
+                        alert("Credenciales incorrectas o usuario no registrado.");
+                    }
+                } catch(e) {
+                    // Si falla, mostramos el error oculto de Google
+                    alert("⚠️ ERROR INTERNO DE GOOGLE SHEETS:\n\n" + textoRespuesta.substring(0, 200) + "\n\nRevisa el nombre de la pestaña Administradores en tu Excel.");
                 }
             } catch (error) {
-                alert("Error de conexión. Intenta de nuevo.");
+                // Si la URL está mal o bloqueada por el navegador
+                alert("⚠️ ERROR DE RED O URL:\n\n" + error.message);
             }
             btn.innerText = "🔓 Ingresar al Sistema";
         }
