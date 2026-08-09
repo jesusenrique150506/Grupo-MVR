@@ -140,7 +140,7 @@
         <nav class="main-nav">
             <ul>
                 <li><a href="index.html">Inicio</a></li>
-                <li><a href="D´villa.html">Óptica D'villa</a></li>
+                <li><a href="D´villa.html" class="active">Óptica D'villa</a></li>
                 <li><a href="Ravali.html">Óptica Ravali</a></li>
                 <li><a href="Marcel.html">Marcel Boutique</a></li>
                 <li><a href="Promotoras.html">Promotoras / Vales</a></li>
@@ -165,8 +165,8 @@
     <main>
         <section class="grid-productos">
             
-            <!-- PRODUCTO 1 -->
-            <div class="card-producto">
+            <!-- PRODUCTO 1 (Con data-id para inventario) -->
+            <div class="card-producto" data-id="DVILLA-01">
                 <div>
                     <img src="imagenes/dvilla/lente1.jpg" alt="Armazón Ejecutivo D'villa">
                     <h3>Armazón Ejecutivo D'villa</h3>
@@ -176,13 +176,13 @@
                     <div class="precio">$1,850.00 MXN</div>
                     <div class="botones-card">
                         <button class="btn-secundario" onclick="abrirModalPagos('Armazón Ejecutivo D\'villa', 1850)">💳 Ver Quincenas y Promos</button>
-                        <a href="Promotoras.html" class="btn" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
+                        <a href="Promotoras.html" class="btn btn-comprar" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
                     </div>
                 </div>
             </div>
 
-            <!-- PRODUCTO 2 -->
-            <div class="card-producto">
+            <!-- PRODUCTO 2 (Con data-id para inventario) -->
+            <div class="card-producto" data-id="DVILLA-02">
                 <div>
                     <img src="imagenes/dvilla/lente2.jpg" alt="Lente con Filtro Blue Ray">
                     <h3>Lente con Filtro Blue Ray</h3>
@@ -192,13 +192,13 @@
                     <div class="precio">$1,350.00 MXN</div>
                     <div class="botones-card">
                         <button class="btn-secundario" onclick="abrirModalPagos('Lente con Filtro Blue Ray', 1350)">💳 Ver Quincenas y Promos</button>
-                        <a href="Promotoras.html" class="btn" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
+                        <a href="Promotoras.html" class="btn btn-comprar" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
                     </div>
                 </div>
             </div>
 
-            <!-- PRODUCTO 3 -->
-            <div class="card-producto">
+            <!-- PRODUCTO 3 (Con data-id para inventario) -->
+            <div class="card-producto" data-id="DVILLA-03">
                 <div>
                     <img src="imagenes/dvilla/lente3.jpg" alt="Lente Bifocal Clásico">
                     <h3>Lente Bifocal Clásico</h3>
@@ -208,13 +208,13 @@
                     <div class="precio">$2,100.00 MXN</div>
                     <div class="botones-card">
                         <button class="btn-secundario" onclick="abrirModalPagos('Lente Bifocal Clásico', 2100)">💳 Ver Quincenas y Promos</button>
-                        <a href="Promotoras.html" class="btn" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
+                        <a href="Promotoras.html" class="btn btn-comprar" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
                     </div>
                 </div>
             </div>
 
-            <!-- PRODUCTO 4 -->
-            <div class="card-producto">
+            <!-- PRODUCTO 4 (Con data-id para inventario) -->
+            <div class="card-producto" data-id="DVILLA-04">
                 <div>
                     <img src="imagenes/dvilla/lente2.jpg" alt="Lente graduado">
                     <h3>Lente con Filtro Blue Ray</h3>
@@ -224,7 +224,7 @@
                     <div class="precio">$2,350.00 MXN</div>
                     <div class="botones-card">
                         <button class="btn-secundario" onclick="abrirModalPagos('Lente con Filtro Blue Ray', 2350)">💳 Ver Quincenas y Promos</button>
-                        <a href="Promotoras.html" class="btn" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
+                        <a href="Promotoras.html" class="btn btn-comprar" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
                     </div>
                 </div>
             </div>
@@ -268,40 +268,69 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Óptica D'villa (Grupo MVR). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT PARA MODAL, PAGOS Y PROMOCIONES DESDE LA NUBE -->
+    <!-- LÓGICA JAVASCRIPT: PROMOCIONES E INVENTARIO EN TIEMPO REAL -->
     <script>
-        
-        const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbw0kITw7UtMvCE8MKBlgvVK12cmTtKdnzfpg-zf-SR1M6flwZja1ZMRbKiY6kmc2cBrWA/exec";
 
-        // Cargar promociones dinámicas desde Google Sheets al abrir la página
         window.addEventListener('DOMContentLoaded', async () => {
+            // 1. CARGAR PROMOCIONES DINÁMICAS (Filtro Flexible)
             const contenedor = document.getElementById('contenedorPromosCliente');
-            if (!contenedor) return;
+            if (contenedor) {
+                try {
+                    let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
+                    let promos = await res.json();
 
-            try {
-                let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
-                let promos = await res.json();
-
-                // Filtramos solo las Activas que sean para Óptica D'villa o Generales
-                let promosActivas = promos.filter(p => 
-                    p.estado === "Activa" && 
-                    (p.sucursal === "Óptica D'villa" || p.sucursal === "General")
-                );
-
-                if (promosActivas.length > 0) {
-                    let htmlPromos = "";
-                    promosActivas.forEach(p => {
-                        htmlPromos += `
-                            <div style="background: linear-gradient(135deg, #002b55, #0059b3); color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); text-align: center;">
-                                <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">¡Promoción Especial!</span>
-                                <h3 style="margin: 8px 0 5px 0; font-size: 1.3rem; color: #ffffff;">${p.titulo}</h3>
-                                <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
-                            </div>`;
+                    let promosActivas = promos.filter(p => {
+                        if (p.estado !== "Activa") return false;
+                        let suc = String(p.sucursal).trim().toLowerCase();
+                        return suc.includes("d'villa") || suc.includes("dvilla") || suc.includes("general") || suc.includes("todas");
                     });
-                    contenedor.innerHTML = htmlPromos;
+
+                    if (promosActivas.length > 0) {
+                        let htmlPromos = "";
+                        promosActivas.forEach(p => {
+                            htmlPromos += `
+                                <div style="background: linear-gradient(135deg, #002b55, #0059b3); color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); text-align: center;">
+                                    <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">¡Promoción Especial!</span>
+                                    <h3 style="margin: 8px 0 5px 0; font-size: 1.3rem; color: #ffffff;">${p.titulo}</h3>
+                                    <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
+                                </div>`;
+                        });
+                        contenedor.innerHTML = htmlPromos;
+                    }
+                } catch (error) {
+                    console.error("Error al cargar promociones para el cliente", error);
                 }
+            }
+
+            // 2. VERIFICAR INVENTARIO Y STOCK EN TIEMPO REAL
+            try {
+                let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
+                let inventario = await resInv.json();
+
+                document.querySelectorAll('.card-producto').forEach(card => {
+                    let idProd = card.getAttribute('data-id');
+                    if (idProd && inventario[idProd]) {
+                        let stock = parseInt(inventario[idProd].stock);
+
+                        if (stock <= 0) {
+                            card.style.opacity = "0.7";
+                            let precioDiv = card.querySelector('.precio');
+                            if (precioDiv) {
+                                precioDiv.innerHTML = `<span style="background: #d32f2f; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold;">🔴 PRODUCTO AGOTADO</span>`;
+                            }
+                            card.querySelectorAll('button, a.btn-comprar').forEach(btn => {
+                                btn.disabled = true;
+                                btn.style.background = "#ccc";
+                                btn.style.borderColor = "#ccc";
+                                btn.style.pointerEvents = "none";
+                                btn.innerText = "No disponible";
+                            });
+                        }
+                    }
+                });
             } catch (error) {
-                console.error("Error al cargar promociones para el cliente", error);
+                console.error("Error al sincronizar el inventario", error);
             }
         });
 
