@@ -158,7 +158,7 @@
         </a>
     </section>
 
-    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE -->
+    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE (CORREGIDO EN ROJO) -->
     <div id="contenedorPromosCliente" style="max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;"></div>
 
     <!-- CATÁLOGO EXCLUSIVO DE PRODUCTOS RAVALI -->
@@ -270,9 +270,8 @@
 
     <!-- LÓGICA JAVASCRIPT PARA MODAL, PAGOS Y PROMOCIONES DESDE LA NUBE -->
     <script>
-               const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec";
 
-        // Cargar promociones dinámicas desde Google Sheets al abrir la página
         window.addEventListener('DOMContentLoaded', async () => {
             const contenedor = document.getElementById('contenedorPromosCliente');
             if (!contenedor) return;
@@ -281,7 +280,6 @@
                 let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
                 let promos = await res.json();
 
-                // Filtramos solo las Activas que sean para Óptica Ravali o Generales
                 let promosActivas = promos.filter(p => 
                     p.estado === "Activa" && 
                     (p.sucursal === "Óptica Ravali" || p.sucursal === "General")
