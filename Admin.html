@@ -11,14 +11,14 @@
         .login-admin-container { max-width: 500px; margin: 4rem auto; background: #ffffff; padding: 2.5rem; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
         .form-group { text-align: left; margin-bottom: 1.2rem; }
         .form-group label { display: block; margin-bottom: 0.4rem; font-weight: bold; color: #002b55; font-size: 0.95rem; }
-        .form-group input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
         #panelProtegidoAdmin { display: none; }
         .tab-buttons { display: flex; gap: 10px; margin-bottom: 1.5rem; }
         .tab-btn { flex: 1; padding: 0.7rem; background: #e9ecef; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #555; }
         .tab-btn.active { background: #002b55; color: white; }
         .auth-form { display: none; }
         .auth-form.active { display: block; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .card-resumen { background: #f8f9fa; border-left: 5px solid #002b55; padding: 1.5rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .card-resumen h4 { margin: 0 0 0.5rem 0; color: #555; font-size: 0.9rem; text-transform: uppercase; }
         .card-resumen .valor { font-size: 1.8rem; font-weight: bold; color: #002b55; margin: 0; }
@@ -100,7 +100,7 @@
     <main id="panelProtegidoAdmin" class="admin-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
             <div>
-                <h3 style="color: #002b55; margin: 0; font-size: 1.5rem;">📊 Panel de Control y Reportes </h3>
+                <h3 style="color: #002b55; margin: 0; font-size: 1.5rem;">📊 Panel de Control y Reportes</h3>
                 <p style="margin: 5px 0 0 0; color: #666;">Usuario activo: <strong id="adminActivoLabel"></strong></p>
             </div>
             <button onclick="cerrarSesionAdmin()" style="background: #a80f14; color: white; border: none; padding: 0.5rem 1rem; font-size: 0.9rem; border-radius: 4px; cursor: pointer; font-weight: bold;">Cerrar Sesión</button>
@@ -111,27 +111,7 @@
                 🔄 Actualizar Datos de la Nube
             </button>
         </div>
-	// --- NUEVO: CARGAR PROMOCIONES ---
-                let resPromos = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
-                let promosGuardadas = await resPromos.json();
-                
-                const cuerpoPromos = document.getElementById('cuerpoTablaPromos');
-                cuerpoPromos.innerHTML = "";
 
-                if (promosGuardadas.length === 0) {
-                    cuerpoPromos.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No hay promociones registradas.</td></tr>`;
-                } else {
-                    promosGuardadas.slice().reverse().forEach(p => {
-                        let colorEstado = p.estado === 'Activa' ? '#28a745' : '#d32f2f';
-                        cuerpoPromos.innerHTML += `
-                            <tr>
-                                <td><strong>${p.id}</strong></td>
-                                <td>${p.sucursal}</td>
-                                <td>${p.titulo}</td>
-                                <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${p.estado}</span></td>
-                            </tr>`;
-                    });
-                }
         <!-- Resumen Global -->
         <div class="dashboard-grid">
             <div class="card-resumen">
@@ -144,61 +124,60 @@
             </div>
         </div>
 
-        <!-- NUEVO: Desglose por Sucursal -->
+        <!-- Desglose por Sucursal -->
         <h4 style="color: #002b55; margin-bottom: 1rem; margin-top: 1rem;">🏢 Desglose por Sucursal</h4>
         <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-            
             <div class="card-resumen" style="border-left-color: #0059b3; background-color: #eef6ff; padding: 1rem;">
                 <h4 style="color: #0059b3; font-size: 0.85rem;">Óptica D'villa</h4>
                 <p class="valor" id="totalDvilla" style="font-size: 1.4rem; color: #002b55;">0 vales</p>
                 <p style="margin: 0; color: #555; font-size: 0.9rem;">Monto: <strong id="montoDvilla">$0.00</strong></p>
             </div>
-            
             <div class="card-resumen" style="border-left-color: #a80f14; background-color: #fff0f0; padding: 1rem;">
                 <h4 style="color: #a80f14; font-size: 0.85rem;">Óptica Ravali</h4>
                 <p class="valor" id="totalRavali" style="font-size: 1.4rem; color: #002b55;">0 vales</p>
                 <p style="margin: 0; color: #555; font-size: 0.9rem;">Monto: <strong id="montoRavali">$0.00</strong></p>
             </div>
-            
             <div class="card-resumen" style="border-left-color: #880e4f; background-color: #fff0f5; padding: 1rem;">
                 <h4 style="color: #880e4f; font-size: 0.85rem;">Marcel Boutique</h4>
                 <p class="valor" id="totalMarcel" style="font-size: 1.4rem; color: #002b55;">0 vales</p>
                 <p style="margin: 0; color: #555; font-size: 0.9rem;">Monto: <strong id="montoMarcel">$0.00</strong></p>
             </div>
-
         </div>
-	<!-- NUEVO: Gestor de Promociones -->
+
+        <!-- NUEVO: Gestor de Promociones -->
         <h4 style="color: #ff8c00; margin-bottom: 1rem; margin-top: 2rem;">📢 Gestor de Promociones (Tienda Online)</h4>
-        <div class="dashboard-grid">
+        <div class="dashboard-grid" style="grid-template-columns: 1fr;">
             <!-- Formulario para crear promo -->
             <div class="card-resumen" style="border-left-color: #ff8c00; padding: 1.5rem;">
                 <h4 style="color: #ff8c00; margin-bottom: 1rem;">Crear Nueva Promoción</h4>
                 <form id="formPromo" onsubmit="guardarPromocion(event)">
-                    <div class="form-group">
-                        <label>Aplica en Sucursal:</label>
-                        <select id="promoSucursal" required>
-                            <option value="General">Todas (General)</option>
-                            <option value="Óptica D'villa">Óptica D'villa</option>
-                            <option value="Óptica Ravali">Óptica Ravali</option>
-                            <option value="Marcel Boutique">Marcel Boutique</option>
-                        </select>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div class="form-group">
+                            <label>Aplica en Sucursal:</label>
+                            <select id="promoSucursal" required>
+                                <option value="General">Todas (General)</option>
+                                <option value="Óptica D'villa">Óptica D'villa</option>
+                                <option value="Óptica Ravali">Óptica Ravali</option>
+                                <option value="Marcel Boutique">Marcel Boutique</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Título de la Promo:</label>
+                            <input type="text" id="promoTitulo" placeholder="Ej. ¡Buen Fin! 20% de descuento" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción / Condiciones:</label>
+                            <input type="text" id="promoDesc" placeholder="Ej. Válido en armazones solares." required>
+                        </div>
+                        <div class="form-group">
+                            <label>Estado Inicial:</label>
+                            <select id="promoEstado" required>
+                                <option value="Activa">🟢 Activa (Visible)</option>
+                                <option value="Inactiva">🔴 Inactiva (Oculta)</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Título de la Promo:</label>
-                        <input type="text" id="promoTitulo" placeholder="Ej. ¡Buen Fin! 20% de descuento" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Descripción / Condiciones:</label>
-                        <input type="text" id="promoDesc" placeholder="Ej. Válido en armazones solares." required>
-                    </div>
-                    <div class="form-group">
-                        <label>Estado Inicial:</label>
-                        <select id="promoEstado" required>
-                            <option value="Activa">🟢 Activa (Visible)</option>
-                            <option value="Inactiva">🔴 Inactiva (Oculta)</option>
-                        </select>
-                    </div>
-                    <button type="submit" id="btnGuardarPromo" style="width: 100%; background-color: #ff8c00; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    <button type="submit" id="btnGuardarPromo" style="width: 100%; background-color: #ff8c00; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
                         ➕ Agregar Promoción
                     </button>
                 </form>
@@ -213,10 +192,11 @@
                     </thead>
                     <tbody id="cuerpoTablaPromos"></tbody>
                 </table>
-                <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">*Para cambiar el estado de una promoción, modifícalo directamente en tu Google Sheets.</p>
+                <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">*Para cambiar el estado de una promoción, modifícalo directamente en tu base de datos de Google Sheets.</p>
             </div>
         </div>
-        <h4 style="color: #d32f2f; margin-bottom: 1rem; margin-top: 1rem;">🔐 Directorio de Promotoras y Contraseñas</h4>
+
+        <h4 style="color: #d32f2f; margin-bottom: 1rem; margin-top: 2rem;">🔐 Directorio de Promotoras y Contraseñas</h4>
         <div style="overflow-x: auto; margin-bottom: 2.5rem; border: 1px solid #ddd; border-radius: 6px;">
             <table class="tabla-admin" style="margin-top: 0;">
                 <thead style="background-color: #d32f2f;">
@@ -244,8 +224,8 @@
     </footer>
 
     <script>
-        
-        const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec";
+        // ¡SÚPER IMPORTANTE! Reemplaza esto con tu NUEVA URL EXACTA de Apps Script
+        const API_URL = "URL_AQUI";
 
         window.onload = function() {
             const adminActivo = localStorage.getItem('mvr_admin_activo');
@@ -274,7 +254,7 @@
             btn.innerText = "Registrando en la Nube...";
 
             try {
-                let res = await fetch(`${API_URL}?accion=obtenerAdmins`);
+                let res = await fetch(`${API_URL}?accion=obtenerAdmins&nocache=${new Date().getTime()}`);
                 let admins = await res.json();
 
                 if (admins[usuario]) {
@@ -282,7 +262,9 @@
                     cambiarTabAdmin('login');
                 } else {
                     await fetch(API_URL, {
-                        method: 'POST', mode: 'no-cors',
+                        method: 'POST', 
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({ accion: "guardarAdmin", admin: { usuario: usuario, password: pass } })
                     });
                     alert("¡Administrador registrado con éxito! Inicia sesión para continuar.");
@@ -290,15 +272,15 @@
                     cambiarTabAdmin('login');
                 }
             } catch (error) {
-                alert("Error de conexión al registrar. Intenta de nuevo.");
+                alert("Error de conexión al registrar. Intenta de nuevo.\n" + error.message);
             }
             btn.innerText = "✨ Registrar Administrador";
         }
 
-async function iniciarSesionAdmin(event) {
+        async function iniciarSesionAdmin(event) {
             event.preventDefault();
-            const usuario = document.getElementById('loginUsuarioAdmin').value.trim().toUpperCase();
-            const pass = document.getElementById('loginPassAdmin').value.trim();
+            const usuarioInput = document.getElementById('loginUsuarioAdmin').value.trim().toUpperCase();
+            const passInput = document.getElementById('loginPassAdmin').value.trim();
 
             const btn = document.getElementById('btnAccesoAdmin');
             btn.innerText = "Verificando Nube...";
@@ -309,17 +291,26 @@ async function iniciarSesionAdmin(event) {
                 
                 try {
                     let admins = JSON.parse(textoRespuesta);
-                    
-                    // AQUI ESTÁ LA MAGIA: Convertimos el dato de Google a String antes de comparar
-                    if (admins[usuario] && String(admins[usuario]) === pass) {
-                        
-                        localStorage.setItem('mvr_admin_activo', usuario);
-                        activarPanelAdmin(usuario);
+                    let accesoConcedido = false;
+
+                    for (let usuarioBD in admins) {
+                        let nombreLimpio = String(usuarioBD).trim().toUpperCase();
+                        let passLimpia = String(admins[usuarioBD]).trim();
+
+                        if (nombreLimpio === usuarioInput && passLimpia === passInput) {
+                            accesoConcedido = true;
+                            break;
+                        }
+                    }
+
+                    if (accesoConcedido) {
+                        localStorage.setItem('mvr_admin_activo', usuarioInput);
+                        activarPanelAdmin(usuarioInput);
                     } else {
-                        alert("Credenciales incorrectas o usuario no registrado.");
+                        alert("Acceso denegado.\n\n📡 Datos leyendo desde Excel:\n" + textoRespuesta + "\n\n⌨️ Tú escribiste:\nUsuario: [" + usuarioInput + "]\nContraseña: [" + passInput + "]");
                     }
                 } catch(e) {
-                    alert("⚠️ ERROR: Google no devolvió datos válidos. Revisa tu Excel.");
+                    alert("⚠️ ERROR: Google no devolvió datos válidos. Respuesta:\n" + textoRespuesta.substring(0, 100));
                 }
             } catch (error) {
                 alert("Error de conexión. Intenta de nuevo.");
@@ -342,13 +333,43 @@ async function iniciarSesionAdmin(event) {
             cambiarTabAdmin('login');
         }
 
+        async function guardarPromocion(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnGuardarPromo');
+            btn.innerText = "Subiendo a la nube...";
+            btn.disabled = true;
+
+            const sucursal = document.getElementById('promoSucursal').value;
+            const titulo = document.getElementById('promoTitulo').value.trim();
+            const desc = document.getElementById('promoDesc').value.trim();
+            const estado = document.getElementById('promoEstado').value.replace(/🟢 |🔴 /g, ""); 
+            const idPromo = "PROM-" + Math.floor(100 + Math.random() * 900); 
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        accion: "guardarPromocion",
+                        promocion: { id: idPromo, sucursal: sucursal, titulo: titulo, descripcion: desc, estado: estado }
+                    })
+                });
+                alert("✅ Promoción guardada con éxito.");
+                document.getElementById('formPromo').reset();
+                cargarTodoDesdeLaNube(); 
+            } catch (error) {
+                alert("Error al guardar la promoción.");
+            }
+            btn.innerText = "➕ Agregar Promoción";
+            btn.disabled = false;
+        }
+
         async function cargarTodoDesdeLaNube() {
             const btn = document.getElementById('btnActualizarDatos');
             btn.innerText = "Sincronizando con Google Sheets...";
             
             try {
                 // 1. CARGAR PROMOTORAS
-                let resProm = await fetch(`${API_URL}?accion=obtenerPromotoras`);
+                let resProm = await fetch(`${API_URL}?accion=obtenerPromotoras&nocache=${new Date().getTime()}`);
                 let credencialesPromotoras = await resProm.json();
                 
                 const cuerpoTablaPromotoras = document.getElementById('cuerpoTablaPromotoras');
@@ -370,24 +391,68 @@ async function iniciarSesionAdmin(event) {
                     });
                 }
 
-                // 2. CARGAR VALES
-                let resVales = await fetch(`${API_URL}?accion=obtenerVales`);
+                // 2. CARGAR PROMOCIONES
+                try {
+                    let resPromos = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
+                    let promosGuardadas = await resPromos.json();
+                    
+                    const cuerpoPromos = document.getElementById('cuerpoTablaPromos');
+                    cuerpoPromos.innerHTML = "";
+
+                    if (promosGuardadas.length === 0) {
+                        cuerpoPromos.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No hay promociones registradas.</td></tr>`;
+                    } else {
+                        promosGuardadas.slice().reverse().forEach(p => {
+                            let colorEstado = p.estado === 'Activa' ? '#28a745' : '#d32f2f';
+                            cuerpoPromos.innerHTML += `
+                                <tr>
+                                    <td><strong>${p.id}</strong></td>
+                                    <td>${p.sucursal}</td>
+                                    <td>${p.titulo}</td>
+                                    <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${p.estado}</span></td>
+                                </tr>`;
+                        });
+                    }
+                } catch (e) {
+                    console.error("No se pudieron cargar las promociones", e);
+                }
+
+                // 3. CARGAR VALES Y CALCULAR MÉTRICAS
+                let resVales = await fetch(`${API_URL}?accion=obtenerVales&nocache=${new Date().getTime()}`);
                 let valesGuardados = await resVales.json();
                 
                 const cuerpoTabla = document.getElementById('cuerpoTablaAdmin');
                 cuerpoTabla.innerHTML = "";
+                
                 let totalVales = 0; let montoTotalCalculado = 0;
+                let contDvilla = 0; let montoDvilla = 0;
+                let contRavali = 0; let montoRavali = 0;
+                let contMarcel = 0; let montoMarcel = 0;
 
                 if (valesGuardados.length === 0) {
                     cuerpoTabla.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No hay vales registrados.</td></tr>`;
                 } else {
                     valesGuardados.slice().reverse().forEach(v => {
+                        let valorMonto = parseFloat(v.monto) || 0;
+                        
                         totalVales++;
-                        montoTotalCalculado += parseFloat(v.monto) || 0;
+                        montoTotalCalculado += valorMonto;
+
+                        if (v.sucursal === "Óptica Ravali") {
+                            contRavali++;
+                            montoRavali += valorMonto;
+                        } else if (v.sucursal === "Marcel Boutique") {
+                            contMarcel++;
+                            montoMarcel += valorMonto;
+                        } else {
+                            contDvilla++;
+                            montoDvilla += valorMonto;
+                        }
+
                         const esRavali = v.sucursal === "Óptica Ravali";
                         const esMarcel = v.sucursal === "Marcel Boutique";
                         const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
-                        const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v.monto);
+                        const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(valorMonto);
 
                         cuerpoTabla.innerHTML += `
                             <tr>
@@ -398,43 +463,21 @@ async function iniciarSesionAdmin(event) {
                     });
                 }
 
+                const formatear = (m) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(m);
+
                 document.getElementById('resumenTotalVales').innerText = totalVales;
-                document.getElementById('resumenMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoTotalCalculado);
+                document.getElementById('resumenMontoTotal').innerText = formatear(montoTotalCalculado);
+                document.getElementById('totalDvilla').innerText = `${contDvilla} vales`;
+                document.getElementById('montoDvilla').innerText = formatear(montoDvilla);
+                document.getElementById('totalRavali').innerText = `${contRavali} vales`;
+                document.getElementById('montoRavali').innerText = formatear(montoRavali);
+                document.getElementById('totalMarcel').innerText = `${contMarcel} vales`;
+                document.getElementById('montoMarcel').innerText = formatear(montoMarcel);
 
             } catch (error) {
                 alert("Hubo un error al conectar con Google Sheets.");
             }
             btn.innerText = "🔄 Actualizar Datos de la Nube";
-        }
-	
-	async function guardarPromocion(event) {
-            event.preventDefault();
-            const btn = document.getElementById('btnGuardarPromo');
-            btn.innerText = "Subiendo a la nube...";
-            btn.disabled = true;
-
-            const sucursal = document.getElementById('promoSucursal').value;
-            const titulo = document.getElementById('promoTitulo').value.trim();
-            const desc = document.getElementById('promoDesc').value.trim();
-            const estado = document.getElementById('promoEstado').value.replace(/🟢 |🔴 /g, ""); // Limpiamos el texto
-            const idPromo = "PROM-" + Math.floor(100 + Math.random() * 900); // Genera ID aleatorio
-
-            try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({
-                        accion: "guardarPromocion",
-                        promocion: { id: idPromo, sucursal: sucursal, titulo: titulo, descripcion: desc, estado: estado }
-                    })
-                });
-                alert("✅ Promoción guardada con éxito.");
-                document.getElementById('formPromo').reset();
-                cargarTodoDesdeLaNube(); // Recarga las tablas para que aparezca
-            } catch (error) {
-                alert("Error al guardar la promoción.");
-            }
-            btn.innerText = "➕ Agregar Promoción";
-            btn.disabled = false;
         }
     </script>
 </body>
