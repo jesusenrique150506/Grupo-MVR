@@ -158,12 +158,12 @@
         </nav>
     </header>
 
-    <!-- BANNER DE BIENVENIDA MARCEL BOUTIQUE -->
-    <section class="hero" style="background-color: #fce4ec; text-align: center; padding: 2.5rem 1rem;">
-        <h2 style="color: #880e4f; font-size: 2rem; margin-bottom: 0.5rem;">Moda, Estilo y Elegancia</h2>
-        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem;">"Viste tu mejor versión todos los días"</p>
-        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto;">Descubre nuestra nueva colección de vestidos, conjuntos y accesorios diseñados para resaltar tu personalidad y belleza.</p>
-        <a href="https://maps.google.com/?q=Marcel+Boutique" target="_blank" class="btn" style="background-color: #880e4f; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+    <!-- BANNER DE BIENVENIDA MARCEL BOUTIQUE CON LOGO DE FONDO -->
+    <section class="hero" style="background-color: #fce4ec; background-image: linear-gradient(rgba(252, 228, 236, 0.92), rgba(252, 228, 236, 0.92)), url('marcel.png'); background-size: cover; background-position: center; text-align: center; padding: 3rem 1rem; position: relative;">
+        <h2 style="color: #880e4f; font-size: 2rem; margin-bottom: 0.5rem; position: relative; z-index: 2;">Moda, Estilo y Elegancia</h2>
+        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem; position: relative; z-index: 2;">"Viste tu mejor versión todos los días"</p>
+        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto; position: relative; z-index: 2;">Descubre nuestra nueva colección de vestidos, conjuntos y accesorios diseñados para resaltar tu personalidad y belleza.</p>
+        <a href="https://maps.google.com/?q=Marcel+Boutique" target="_blank" class="btn" style="background-color: #880e4f; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; position: relative; z-index: 2;">
             📍 Cómo llegar a Marcel Boutique
         </a>
     </section>
@@ -280,7 +280,7 @@
 
     <!-- LÓGICA JAVASCRIPT: PROMOCIONES E INVENTARIO EN TIEMPO REAL -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxS4scgnF4qFdz6EgLBErgxAFDe6DEZjv1gD8VDbYHqbzg0YIDcZVoOIwb_nIWp35VLCQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbw0kITw7UtMvCE8MKBlgvVK12cmTtKdnzfpg-zf-SR1M6flwZja1ZMRbKiY6kmc2cBrWA/exec";
 
         window.addEventListener('DOMContentLoaded', async () => {
             // 1. CARGAR PROMOCIONES DINÁMICAS (Filtro Flexible)

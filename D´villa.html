@@ -148,12 +148,12 @@
         </nav>
     </header>
 
-    <!-- BANNER DE BIENVENIDA D'VILLA -->
-    <section class="hero" style="background-color: #f0f7ff; text-align: center; padding: 2.5rem 1rem;">
-        <h2 style="color: #002b55; font-size: 2rem; margin-bottom: 0.5rem;">Catálogo Clásico y Profesional D'villa</h2>
-        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem;">"Donde la salud, la visión y el estilo se encuentran"</p>
-        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto;">Descubre nuestra línea ejecutiva, micas con tecnología antirreflejante y protección blue ray para tu día a día.</p>
-        <a href="https://maps.google.com/?q=Optica+D'villa" target="_blank" class="btn" style="background-color: #0059b3; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+    <!-- BANNER DE BIENVENIDA D'VILLA CON LOGO DE FONDO -->
+    <section class="hero" style="background-color: #f0f7ff; background-image: linear-gradient(rgba(240, 247, 255, 0.92), rgba(240, 247, 255, 0.92)), url('dvilla.jpg'); background-size: cover; background-position: center; text-align: center; padding: 3rem 1rem; position: relative;">
+        <h2 style="color: #002b55; font-size: 2rem; margin-bottom: 0.5rem; position: relative; z-index: 2;">Catálogo Clásico y Profesional D'villa</h2>
+        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem; position: relative; z-index: 2;">"Donde la salud, la visión y el estilo se encuentran"</p>
+        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto; position: relative; z-index: 2;">Descubre nuestra línea ejecutiva, micas con tecnología antirreflejante y protección blue ray para tu día a día.</p>
+        <a href="https://maps.google.com/?q=Optica+D'villa" target="_blank" class="btn" style="background-color: #0059b3; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; position: relative; z-index: 2;">
             📍 Cómo llegar a Sucursal D'villa
         </a>
     </section>
@@ -270,7 +270,7 @@
 
     <!-- LÓGICA JAVASCRIPT: PROMOCIONES E INVENTARIO EN TIEMPO REAL -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxS4scgnF4qFdz6EgLBErgxAFDe6DEZjv1gD8VDbYHqbzg0YIDcZVoOIwb_nIWp35VLCQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbw0kITw7UtMvCE8MKBlgvVK12cmTtKdnzfpg-zf-SR1M6flwZja1ZMRbKiY6kmc2cBrWA/exec";
 
         window.addEventListener('DOMContentLoaded', async () => {
             // 1. CARGAR PROMOCIONES DINÁMICAS (Filtro Flexible)

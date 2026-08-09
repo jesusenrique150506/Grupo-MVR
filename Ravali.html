@@ -148,12 +148,12 @@
         </nav>
     </header>
 
-    <!-- BANNER DE BIENVENIDA RAVALI -->
-    <section class="hero" style="background-color: #fff5f5; text-align: center; padding: 2.5rem 1rem;">
-        <h2 style="color: #a80f14; font-size: 2rem; margin-bottom: 0.5rem;">Estilo y Vanguardia en Óptica Ravali</h2>
-        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem;">"Moda, diseño y máxima protección visual para ti"</p>
-        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto;">Encuentra las últimas tendencias en armazones de diseño exclusivo y tecnología óptica avanzada.</p>
-        <a href="https://maps.google.com/?q=Optica+Ravali" target="_blank" class="btn" style="background-color: #a80f14; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+    <!-- BANNER DE BIENVENIDA RAVALI CON LOGO DE FONDO -->
+    <section class="hero" style="background-color: #fff5f5; background-image: linear-gradient(rgba(255, 245, 245, 0.92), rgba(255, 245, 245, 0.92)), url('ravali.jpg'); background-size: cover; background-position: center; text-align: center; padding: 3rem 1rem; position: relative;">
+        <h2 style="color: #a80f14; font-size: 2rem; margin-bottom: 0.5rem; position: relative; z-index: 2;">Estilo y Vanguardia en Óptica Ravali</h2>
+        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem; position: relative; z-index: 2;">"Moda, diseño y máxima protección visual para ti"</p>
+        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto; position: relative; z-index: 2;">Encuentra las últimas tendencias en armazones de diseño exclusivo y tecnología óptica avanzada.</p>
+        <a href="https://maps.google.com/?q=Optica+Ravali" target="_blank" class="btn" style="background-color: #a80f14; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; position: relative; z-index: 2;">
             📍 Cómo llegar a Sucursal Ravali
         </a>
     </section>
@@ -268,12 +268,11 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Óptica Ravali (Grupo MVR). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT: PROMOCIONES E INVENTARIO EN TIEMPO REAL -->
+    <!-- LÓGICA JAVASCRIPT PARA MODAL, PAGOS Y PROMOCIONES DESDE LA NUBE -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxS4scgnF4qFdz6EgLBErgxAFDe6DEZjv1gD8VDbYHqbzg0YIDcZVoOIwb_nIWp35VLCQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbw0kITw7UtMvCE8MKBlgvVK12cmTtKdnzfpg-zf-SR1M6flwZja1ZMRbKiY6kmc2cBrWA/exec";
 
         window.addEventListener('DOMContentLoaded', async () => {
-            // 1. CARGAR PROMOCIONES DINÁMICAS (Filtro Flexible)
             const contenedor = document.getElementById('contenedorPromosCliente');
             if (contenedor) {
                 try {
@@ -303,7 +302,6 @@
                 }
             }
 
-            // 2. VERIFICAR INVENTARIO Y STOCK EN TIEMPO REAL
             try {
                 let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
                 let inventario = await resInv.json();
