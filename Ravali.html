@@ -158,7 +158,7 @@
         </a>
     </section>
 
-    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE (CORREGIDO EN ROJO) -->
+    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE -->
     <div id="contenedorPromosCliente" style="max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;"></div>
 
     <!-- CATÁLOGO EXCLUSIVO DE PRODUCTOS RAVALI -->
@@ -270,7 +270,7 @@
 
     <!-- LÓGICA JAVASCRIPT PARA MODAL, PAGOS Y PROMOCIONES DESDE LA NUBE -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec1";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec";
 
         window.addEventListener('DOMContentLoaded', async () => {
             const contenedor = document.getElementById('contenedorPromosCliente');
@@ -280,10 +280,12 @@
                 let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
                 let promos = await res.json();
 
-                let promosActivas = promos.filter(p => 
-                    p.estado === "Activa" && 
-                    (p.sucursal === "Óptica Ravali" || p.sucursal === "General")
-                );
+                // FILTRO FLEXIBLE: Detecta la sucursal ignorando acentos o mayúsculas
+                let promosActivas = promos.filter(p => {
+                    if (p.estado !== "Activa") return false;
+                    let suc = String(p.sucursal).trim().toLowerCase();
+                    return suc.includes("ravali") || suc.includes("general") || suc.includes("todas");
+                });
 
                 if (promosActivas.length > 0) {
                     let htmlPromos = "";
