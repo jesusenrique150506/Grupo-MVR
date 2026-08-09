@@ -76,7 +76,7 @@
                 <label>Contraseña:</label>
                 <input type="password" id="loginPassAdmin" placeholder="********" required>
             </div>
-            <button type="submit" style="width: 100%; background-color: #002b55; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+            <button type="submit" id="btnAccesoAdmin" style="width: 100%; background-color: #002b55; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
                 🔓 Ingresar al Sistema
             </button>
         </form>
@@ -91,7 +91,7 @@
                 <label>Contraseña Maestra:</label>
                 <input type="password" id="regPassAdmin" placeholder="Crea una contraseña segura" required>
             </div>
-            <button type="submit" style="width: 100%; background-color: #28a745; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+            <button type="submit" id="btnRegistroAdmin" style="width: 100%; background-color: #28a745; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
                 ✨ Registrar Administrador
             </button>
         </form>
@@ -100,7 +100,7 @@
     <main id="panelProtegidoAdmin" class="admin-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
             <div>
-                <h3 style="color: #002b55; margin: 0; font-size: 1.5rem;">📊 Panel de Control y Reportes (Google Sheets)</h3>
+                <h3 style="color: #002b55; margin: 0; font-size: 1.5rem;">📊 Panel de Control y Reportes (Nube)</h3>
                 <p style="margin: 5px 0 0 0; color: #666;">Usuario activo: <strong id="adminActivoLabel"></strong></p>
             </div>
             <button onclick="cerrarSesionAdmin()" style="background: #a80f14; color: white; border: none; padding: 0.5rem 1rem; font-size: 0.9rem; border-radius: 4px; cursor: pointer; font-weight: bold;">Cerrar Sesión</button>
@@ -151,10 +151,9 @@
     </footer>
 
     <script>
-        // ¡SÚPER IMPORTANTE! Reemplaza esto con tu URL exacta completa generada por Apps Script
-        const API_URL = "https://script.google.com/macros/s/AKfycby8L9DyebxQTVg5yrlXTeIqkrOLJW3FxD5dsBxfphWliYo3Sab7ctgC7D6jM4eVj1e1ag/exec";
+        // PEGA AQUÍ TU NUEVA URL DEL APPS SCRIPT
+        const API_URL = "https://script.google.com/macros/s/AKfycbzJ-6oZeU1LsGRS6kVpk1Qg2bwAMRM333SPmonfUkxM43DuzDA_Eb1uKJG9kslbsbbY/exec";
 
-        // (La cuenta de Administrador se queda guardada de forma segura en la laptop/celular que lo usa)
         window.onload = function() {
             const adminActivo = localStorage.getItem('mvr_admin_activo');
             if (adminActivo) activarPanelAdmin(adminActivo);
@@ -172,36 +171,59 @@
             }
         }
 
-        function registrarAdmin(event) {
+        async function registrarAdmin(event) {
             event.preventDefault();
             const usuario = document.getElementById('regUsuarioAdmin').value.trim().toUpperCase();
             const pass = document.getElementById('regPassAdmin').value.trim();
             if (!usuario || pass.length < 4) return alert("Ingresa un usuario y contraseña válidos.");
 
-            let admins = JSON.parse(localStorage.getItem('mvr_admin_credenciales')) || {};
-            if (admins[usuario]) {
-                alert("Este usuario ya existe.");
-                return;
+            const btn = document.getElementById('btnRegistroAdmin');
+            btn.innerText = "Registrando en la Nube...";
+
+            try {
+                let res = await fetch(`${API_URL}?accion=obtenerAdmins`);
+                let admins = await res.json();
+
+                if (admins[usuario]) {
+                    alert("Este usuario ya existe. Inicia sesión.");
+                    cambiarTabAdmin('login');
+                } else {
+                    await fetch(API_URL, {
+                        method: 'POST', mode: 'no-cors',
+                        body: JSON.stringify({ accion: "guardarAdmin", admin: { usuario: usuario, password: pass } })
+                    });
+                    alert("¡Administrador registrado con éxito! Inicia sesión para continuar.");
+                    document.getElementById('formRegistroAdmin').reset();
+                    cambiarTabAdmin('login');
+                }
+            } catch (error) {
+                alert("Error de conexión al registrar. Intenta de nuevo.");
             }
-            admins[usuario] = pass;
-            localStorage.setItem('mvr_admin_credenciales', JSON.stringify(admins));
-            alert("Administrador registrado. Inicia sesión.");
-            document.getElementById('formRegistroAdmin').reset();
-            cambiarTabAdmin('login');
+            btn.innerText = "✨ Registrar Administrador";
         }
 
-        function iniciarSesionAdmin(event) {
+        async function iniciarSesionAdmin(event) {
             event.preventDefault();
             const usuario = document.getElementById('loginUsuarioAdmin').value.trim().toUpperCase();
             const pass = document.getElementById('loginPassAdmin').value.trim();
-            let admins = JSON.parse(localStorage.getItem('mvr_admin_credenciales')) || {};
 
-            if (admins[usuario] && admins[usuario] === pass) {
-                localStorage.setItem('mvr_admin_activo', usuario);
-                activarPanelAdmin(usuario);
-            } else {
-                alert("Credenciales incorrectas.");
+            const btn = document.getElementById('btnAccesoAdmin');
+            btn.innerText = "Verificando Nube...";
+
+            try {
+                let res = await fetch(`${API_URL}?accion=obtenerAdmins`);
+                let admins = await res.json();
+
+                if (admins[usuario] && admins[usuario] === pass) {
+                    localStorage.setItem('mvr_admin_activo', usuario);
+                    activarPanelAdmin(usuario);
+                } else {
+                    alert("Credenciales incorrectas o usuario no registrado.");
+                }
+            } catch (error) {
+                alert("Error de conexión. Intenta de nuevo.");
             }
+            btn.innerText = "🔓 Ingresar al Sistema";
         }
 
         function activarPanelAdmin(usuario) {
@@ -216,6 +238,7 @@
             document.getElementById('panelProtegidoAdmin').style.display = 'none';
             document.getElementById('panelLoginAdmin').style.display = 'block';
             document.getElementById('formLoginAdmin').reset();
+            cambiarTabAdmin('login');
         }
 
         async function cargarTodoDesdeLaNube() {
@@ -257,7 +280,6 @@
                 if (valesGuardados.length === 0) {
                     cuerpoTabla.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No hay vales registrados.</td></tr>`;
                 } else {
-                    // Mostrar los vales más recientes primero
                     valesGuardados.slice().reverse().forEach(v => {
                         totalVales++;
                         montoTotalCalculado += parseFloat(v.monto) || 0;
