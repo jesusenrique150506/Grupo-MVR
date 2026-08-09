@@ -6,202 +6,172 @@
     <title>Grupo MVR | Inicio</title>
     <link rel="stylesheet" href="CSS/opticas-styles.css">
     <style>
-        /* ESTILOS ESPECÍFICOS PARA LA PÁGINA DE INICIO */
-        .hero-inicio {
-            background: linear-gradient(rgba(0, 43, 85, 0.8), rgba(0, 43, 85, 0.8)), url('mvr.jpg') center/cover;
-            color: white;
-            text-align: center;
-            padding: 4rem 1rem;
-            margin-bottom: 2rem;
-        }
-        .hero-inicio h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .hero-inicio p {
-            font-size: 1.2rem;
-            font-style: italic;
-            max-width: 700px;
-            margin: 0 auto 2rem auto;
-        }
-
-        .opciones-container {
+        .grid-sucursales {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
-            padding: 0 2rem;
-            max-width: 1000px;
-            margin: 0 auto 3rem auto;
-        }
-
-        /* TARJETAS DE SUCURSAL */
-        .tarjeta-acceso {
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            color: #333;
-        }
-        .tarjeta-acceso:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .tarjeta-header {
             padding: 2rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card-sucursal {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 150px;
+            justify-content: space-between;
         }
-        .tarjeta-header img {
-            max-height: 80px;
-            width: auto;
-            background: white;
-            padding: 5px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+        .card-sucursal img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 1rem;
         }
-
-        .tarjeta-body {
-            padding: 1.5rem;
-            background: #fff;
-            flex-grow: 1;
+        .card-sucursal h3 {
+            margin: 0.5rem 0;
+            color: #002b55;
+            font-size: 1.3rem;
         }
-        .tarjeta-body h3 {
-            margin-top: 0;
-            font-size: 1.4rem;
-        }
-
-        /* ESTILOS POR SUCURSAL */
-        .acceso-dvilla .tarjeta-header { background-color: #002b55; }
-        .acceso-dvilla .tarjeta-body h3 { color: #002b55; }
-        .acceso-dvilla .btn-entrar { background-color: #0059b3; }
-
-        .acceso-ravali .tarjeta-header { background-color: #a80f14; }
-        .acceso-ravali .tarjeta-body h3 { color: #a80f14; }
-        .acceso-ravali .btn-entrar { background-color: #a80f14; }
-
-        /* Estilos Marcel Boutique */
-        .acceso-marcel .tarjeta-header { background-color: #880e4f; }
-        .acceso-marcel .tarjeta-body h3 { color: #880e4f; }
-        .acceso-marcel .btn-entrar { background-color: #880e4f; }
-
-        .acceso-promotoras .tarjeta-header { background-color: #28a745; }
-        .acceso-promotoras .tarjeta-body h3 { color: #28a745; }
-        .acceso-promotoras .btn-entrar { background-color: #28a745; }
-
-        .btn-entrar {
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 5px;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 1rem;
-            text-transform: uppercase;
-            font-size: 0.9rem;
+        .card-sucursal p {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
 <body>
 
-    <!-- ENCABEZADO PRINCIPAL MVR -->
+    <!-- ENCABEZADO PRINCIPAL -->
     <header class="main-header" style="background-color: #002b55;">
         <div class="logo">
             <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-                <img src="mvr.jpg" onerror="this.onerror=null; this.src='mvr.png';" alt="Logo Grupo MVR" style="height: 45px; width: auto; object-fit: contain; border-radius: 4px; background: #fff; padding: 2px;">
+                <img src="mvr.jpg" onerror="this.onerror=null; this.src='mvr.png';" alt="Logo Grupo MVR" style="height: 45px; width: auto; object-fit: contain; border-radius: 4px; background: white; padding: 2px;">
                 <h1 style="margin: 0; font-size: 1.5rem; color: white;">Grupo MVR</h1>
             </a>
         </div>
-       <nav class="main-nav">
-    <ul>
-        <li><a href="index.html">Inicio</a></li>
-        <li><a href="D´villa.html">Óptica D'villa</a></li>
-        <li><a href="Ravali.html">Óptica Ravali</a></li>
-        <li><a href="Marcel.html">Marcel Boutique</a></li>
-        <li><a href="Promotoras.html">Promotoras / Vales</a></li>
-     </ul>
-</nav>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html" class="active">Inicio</a></li>
+                <li><a href="D´villa.html">Óptica D'villa</a></li>
+                <li><a href="Ravali.html">Óptica Ravali</a></li>
+                <li><a href="Marcel.html">Marcel Boutique</a></li>
+                <li><a href="Promotoras.html">Promotoras / Vales</a></li>
+                <li><a href="Admin.html">Administración</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <!-- SECCIÓN HERO DE BIENVENIDA -->
-    <section class="hero-inicio">
-        <h2>Bienvenido a Grupo MVR</h2>
-        <p>"Donde la salud, la visión, el estilo y la moda se encuentran"</p>
-        <p style="font-size: 1rem; opacity: 0.9;">Selecciona la sucursal o área a la que deseas ingresar.</p>
+    <!-- BANNER DE BIENVENIDA -->
+    <section class="hero" style="background-color: #e6f0fa; text-align: center; padding: 3rem 1rem;">
+        <h2 style="color: #002b55; font-size: 2.2rem; margin-bottom: 0.5rem;">Bienvenido a Grupo MVR</h2>
+        <p style="font-style: italic; color: #555; margin-bottom: 1rem;">"Calidad, estilo y confianza en nuestras sucursales"</p>
+        <p style="color: #444; max-width: 700px; margin: 0 auto;">Explora nuestras diferentes sucursales especializadas en salud visual y moda, o solicita tu sistema de financiamiento por vales con nuestras promotoras.</p>
     </section>
 
-    <!-- TARJETAS DE NAVEGACIÓN -->
-    <main class="opciones-container">
-        
-        <!-- TARJETA D'VILLA -->
-        <a href="D´villa.html" class="tarjeta-acceso acceso-dvilla">
-            <div class="tarjeta-header">
-                <img src="dvilla.jpg" onerror="this.onerror=null; this.src='dvilla.png';" alt="Logo D'villa">
-            </div>
-            <div class="tarjeta-body">
-                <h3>Óptica D'villa</h3>
-                <p>Nuestra línea ejecutiva y clásica. Encuentra lentes bifocales, antirreflejantes y estilos sobrios para el entorno laboral.</p>
-                <span class="btn-entrar">Ver Catálogo</span>
-            </div>
-        </a>
+    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES GLOBALES EN EL INICIO -->
+    <div style="max-width: 900px; margin: 2rem auto; padding: 0 1rem;">
+        <h3 style="text-align: center; color: #002b55; margin-bottom: 1rem; font-size: 1.5rem;">🔥 Promociones Activas en Grupo MVR</h3>
+        <div id="contenedorPromosInicio"></div>
+    </div>
 
-        <!-- TARJETA RAVALI -->
-        <a href="Ravali.html" class="tarjeta-acceso acceso-ravali">
-            <div class="tarjeta-header">
-                <img src="ravali.jpg" onerror="this.onerror=null; this.src='ravali.png';" alt="Logo Ravali">
+    <!-- SECCIÓN DE SUCURSALES -->
+    <main>
+        <h3 style="text-align: center; color: #002b55; margin-top: 2rem; font-size: 1.8rem;">Nuestras Sucursales</h3>
+        <section class="grid-sucursales">
+            
+            <!-- ÓPTICA D'VILLA -->
+            <div class="card-sucursal" style="border-top: 4px solid #0059b3;">
+                <div>
+                    <img src="dvilla.jpg" onerror="this.src='https://via.placeholder.com/300x200?text=Optica+Dvilla'" alt="Óptica D'villa">
+                    <h3>Óptica D'villa</h3>
+                    <p>Línea ejecutiva, micas antirreflejante y tecnología Blue Ray para el cuidado de tu visión.</p>
+                </div>
+                <div>
+                    <a href="D´villa.html" class="btn" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Catálogo D'villa</a>
+                </div>
             </div>
-            <div class="tarjeta-body">
-                <h3>Óptica Ravali</h3>
-                <p>Catálogo juvenil y moderno. Explora nuestra colección de sol, lentes de contacto y armazones en tendencia.</p>
-                <span class="btn-entrar">Ver Catálogo</span>
-            </div>
-        </a>
 
-        <!-- TARJETA MARCEL BOUTIQUE -->
-        <a href="Marcel.html" class="tarjeta-acceso acceso-marcel">
-            <div class="tarjeta-header">
-                <!-- Cambiado de marcel.jpg a marcel.png -->
-                <img src="marcel.png" onerror="this.onerror=null; this.src='mvr.jpg';" alt="Logo Marcel Boutique">
+            <!-- ÓPTICA RAVALI -->
+            <div class="card-sucursal" style="border-top: 4px solid #a80f14;">
+                <div>
+                    <img src="ravali.jpg" onerror="this.src='https://via.placeholder.com/300x200?text=Optica+Ravali'" alt="Óptica Ravali">
+                    <h3>Óptica Ravali</h3>
+                    <p>Diseños vanguardistas, armazones de moda y lentes solares polarizados de alta gama.</p>
+                </div>
+                <div>
+                    <a href="Ravali.html" class="btn" style="background-color: #a80f14; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Catálogo Ravali</a>
+                </div>
             </div>
-            <div class="tarjeta-body">
-                <h3>Marcel Boutique</h3>
-                <p>Moda, Estilo y Elegancia. Descubre nuestra nueva colección de vestidos, conjuntos y accesorios.</p>
-                <span class="btn-entrar">Ver Catálogo</span>
-            </div>
-        </a>
 
-        <!-- TARJETA PROMOTORAS -->
-        <a href="Promotoras.html" class="tarjeta-acceso acceso-promotoras">
-            <div class="tarjeta-header">
-                <h2 style="color: white; margin: 0; font-size: 2rem;">🤝</h2>
-                <h3 style="color: white; margin: 0; margin-top: 10px;">Portal MVR</h3>
+            <!-- MARCEL BOUTIQUE -->
+            <div class="card-sucursal" style="border-top: 4px solid #880e4f;">
+                <div>
+                    <img src="marcel.png" onerror="this.src='https://via.placeholder.com/300x200?text=Marcel+Boutique'" alt="Marcel Boutique">
+                    <h3>Marcel Boutique</h3>
+                    <p>Moda, elegancia y estilo con colecciones exclusivas de vestidos, bolsos y calzado.</p>
+                </div>
+                <div>
+                    <a href="Marcel.html" class="btn" style="background-color: #880e4f; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Catálogo Marcel</a>
+                </div>
             </div>
-            <div class="tarjeta-body">
-                <h3>Promotoras y Vales</h3>
-                <p>Área exclusiva para personal autorizado. Emite vales de compra, consulta tu cartera de clientes y plazos quincenales.</p>
-                <span class="btn-entrar">Acceder al Portal</span>
-            </div>
-        </a>
 
+        </section>
     </main>
 
-    <!-- PIE DE PÁGINA GRUPO MVR -->
-    <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 2rem 1rem; margin-top: 2rem;">
-        <p style="margin: 0; font-size: 0.95rem; margin-bottom: 10px;">
-            📍 Grupo MVR | Tampico, Tamaulipas, México.
-        </p>
-        <p style="margin: 0; font-size: 0.9rem; color: #aaa;">
-            &copy; 2026 Grupo MVR (D'villa, Ravali & Marcel). Todos los derechos reservados.
-        </p>
+    <!-- PIE DE PÁGINA -->
+    <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 3rem;">
+        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
     </footer>
 
+    <!-- SCRIPT PARA CARGAR TODAS LAS PROMOS ACTIVAS EN EL INICIO -->
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec";
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const contenedor = document.getElementById('contenedorPromosInicio');
+            if (!contenedor) return;
+
+            try {
+                let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
+                let promos = await res.json();
+
+                // Filtramos todas las que estén Activas (sin importar la sucursal para mostrarlas en el inicio)
+                let promosActivas = promos.filter(p => p.estado === "Activa");
+
+                if (promosActivas.length > 0) {
+                    let htmlPromos = "";
+                    promosActivas.forEach(p => {
+                        // Color dinámico según la sucursal
+                        let colorFondo = "#002b55";
+                        if (p.sucursal === "Óptica Ravali") colorFondo = "#a80f14";
+                        else if (p.sucursal === "Marcel Boutique") colorFondo = "#880e4f";
+                        else if (p.sucursal === "Óptica D'villa") colorFondo = "#0059b3";
+
+                        htmlPromos += `
+                            <div style="background: ${colorFondo}; color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">${p.sucursal}</span>
+                                    <h4 style="margin: 6px 0 3px 0; font-size: 1.2rem; color: #ffffff;">${p.titulo}</h4>
+                                    <p style="margin: 0; font-size: 0.9rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
+                                </div>
+                                <a href="${p.sucursal === 'Óptica Ravali' ? 'Ravali.html' : (p.sucursal === 'Marcel Boutique' ? 'Marcel.html' : 'D´villa.html')}" style="background: white; color: ${colorFondo}; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 0.85rem;">Ver Sucursal &rarr;</a>
+                            </div>`;
+                    });
+                    contenedor.innerHTML = htmlPromos;
+                } else {
+                    contenedor.innerHTML = `<p style="text-align: center; color: #777; font-size: 0.95rem;">No hay promociones activas por el momento. ¡Consulta más tarde!</p>`;
+                }
+            } catch (error) {
+                console.error("Error al cargar promociones en inicio", error);
+            }
+        });
+    </script>
+
 </body>
-</html>	
+</html>

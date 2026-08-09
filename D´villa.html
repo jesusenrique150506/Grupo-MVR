@@ -138,15 +138,14 @@
             </a>
         </div>
         <nav class="main-nav">
-    <ul>
-        <li><a href="index.html">Inicio</a></li>
-        <li><a href="D´villa.html">Óptica D'villa</a></li>
-        <li><a href="Ravali.html">Óptica Ravali</a></li>
-        <li><a href="Marcel.html">Marcel Boutique</a></li>
-        <li><a href="Promotoras.html">Promotoras / Vales</a></li>
-       
-    </ul>
-</nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="D´villa.html">Óptica D'villa</a></li>
+                <li><a href="Ravali.html">Óptica Ravali</a></li>
+                <li><a href="Marcel.html">Marcel Boutique</a></li>
+                <li><a href="Promotoras.html">Promotoras / Vales</a></li>
+            </ul>
+        </nav>
     </header>
 
     <!-- BANNER DE BIENVENIDA D'VILLA -->
@@ -158,6 +157,9 @@
             📍 Cómo llegar a Sucursal D'villa
         </a>
     </section>
+
+    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE -->
+    <div id="contenedorPromosCliente" style="max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;"></div>
 
     <!-- CATÁLOGO EXCLUSIVO DE PRODUCTOS D'VILLA -->
     <main>
@@ -211,7 +213,7 @@
                 </div>
             </div>
 
-        <!-- PRODUCTO 4 -->
+            <!-- PRODUCTO 4 -->
             <div class="card-producto">
                 <div>
                     <img src="imagenes/dvilla/lente2.jpg" alt="Lente graduado">
@@ -221,7 +223,7 @@
                 <div>
                     <div class="precio">$2,350.00 MXN</div>
                     <div class="botones-card">
-                        <button class="btn-secundario" onclick="abrirModalPagos('Lente con Filtro Blue Ray', 1350)">💳 Ver Quincenas y Promos</button>
+                        <button class="btn-secundario" onclick="abrirModalPagos('Lente con Filtro Blue Ray', 2350)">💳 Ver Quincenas y Promos</button>
                         <a href="Promotoras.html" class="btn" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
                     </div>
                 </div>
@@ -266,8 +268,43 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Óptica D'villa (Grupo MVR). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT PARA CALCULAR PAGOS Y ABRIR MODAL -->
+    <!-- LÓGICA JAVASCRIPT PARA MODAL, PAGOS Y PROMOCIONES DESDE LA NUBE -->
     <script>
+        
+        const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec";
+
+        // Cargar promociones dinámicas desde Google Sheets al abrir la página
+        window.addEventListener('DOMContentLoaded', async () => {
+            const contenedor = document.getElementById('contenedorPromosCliente');
+            if (!contenedor) return;
+
+            try {
+                let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
+                let promos = await res.json();
+
+                // Filtramos solo las Activas que sean para Óptica D'villa o Generales
+                let promosActivas = promos.filter(p => 
+                    p.estado === "Activa" && 
+                    (p.sucursal === "Óptica D'villa" || p.sucursal === "General")
+                );
+
+                if (promosActivas.length > 0) {
+                    let htmlPromos = "";
+                    promosActivas.forEach(p => {
+                        htmlPromos += `
+                            <div style="background: linear-gradient(135deg, #002b55, #0059b3); color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); text-align: center;">
+                                <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">¡Promoción Especial!</span>
+                                <h3 style="margin: 8px 0 5px 0; font-size: 1.3rem; color: #ffffff;">${p.titulo}</h3>
+                                <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
+                            </div>`;
+                    });
+                    contenedor.innerHTML = htmlPromos;
+                }
+            } catch (error) {
+                console.error("Error al cargar promociones para el cliente", error);
+            }
+        });
+
         function abrirModalPagos(nombreProducto, precioTotal) {
             document.getElementById('modalTitulo').innerText = nombreProducto;
             

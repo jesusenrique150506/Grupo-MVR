@@ -57,7 +57,7 @@
             gap: 10px;
         }
         .btn-secundario {
-            background-color: #fdf2f2;
+            background-color: #fff5f5;
             color: #a80f14;
             border: 2px solid #a80f14;
             padding: 0.7rem;
@@ -120,14 +120,17 @@
             border-bottom: 1px solid #eee;
             text-align: left;
         }
-        .tabla-quincenas th { color: #a80f14; }
-        .fila-destacada { background-color: #fdf2f2; font-weight: bold; }
+        .tabla-quincenas th { 
+            color: #a80f14; 
+            border-bottom: 2px solid #a80f14;
+        }
+        .fila-destacada { background-color: #fff5f5; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <!-- ENCABEZADO EXCLUSIVO RAVALI -->
-    <header class="main-header" style="background-color: #a80f14;">
+    <header class="main-header" style="background-color: #002b55;">
         <div class="logo">
             <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
                 <img src="ravali.jpg" onerror="this.onerror=null; this.src='ravali.png';" alt="Logo Óptica Ravali" style="height: 45px; width: auto; object-fit: contain; border-radius: 4px; background: white; padding: 2px;">
@@ -135,26 +138,28 @@
             </a>
         </div>
         <nav class="main-nav">
-    <ul>
-        <li><a href="index.html">Inicio</a></li>
-        <li><a href="D´villa.html">Óptica D'villa</a></li>
-        <li><a href="Ravali.html">Óptica Ravali</a></li>
-        <li><a href="Marcel.html">Marcel Boutique</a></li>
-        <li><a href="Promotoras.html">Promotoras / Vales</a></li>
-        
-    </ul>
-</nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="D´villa.html">Óptica D'villa</a></li>
+                <li><a href="Ravali.html">Óptica Ravali</a></li>
+                <li><a href="Marcel.html">Marcel Boutique</a></li>
+                <li><a href="Promotoras.html">Promotoras / Vales</a></li>
+            </ul>
+        </nav>
     </header>
 
     <!-- BANNER DE BIENVENIDA RAVALI -->
-    <section class="hero" style="background-color: #fdf2f2; text-align: center; padding: 2.5rem 1rem;">
-        <h2 style="color: #a80f14; font-size: 2rem; margin-bottom: 0.5rem;">Catálogo Juvenil y Sol Ravali</h2>
-        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem;">"Donde la salud, la visión y el estilo se encuentran"</p>
-        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto;">Un mundo de lentes para ti: colecciones de sol, pupilentes de contacto y armazones con el mejor estilo moderno.</p>
-        <a href="https://maps.google.com/?q=Opticas+Ravali" target="_blank" class="btn" style="background-color: #a80f14; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+    <section class="hero" style="background-color: #fff5f5; text-align: center; padding: 2.5rem 1rem;">
+        <h2 style="color: #a80f14; font-size: 2rem; margin-bottom: 0.5rem;">Estilo y Vanguardia en Óptica Ravali</h2>
+        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem;">"Moda, diseño y máxima protección visual para ti"</p>
+        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto;">Encuentra las últimas tendencias en armazones de diseño exclusivo y tecnología óptica avanzada.</p>
+        <a href="https://maps.google.com/?q=Optica+Ravali" target="_blank" class="btn" style="background-color: #a80f14; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             📍 Cómo llegar a Sucursal Ravali
         </a>
     </section>
+
+    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE -->
+    <div id="contenedorPromosCliente" style="max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;"></div>
 
     <!-- CATÁLOGO EXCLUSIVO DE PRODUCTOS RAVALI -->
     <main>
@@ -163,14 +168,14 @@
             <!-- PRODUCTO 1 -->
             <div class="card-producto">
                 <div>
-                    <img src="imagenes/ravali/lente1.jpg" alt="Lente de Sol Graduado Ravali">
-                    <h3>Lente de Sol Graduado Ravali</h3>
-                    <p>Protección UV400 completa con la graduación exacta adaptada a tu estilo de vida.</p>
+                    <img src="imagenes/ravali/lente1.jpg" alt="Armazón de Moda Ravali">
+                    <h3>Armazón de Moda Ravali</h3>
+                    <p>Diseño moderno y vanguardista con acabados metálicos y detalles únicos.</p>
                 </div>
                 <div>
-                    <div class="precio">$1,600.00 MXN</div>
+                    <div class="precio">$1,950.00 MXN</div>
                     <div class="botones-card">
-                        <button class="btn-secundario" onclick="abrirModalPagos('Lente de Sol Graduado Ravali', 1600)">💳 Ver Quincenas y Promos</button>
+                        <button class="btn-secundario" onclick="abrirModalPagos('Armazón de Moda Ravali', 1950)">💳 Ver Quincenas y Promos</button>
                         <a href="Promotoras.html" class="btn" style="background-color: #a80f14; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
                     </div>
                 </div>
@@ -179,14 +184,14 @@
             <!-- PRODUCTO 2 -->
             <div class="card-producto">
                 <div>
-                    <img src="imagenes/ravali/lente2.jpg" alt="Armazón Juvenil Ravali">
-                    <h3>Armazón Juvenil Ravali</h3>
-                    <p>Diseños ultraligeros en acetato transparente y tonos en tendencia de temporada.</p>
+                    <img src="imagenes/ravali/lente2.jpg" alt="Lente Solar Polarizado">
+                    <h3>Lente Solar Polarizado</h3>
+                    <p>Máxima protección UV con cristales polarizados de alta gama para el sol.</p>
                 </div>
                 <div>
-                    <div class="precio">$1,150.00 MXN</div>
+                    <div class="precio">$1,600.00 MXN</div>
                     <div class="botones-card">
-                        <button class="btn-secundario" onclick="abrirModalPagos('Armazón Juvenil Ravali', 1150)">💳 Ver Quincenas y Promos</button>
+                        <button class="btn-secundario" onclick="abrirModalPagos('Lente Solar Polarizado', 1600)">💳 Ver Quincenas y Promos</button>
                         <a href="Promotoras.html" class="btn" style="background-color: #a80f14; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
                     </div>
                 </div>
@@ -195,30 +200,30 @@
             <!-- PRODUCTO 3 -->
             <div class="card-producto">
                 <div>
-                    <img src="imagenes/ravali/lente3.jpg" alt="Lentes de Contacto Graduados">
-                    <h3>Lentes de Contacto Graduados</h3>
-                    <p>Máxima comodidad e hidratación diaria para una visión clara sin necesidad de armazón.</p>
+                    <img src="imagenes/ravali/lente3.jpg" alt="Armazón Deportivo Flexible">
+                    <h3>Armazón Deportivo Flexible</h3>
+                    <p>Ultraligero y resistente a impactos, perfecto para un estilo de vida activo.</p>
                 </div>
                 <div>
-                    <div class="precio">$850.00 MXN</div>
+                    <div class="precio">$2,250.00 MXN</div>
                     <div class="botones-card">
-                        <button class="btn-secundario" onclick="abrirModalPagos('Lentes de Contacto Graduados', 850)">💳 Ver Quincenas y Promos</button>
+                        <button class="btn-secundario" onclick="abrirModalPagos('Armazón Deportivo Flexible', 2250)">💳 Ver Quincenas y Promos</button>
                         <a href="Promotoras.html" class="btn" style="background-color: #a80f14; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
                     </div>
                 </div>
             </div>
-    
-        <!-- PRODUCTO 4 -->
+
+            <!-- PRODUCTO 4 -->
             <div class="card-producto">
                 <div>
-                    <img src="imagenes/ravali/lente1.jpg" alt="Lente de Sol Graduado Ravali">
-                    <h3>Lente Graduado Ravali</h3>
-                    <p>Protección UV400 completa con la graduación exacta adaptada a tu estilo de vida.</p>
+                    <img src="imagenes/ravali/lente2.jpg" alt="Lente Fotocromático">
+                    <h3>Lente Fotocromático</h3>
+                    <p>Se oscurecen automáticamente con la luz del sol y se aclaran en interiores.</p>
                 </div>
                 <div>
-                    <div class="precio">$2,600.00 MXN</div>
+                    <div class="precio">$2,500.00 MXN</div>
                     <div class="botones-card">
-                        <button class="btn-secundario" onclick="abrirModalPagos('Lente de Sol Graduado Ravali', 1600)">💳 Ver Quincenas y Promos</button>
+                        <button class="btn-secundario" onclick="abrirModalPagos('Lente Fotocromático', 2500)">💳 Ver Quincenas y Promos</button>
                         <a href="Promotoras.html" class="btn" style="background-color: #a80f14; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Comprar con Vale</a>
                     </div>
                 </div>
@@ -231,11 +236,11 @@
     <div id="modalPagos" class="modal-overlay">
         <div class="modal-content">
             <span class="cerrar-modal" onclick="cerrarModal()">&times;</span>
-            <h3 id="modalTitulo" style="color: #002b55; margin-top: 0; font-size: 1.4rem;">Nombre del Producto</h3>
+            <h3 id="modalTitulo" style="color: #a80f14; margin-top: 0; font-size: 1.4rem;">Nombre del Producto</h3>
             
             <div class="promo-box">
                 <strong>🎁 Promoción del Mes:</strong><br>
-                En tu compra llévate estuche rígido y un paño de microfibra ¡Totalmente Gratis!
+                En tu compra llévate estuche rígido, paño de microfibra premium y solución limpiadora ¡Totalmente Gratis!
             </div>
 
             <p style="color: #555; margin-bottom: 0.5rem; font-size: 0.95rem;">Selecciona el plazo de tu vale que mejor se adapte a ti:</p>
@@ -259,12 +264,46 @@
     </div>
 
     <!-- PIE DE PÁGINA RAVALI -->
-    <footer style="background-color: #a80f14; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
-        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Ópticas Ravali (Grupo MVR). Todos los derechos reservados.</p>
+    <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
+        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Óptica Ravali (Grupo MVR). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- LOGICA JAVASCRIPT PARA CALCULAR PAGOS Y ABRIR MODAL -->
+    <!-- LÓGICA JAVASCRIPT PARA MODAL, PAGOS Y PROMOCIONES DESDE LA NUBE -->
     <script>
+               const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec";
+
+        // Cargar promociones dinámicas desde Google Sheets al abrir la página
+        window.addEventListener('DOMContentLoaded', async () => {
+            const contenedor = document.getElementById('contenedorPromosCliente');
+            if (!contenedor) return;
+
+            try {
+                let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
+                let promos = await res.json();
+
+                // Filtramos solo las Activas que sean para Óptica Ravali o Generales
+                let promosActivas = promos.filter(p => 
+                    p.estado === "Activa" && 
+                    (p.sucursal === "Óptica Ravali" || p.sucursal === "General")
+                );
+
+                if (promosActivas.length > 0) {
+                    let htmlPromos = "";
+                    promosActivas.forEach(p => {
+                        htmlPromos += `
+                            <div style="background: linear-gradient(135deg, #a80f14, #d32f2f); color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); text-align: center;">
+                                <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">¡Promoción Especial!</span>
+                                <h3 style="margin: 8px 0 5px 0; font-size: 1.3rem; color: #ffffff;">${p.titulo}</h3>
+                                <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
+                            </div>`;
+                    });
+                    contenedor.innerHTML = htmlPromos;
+                }
+            } catch (error) {
+                console.error("Error al cargar promociones para el cliente", error);
+            }
+        });
+
         function abrirModalPagos(nombreProducto, precioTotal) {
             document.getElementById('modalTitulo').innerText = nombreProducto;
             
