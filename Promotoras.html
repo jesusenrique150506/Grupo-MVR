@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="CSS/opticas-styles.css">
 
     <style>
-        .form-container, .cartera-container {
+        .form-container, .cartera-container, .login-promotora-container {
             max-width: 650px;
             margin: 2rem auto;
             background: #ffffff;
@@ -38,6 +38,30 @@
             font-size: 0.95rem;
         }
 
+        /* --- CONTROL DE ACCESO Y TABS --- */
+        #panelProtegido { display: none; }
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 0.7rem;
+            background: #e9ecef;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #555;
+        }
+        .tab-btn.active {
+            background: #002b55;
+            color: white;
+        }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+
         /* --- TARJETA DE RESULTADO DEL VALE --- */
         #resultadoVale {
             display: none;
@@ -64,26 +88,17 @@
         }
 
         /* TEMAS DE COLOR DINÁMICOS PARA EL VALE */
-        .tema-dvilla {
-            background-color: #f0f7ff !important;
-            border: 2px dashed #0059b3 !important;
-        }
+        .tema-dvilla { background-color: #f0f7ff !important; border: 2px dashed #0059b3 !important; }
         .tema-dvilla .titulo-vale { color: #0059b3 !important; }
         .tema-dvilla .folio-box { color: #0059b3 !important; border: 1px solid #0059b3 !important; }
         .tema-dvilla .monto-destacado { color: #0059b3 !important; }
 
-        .tema-ravali {
-            background-color: #fdf2f2 !important;
-            border: 2px dashed #a80f14 !important;
-        }
+        .tema-ravali { background-color: #fdf2f2 !important; border: 2px dashed #a80f14 !important; }
         .tema-ravali .titulo-vale { color: #a80f14 !important; }
         .tema-ravali .folio-box { color: #a80f14 !important; border: 1px solid #a80f14 !important; }
         .tema-ravali .monto-destacado { color: #a80f14 !important; }
 
-        .tema-marcel {
-            background-color: #fce4ec !important;
-            border: 2px dashed #880e4f !important;
-        }
+        .tema-marcel { background-color: #fce4ec !important; border: 2px dashed #880e4f !important; }
         .tema-marcel .titulo-vale { color: #880e4f !important; }
         .tema-marcel .folio-box { color: #880e4f !important; border: 1px solid #880e4f !important; }
         .tema-marcel .monto-destacado { color: #880e4f !important; }
@@ -95,17 +110,8 @@
             margin-top: 1.5rem;
             font-size: 0.9rem;
         }
-        .tabla-cartera th {
-            background-color: #002b55;
-            color: white;
-            padding: 0.8rem;
-            text-align: left;
-        }
-        .tabla-cartera td {
-            padding: 0.8rem;
-            border-bottom: 1px solid #ddd;
-            vertical-align: middle;
-        }
+        .tabla-cartera th { background-color: #002b55; color: white; padding: 0.8rem; text-align: left; }
+        .tabla-cartera td { padding: 0.8rem; border-bottom: 1px solid #ddd; vertical-align: middle; }
         .row-dvilla { background-color: #eef6ff !important; border-left: 4px solid #0059b3 !important; }
         .row-ravali { background-color: #fff0f0 !important; border-left: 4px solid #a80f14 !important; }
         .row-marcel { background-color: #fff0f5 !important; border-left: 4px solid #880e4f !important; }
@@ -142,15 +148,12 @@
             z-index: 1000;
             transition: transform 0.3s ease;
         }
-        .btn-whatsapp-soporte:hover {
-            transform: scale(1.08);
-            background-color: #20ba5a;
-        }
+        .btn-whatsapp-soporte:hover { transform: scale(1.08); background-color: #20ba5a; }
 
         /* --- REGLAS DE IMPRESIÓN --- */
         @media print {
             body { background: #ffffff !important; color: #000000 !important; }
-            header, footer, .hero, #valeForm, button, label, input, select, div[style*="flex"], .btn-whatsapp-soporte { display: none !important; }
+            header, footer, .hero, #valeForm, .login-promotora-container, button, label, input, select, div[style*="flex"], .btn-whatsapp-soporte { display: none !important; }
             body.imprimiendo-vale .cartera-container { display: none !important; }
             body.imprimiendo-vale .form-container { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; }
             body.imprimiendo-cartera .form-container { display: none !important; }
@@ -184,100 +187,148 @@
     <section class="hero" style="background-color: #e6f0fa; text-align: center; padding: 2rem 1rem;">
         <h2 style="color: #002b55;">Portal Oficial para Promotoras</h2>
         <p style="font-style: italic; color: #555;">"Donde la salud, la visión y el estilo se encuentran"</p>
-        <p>Emite vales digitales con código QR de validación inmediata.</p>
+        <p>Registro, control y emisión de vales digitales seguros.</p>
     </section>
 
-    <!-- FORMULARIO DE EMISIÓN -->
-    <main class="form-container">
-        <h3 style="text-align: center; color: #002b55; margin-bottom: 1.5rem;">✍️ Registro de Vale Digital</h3>
-        
-        <form id="valeForm" onsubmit="generarFolio(event)">
-            <div class="form-grid">
-                <div class="form-group full-width">
-                    <label for="numPromotora">Nombre o N° de Promotora Autorizada:</label>
-                    <input type="text" id="numPromotora" placeholder="Ej. María López o P-4502" required>
-                </div>
-                <div class="form-group full-width">
-                    <label for="sucursalVale">Óptica/Boutique de Atención:</label>
-                    <select id="sucursalVale" required>
-                        <option value="Óptica D'villa">Óptica D'villa</option>
-                        <option value="Óptica Ravali">Óptica Ravali</option>
-                        <option value="Marcel Boutique">Marcel Boutique</option>
-                    </select>
-                </div>
-                <div class="form-group full-width">
-                    <label for="nombreCliente">Nombre Completo del Cliente:</label>
-                    <input type="text" id="nombreCliente" placeholder="Ej. María López Hernández" required>
-                </div>
-                <div class="form-group full-width">
-                    <label for="telefonoCliente">Teléfono de Contacto (10 dígitos):</label>
-                    <input type="tel" id="telefonoCliente" placeholder="Ej. 8331234567" required>
-                </div>
-                <div class="form-group full-width">
-                    <label for="direccionCliente">Dirección Completa:</label>
-                    <input type="text" id="direccionCliente" placeholder="Calle, número, colonia y ciudad" required>
-                </div>
-                <div class="form-group full-width">
-                    <label for="montoVale">Monto Autorizado ($ MXN):</label>
-                    <input type="number" id="montoVale" placeholder="Ej. 1500" min="100" required>
-                </div>
-                <div class="form-group full-width">
-                    <label for="quincenasVale">Plazo de Pago:</label>
-                    <select id="quincenasVale" required>
-                        <option value="2 Quincenas">2 Quincenas</option>
-                        <option value="4 Quincenas">4 Quincenas</option>
-                        <option value="6 Quincenas">6 Quincenas</option>
-                        <option value="8 Quincenas">8 Quincenas</option>
-                        <option value="10 Quincenas">10 Quincenas</option>
-                        <option value="12 Quincenas">12 Quincenas</option>
-                    </select>
-                </div>
-            </div>
+    <!-- 🔒 PANTALLA DE ACCESO Y REGISTRO -->
+    <main id="panelLogin" class="login-promotora-container">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="cambiarTab('login')">Iniciar Sesión</button>
+            <button class="tab-btn" onclick="cambiarTab('registro')">Registrar Nueva Promotora</button>
+        </div>
 
-            <button type="submit" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 1rem; font-size: 1.1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1.5rem;">
-                🎟️ Generar Folio y Código QR del Vale
+        <!-- FORMULARIO DE INICIO DE SESIÓN -->
+        <form id="formLogin" class="auth-form active" onsubmit="iniciarSesion(event)">
+            <h3 style="color: #002b55; margin-bottom: 1rem;">🔐 Iniciar Sesión</h3>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="loginNum">N° o ID de Promotora:</label>
+                <input type="text" id="loginNum" placeholder="Ej. P-4502" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 1.2rem;">
+                <label for="loginPass">Contraseña:</label>
+                <input type="password" id="loginPass" placeholder="Tu contraseña personal" required>
+            </div>
+            <button type="submit" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                🔓 Ingresar al Portal
             </button>
         </form>
 
-        <!-- TARJETA DE RESULTADO CON QR Y BOTONES -->
-        <div id="resultadoVale"></div>
+        <!-- FORMULARIO DE REGISTRO -->
+        <form id="formRegistro" class="auth-form" onsubmit="registrarPromotora(event)">
+            <h3 style="color: #002b55; margin-bottom: 1rem;">📝 Registro de Promotora</h3>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="regNum">N° o ID de Promotora:</label>
+                <input type="text" id="regNum" placeholder="Ej. P-4502" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 1.2rem;">
+                <label for="regPass">Elige tu Contraseña:</label>
+                <input type="password" id="regPass" placeholder="Crea una contraseña segura" required>
+            </div>
+            <button type="submit" class="btn" style="width: 100%; background-color: #28a745; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                ✨ Registrarme Ahora
+            </button>
+        </form>
     </main>
 
-    <!-- APARTADO DE CARTERA -->
-    <section class="cartera-container">
-        <h3 style="text-align: center; color: #002b55; margin-bottom: 0.5rem;">📂 Consulta de Cartera de Clientes</h3>
-        <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Filtra tus vales colocados por nombre o número de promotora.</p>
+    <!-- 🔓 PANEL PRINCIPAL (OCULTO HASTA AUTENTICARSE) -->
+    <div id="panelProtegido">
         
-        <div class="form-grid">
-            <div class="form-group full-width">
-                <label for="buscarPromotora">Nombre o N° de Promotora:</label>
-                <input type="text" id="buscarPromotora" placeholder="Ej. María López o P-4502">
+        <!-- FORMULARIO DE EMISIÓN -->
+        <main class="form-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="color: #002b55; margin: 0;">✍️ Registro de Vale Digital</h3>
+                <button onclick="cerrarSesion()" style="background: #a80f14; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold;">Cerrar Sesión</button>
             </div>
-        </div>
+            
+            <form id="valeForm" onsubmit="generarFolio(event)">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="numPromotora">Promotora Autorizada (Sesión Activa):</label>
+                        <input type="text" id="numPromotora" readonly style="background-color: #e9ecef; font-weight: bold; color: #002b55;">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="sucursalVale">Óptica/Boutique de Atención:</label>
+                        <select id="sucursalVale" required>
+                            <option value="Óptica D'villa">Óptica D'villa</option>
+                            <option value="Óptica Ravali">Óptica Ravali</option>
+                            <option value="Marcel Boutique">Marcel Boutique</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="nombreCliente">Nombre Completo del Cliente:</label>
+                        <input type="text" id="nombreCliente" placeholder="Ej. María López Hernández" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="telefonoCliente">Teléfono de Contacto (10 dígitos):</label>
+                        <input type="tel" id="telefonoCliente" placeholder="Ej. 8331234567" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="direccionCliente">Dirección Completa:</label>
+                        <input type="text" id="direccionCliente" placeholder="Calle, número, colonia y ciudad" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="montoVale">Monto Autorizado ($ MXN):</label>
+                        <input type="number" id="montoVale" placeholder="Ej. 1500" min="100" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="quincenasVale">Plazo de Pago:</label>
+                        <select id="quincenasVale" required>
+                            <option value="2 Quincenas">2 Quincenas</option>
+                            <option value="4 Quincenas">4 Quincenas</option>
+                            <option value="6 Quincenas">6 Quincenas</option>
+                            <option value="8 Quincenas">8 Quincenas</option>
+                            <option value="10 Quincenas">10 Quincenas</option>
+                            <option value="12 Quincenas">12 Quincenas</option>
+                        </select>
+                    </div>
+                </div>
 
-        <button onclick="buscarCartera()" class="btn" style="width: 100%; background-color: #28a745; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
-            🔍 Consultar Cartera
-        </button>
+                <button type="submit" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 1rem; font-size: 1.1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1.5rem;">
+                    🎟️ Generar Folio y Código QR del Vale
+                </button>
+            </form>
 
-        <div id="tablaCarteraResultado" style="display: none; margin-top: 1.5rem;">
-            <table class="tabla-cartera">
-                <thead>
-                    <tr>
-                        <th>Folio</th>
-                        <th>Cliente</th>
-                        <th>Monto</th>
-                        <th>Plazo</th>
-                        <th>Sucursal</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpoTablaCartera">
-                </tbody>
-            </table>
-            <button onclick="imprimirElemento('cartera')" style="width: 100%; background-color: #002b55; color: white; border: none; padding: 0.8rem; font-weight: bold; border-radius: 5px; margin-top: 1.5rem; cursor: pointer;">
-                🖨️ Exportar Cartera en PDF
+            <!-- TARJETA DE RESULTADO CON QR Y BOTONES -->
+            <div id="resultadoVale"></div>
+        </main>
+
+        <!-- APARTADO DE CARTERA -->
+        <section class="cartera-container">
+            <h3 style="text-align: center; color: #002b55; margin-bottom: 0.5rem;">📂 Consulta de Cartera de Clientes</h3>
+            <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Vales colocados por tu cuenta.</p>
+            
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="buscarPromotora">Promotora Activa:</label>
+                    <input type="text" id="buscarPromotora" readonly style="background-color: #e9ecef; font-weight: bold; color: #002b55;">
+                </div>
+            </div>
+
+            <button onclick="buscarCartera()" class="btn" style="width: 100%; background-color: #28a745; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
+                🔍 Consultar mi Cartera
             </button>
-        </div>
-    </section>
+
+            <div id="tablaCarteraResultado" style="display: none; margin-top: 1.5rem;">
+                <table class="tabla-cartera">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Cliente</th>
+                            <th>Monto</th>
+                            <th>Plazo</th>
+                            <th>Sucursal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaCartera">
+                    </tbody>
+                </table>
+                <button onclick="imprimirElemento('cartera')" style="width: 100%; background-color: #002b55; color: white; border: none; padding: 0.8rem; font-weight: bold; border-radius: 5px; margin-top: 1.5rem; cursor: pointer;">
+                    🖨️ Exportar Cartera en PDF
+                </button>
+            </div>
+        </section>
+
+    </div>
 
     <!-- BOTÓN FLOTANTE WHATSAPP DE SOPORTE -->
     <a href="https://wa.me/8332854129?text=Hola,%20soy%20promotora%20de%20Grupo%20MVR%20y%20requiero%20asistencia%20con%20un%20vale." target="_blank" class="btn-whatsapp-soporte">
@@ -289,8 +340,88 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR (D'villa, Ravali & Marcel). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- SCRIPT DE GENERACIÓN Y QR OPTIMIZADO -->
+    <!-- SCRIPT DE GESTIÓN DE CUENTAS Y ACCESO -->
     <script>
+        window.onload = function() {
+            const activa = localStorage.getItem('mvr_promotora_activa');
+            if (activa) {
+                activarPortal(activa);
+            }
+        };
+
+        function cambiarTab(tipo) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+
+            if (tipo === 'login') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('formLogin').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('formRegistro').classList.add('active');
+            }
+        }
+
+        function registrarPromotora(event) {
+            event.preventDefault();
+            const num = document.getElementById('regNum').value.trim().toUpperCase();
+            const pass = document.getElementById('regPass').value.trim();
+
+            if (!num || pass.length < 4) {
+                alert("Por favor ingresa un número válido y una contraseña de al menos 4 caracteres.");
+                return;
+            }
+
+            let credenciales = JSON.parse(localStorage.getItem('mvr_promotoras_credenciales')) || {};
+
+            if (credenciales[num]) {
+                alert("Este número de promotora ya está registrado. Por favor inicia sesión.");
+                cambiarTab('login');
+                return;
+            }
+
+            credenciales[num] = pass;
+            localStorage.setItem('mvr_promotoras_credenciales', JSON.stringify(credenciales));
+            alert("¡Registro exitoso! Ahora puedes iniciar sesión con tu número y contraseña.");
+            document.getElementById('formRegistro').reset();
+            cambiarTab('login');
+        }
+
+        function iniciarSesion(event) {
+            event.preventDefault();
+            const num = document.getElementById('loginNum').value.trim().toUpperCase();
+            const pass = document.getElementById('loginPass').value.trim();
+
+            let credenciales = JSON.parse(localStorage.getItem('mvr_promotoras_credenciales')) || {};
+
+            if (!credenciales[num]) {
+                alert("Este número de promotora no está registrado. Regístrate primero.");
+                return;
+            }
+
+            if (credenciales[num] === pass) {
+                localStorage.setItem('mvr_promotora_activa', num);
+                activarPortal(num);
+            } else {
+                alert("Contraseña incorrecta. Verifica tus datos.");
+            }
+        }
+
+        function activarPortal(num) {
+            document.getElementById('panelLogin').style.display = 'none';
+            document.getElementById('panelProtegido').style.display = 'block';
+            document.getElementById('numPromotora').value = num;
+            document.getElementById('buscarPromotora').value = num;
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('mvr_promotora_activa');
+            document.getElementById('panelProtegido').style.display = 'none';
+            document.getElementById('panelLogin').style.display = 'block';
+            document.getElementById('formLogin').reset();
+            cambiarTab('login');
+        }
+
         function generarFolio(event) {
             event.preventDefault();
 
@@ -313,7 +444,6 @@
             const nuevoVale = {
                 folio: folio,
                 promotora: promotora.toUpperCase(),
-                promotoraOriginal: promotora,
                 cliente: cliente,
                 telefono: telefono,
                 direccion: direccion,
@@ -409,7 +539,10 @@
 
             contenedorResultado.style.display = 'block';
             contenedorResultado.scrollIntoView({ behavior: 'smooth' });
-            document.getElementById('valeForm').reset();
+            document.getElementById('nombreCliente').value = '';
+            document.getElementById('telefonoCliente').value = '';
+            document.getElementById('direccionCliente').value = '';
+            document.getElementById('montoVale').value = '';
         }
 
         function buscarCartera() {
