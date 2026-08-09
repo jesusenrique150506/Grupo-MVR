@@ -111,7 +111,27 @@
                 🔄 Actualizar Datos de la Nube
             </button>
         </div>
+	// --- NUEVO: CARGAR PROMOCIONES ---
+                let resPromos = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
+                let promosGuardadas = await resPromos.json();
+                
+                const cuerpoPromos = document.getElementById('cuerpoTablaPromos');
+                cuerpoPromos.innerHTML = "";
 
+                if (promosGuardadas.length === 0) {
+                    cuerpoPromos.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No hay promociones registradas.</td></tr>`;
+                } else {
+                    promosGuardadas.slice().reverse().forEach(p => {
+                        let colorEstado = p.estado === 'Activa' ? '#28a745' : '#d32f2f';
+                        cuerpoPromos.innerHTML += `
+                            <tr>
+                                <td><strong>${p.id}</strong></td>
+                                <td>${p.sucursal}</td>
+                                <td>${p.titulo}</td>
+                                <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${p.estado}</span></td>
+                            </tr>`;
+                    });
+                }
         <!-- Resumen Global -->
         <div class="dashboard-grid">
             <div class="card-resumen">
@@ -147,7 +167,55 @@
             </div>
 
         </div>
+	<!-- NUEVO: Gestor de Promociones -->
+        <h4 style="color: #ff8c00; margin-bottom: 1rem; margin-top: 2rem;">📢 Gestor de Promociones (Tienda Online)</h4>
+        <div class="dashboard-grid">
+            <!-- Formulario para crear promo -->
+            <div class="card-resumen" style="border-left-color: #ff8c00; padding: 1.5rem;">
+                <h4 style="color: #ff8c00; margin-bottom: 1rem;">Crear Nueva Promoción</h4>
+                <form id="formPromo" onsubmit="guardarPromocion(event)">
+                    <div class="form-group">
+                        <label>Aplica en Sucursal:</label>
+                        <select id="promoSucursal" required>
+                            <option value="General">Todas (General)</option>
+                            <option value="Óptica D'villa">Óptica D'villa</option>
+                            <option value="Óptica Ravali">Óptica Ravali</option>
+                            <option value="Marcel Boutique">Marcel Boutique</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Título de la Promo:</label>
+                        <input type="text" id="promoTitulo" placeholder="Ej. ¡Buen Fin! 20% de descuento" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción / Condiciones:</label>
+                        <input type="text" id="promoDesc" placeholder="Ej. Válido en armazones solares." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado Inicial:</label>
+                        <select id="promoEstado" required>
+                            <option value="Activa">🟢 Activa (Visible)</option>
+                            <option value="Inactiva">🔴 Inactiva (Oculta)</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="btnGuardarPromo" style="width: 100%; background-color: #ff8c00; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                        ➕ Agregar Promoción
+                    </button>
+                </form>
+            </div>
 
+            <!-- Tabla para ver las promociones -->
+            <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
+                <h4 style="margin-top: 0; color: #555; text-transform: uppercase; font-size: 0.9rem;">Promociones Registradas</h4>
+                <table class="tabla-admin" style="margin-top: 0;">
+                    <thead style="background-color: #ff8c00;">
+                        <tr><th style="background-color: #ff8c00;">ID</th><th style="background-color: #ff8c00;">Sucursal</th><th style="background-color: #ff8c00;">Título</th><th style="background-color: #ff8c00;">Estado</th></tr>
+                    </thead>
+                    <tbody id="cuerpoTablaPromos"></tbody>
+                </table>
+                <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">*Para cambiar el estado de una promoción, modifícalo directamente en tu Google Sheets.</p>
+            </div>
+        </div>
         <h4 style="color: #d32f2f; margin-bottom: 1rem; margin-top: 1rem;">🔐 Directorio de Promotoras y Contraseñas</h4>
         <div style="overflow-x: auto; margin-bottom: 2.5rem; border: 1px solid #ddd; border-radius: 6px;">
             <table class="tabla-admin" style="margin-top: 0;">
@@ -176,8 +244,8 @@
     </footer>
 
     <script>
-        // PEGA AQUÍ TU NUEVA URL DEL APPS SCRIPT
-        const API_URL = "https://script.google.com/macros/s/AKfycbznOq3EvJsu015rNUPeA-nHQXqHa7UK1FgeMFV42ZuUDYNdWFzlA5nkBhdkwz3wRSIN9Q/exec";
+        
+        const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec";
 
         window.onload = function() {
             const adminActivo = localStorage.getItem('mvr_admin_activo');
@@ -337,6 +405,36 @@ async function iniciarSesionAdmin(event) {
                 alert("Hubo un error al conectar con Google Sheets.");
             }
             btn.innerText = "🔄 Actualizar Datos de la Nube";
+        }
+	
+	async function guardarPromocion(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnGuardarPromo');
+            btn.innerText = "Subiendo a la nube...";
+            btn.disabled = true;
+
+            const sucursal = document.getElementById('promoSucursal').value;
+            const titulo = document.getElementById('promoTitulo').value.trim();
+            const desc = document.getElementById('promoDesc').value.trim();
+            const estado = document.getElementById('promoEstado').value.replace(/🟢 |🔴 /g, ""); // Limpiamos el texto
+            const idPromo = "PROM-" + Math.floor(100 + Math.random() * 900); // Genera ID aleatorio
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        accion: "guardarPromocion",
+                        promocion: { id: idPromo, sucursal: sucursal, titulo: titulo, descripcion: desc, estado: estado }
+                    })
+                });
+                alert("✅ Promoción guardada con éxito.");
+                document.getElementById('formPromo').reset();
+                cargarTodoDesdeLaNube(); // Recarga las tablas para que aparezca
+            } catch (error) {
+                alert("Error al guardar la promoción.");
+            }
+            btn.innerText = "➕ Agregar Promoción";
+            btn.disabled = false;
         }
     </script>
 </body>
