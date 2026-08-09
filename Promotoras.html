@@ -204,10 +204,16 @@
                 <label for="loginNum">N° o ID de Promotora:</label>
                 <input type="text" id="loginNum" placeholder="Ej. P-4502" required>
             </div>
-            <div class="form-group" style="margin-bottom: 1.2rem;">
+            <div class="form-group" style="margin-bottom: 1rem;">
                 <label for="loginPass">Contraseña:</label>
                 <input type="password" id="loginPass" placeholder="Tu contraseña personal" required>
             </div>
+            
+            <!-- ENLACE DE RECUPERACIÓN POR WHATSAPP -->
+            <div style="text-align: right; margin-bottom: 1.2rem;">
+                <a href="#" onclick="pedirAyudaPassword(event)" style="font-size: 0.85rem; color: #0059b3; text-decoration: none; font-weight: bold;">¿Olvidaste tu contraseña?</a>
+            </div>
+
             <button type="submit" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
                 🔓 Ingresar al Portal
             </button>
@@ -340,7 +346,7 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR (D'villa, Ravali & Marcel). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- SCRIPT DE GESTIÓN DE CUENTAS Y ACCESO -->
+    <!-- SCRIPT DE GESTIÓN DE CUENTAS Y RECUPERACIÓN -->
     <script>
         window.onload = function() {
             const activa = localStorage.getItem('mvr_promotora_activa');
@@ -403,8 +409,17 @@
                 localStorage.setItem('mvr_promotora_activa', num);
                 activarPortal(num);
             } else {
-                alert("Contraseña incorrecta. Verifica tus datos.");
+                alert("Contraseña incorrecta. Verifica tus datos o usa la opción de ayuda.");
             }
+        }
+
+        function pedirAyudaPassword(event) {
+            event.preventDefault();
+            const numIngresado = document.getElementById('loginNum').value.trim().toUpperCase();
+            const mensaje = encodeURIComponent(
+                `Hola, soy la promotora con ID *${numIngresado || "Desconocido"}* y olvidé mi contraseña del portal de Grupo MVR. ¿Me pueden ayudar a restablecerla?`
+            );
+            window.open(`https://wa.me/8332854129?text=${mensaje}`, '_blank');
         }
 
         function activarPortal(num) {
