@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="CSS/opticas-styles.css">
 
     <style>
-        .admin-container { max-width: 900px; margin: 2rem auto; background: #ffffff; padding: 2.5rem; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+        .admin-container { max-width: 1000px; margin: 2rem auto; background: #ffffff; padding: 2.5rem; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
         .login-admin-container { max-width: 500px; margin: 4rem auto; background: #ffffff; padding: 2.5rem; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
         .form-group { text-align: left; margin-bottom: 1.2rem; }
         .form-group label { display: block; margin-bottom: 0.4rem; font-weight: bold; color: #002b55; font-size: 0.95rem; }
@@ -60,6 +60,7 @@
         <p style="color: #555; margin-top: 5px;">Supervisión conectada a la Nube.</p>
     </section>
 
+    <!-- PANEL DE LOGIN / REGISTRO ADMIN -->
     <main id="panelLoginAdmin" class="login-admin-container">
         <div class="tab-buttons">
             <button class="tab-btn active" onclick="cambiarTabAdmin('login')">Iniciar Sesión</button>
@@ -97,6 +98,7 @@
         </form>
     </main>
 
+    <!-- PANEL DE CONTROL PROTEGIDO -->
     <main id="panelProtegidoAdmin" class="admin-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
             <div>
@@ -108,7 +110,7 @@
 
         <div style="text-align: right; margin-bottom: 1rem;">
             <button onclick="cargarTodoDesdeLaNube()" id="btnActualizarDatos" style="background-color: #28a745; color: white; border: none; padding: 0.6rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                🔄 Actualizar Datos de la Nube
+                🔄 Sincronizar Todo con la Nube
             </button>
         </div>
 
@@ -144,10 +146,70 @@
             </div>
         </div>
 
-        <!-- NUEVO: Gestor de Promociones -->
+        <!-- GESTOR DINÁMICO DE INVENTARIO Y PRODUCTOS -->
+        <h4 style="color: #0059b3; margin-bottom: 1rem; margin-top: 2rem;">📦 Gestor Dinámico de Productos e Inventario</h4>
+        <div class="dashboard-grid" style="grid-template-columns: 1fr;">
+            
+            <!-- Formulario para Agregar Nuevo Producto -->
+            <div class="card-resumen" style="border-left-color: #0059b3; padding: 1.5rem;">
+                <h4 style="color: #0059b3; margin-bottom: 1rem;">Agregar Nuevo Producto a la Tienda</h4>
+                <form id="formNuevoProducto" onsubmit="agregarNuevoProducto(event)">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                        <div class="form-group">
+                            <label>ID del Producto:</label>
+                            <input type="text" id="nuevoId" placeholder="Ej. DVILLA-05" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Empresa / Sucursal:</label>
+                            <select id="nuevaSucursal" required>
+                                <option value="Óptica D'villa">Óptica D'villa</option>
+                                <option value="Óptica Ravali">Óptica Ravali</option>
+                                <option value="Marcel Boutique">Marcel Boutique</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre del Producto:</label>
+                            <input type="text" id="nuevoNombre" placeholder="Ej. Lentes Sol" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Inicial:</label>
+                            <input type="number" id="nuevoStock" placeholder="Ej. 10" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Precio ($ MXN):</label>
+                            <input type="number" id="nuevoPrecio" placeholder="Ej. 1200" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    <button type="submit" id="btnGuardarProd" style="width: 100%; background-color: #0059b3; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
+                        ➕ Dar de Alta Producto en la Nube
+                    </button>
+                </form>
+            </div>
+
+            <!-- Tabla de Control de Stock Dinámica -->
+            <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px; margin-top: 1.5rem;">
+                <h4 style="margin-top: 0; color: #555; text-transform: uppercase; font-size: 0.9rem;">Catálogo e Inventario Actual en la Nube</h4>
+                <table class="tabla-admin" style="margin-top: 0;">
+                    <thead style="background-color: #0059b3;">
+                        <tr>
+                            <th style="background-color: #0059b3;">ID</th>
+                            <th style="background-color: #0059b3;">Sucursal</th>
+                            <th style="background-color: #0059b3;">Producto</th>
+                            <th style="background-color: #0059b3;">Precio</th>
+                            <th style="background-color: #0059b3;">Stock Actual</th>
+                            <th style="background-color: #0059b3; text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaInventarioAdmin">
+                        <tr><td colspan="6" style="text-align:center; color:#888;">Cargando inventario desde la nube...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Gestor de Promociones -->
         <h4 style="color: #ff8c00; margin-bottom: 1rem; margin-top: 2rem;">📢 Gestor de Promociones (Tienda Online)</h4>
         <div class="dashboard-grid" style="grid-template-columns: 1fr;">
-            <!-- Formulario para crear promo -->
             <div class="card-resumen" style="border-left-color: #ff8c00; padding: 1.5rem;">
                 <h4 style="color: #ff8c00; margin-bottom: 1rem;">Crear Nueva Promoción</h4>
                 <form id="formPromo" onsubmit="guardarPromocion(event)">
@@ -163,11 +225,11 @@
                         </div>
                         <div class="form-group">
                             <label>Título de la Promo:</label>
-                            <input type="text" id="promoTitulo" placeholder="Ej. ¡Buen Fin! 20% de descuento" required>
+                            <input type="text" id="promoTitulo" placeholder="Ej. ¡Buen Fin!" required>
                         </div>
                         <div class="form-group">
                             <label>Descripción / Condiciones:</label>
-                            <input type="text" id="promoDesc" placeholder="Ej. Válido en armazones solares." required>
+                            <input type="text" id="promoDesc" placeholder="Ej. 20% de descuento" required>
                         </div>
                         <div class="form-group">
                             <label>Estado Inicial:</label>
@@ -183,7 +245,6 @@
                 </form>
             </div>
 
-            <!-- Tabla para ver las promociones -->
             <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
                 <h4 style="margin-top: 0; color: #555; text-transform: uppercase; font-size: 0.9rem;">Promociones Registradas</h4>
                 <table class="tabla-admin" style="margin-top: 0;">
@@ -192,7 +253,6 @@
                     </thead>
                     <tbody id="cuerpoTablaPromos"></tbody>
                 </table>
-                <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">*Para cambiar el estado de una promoción, modifícalo directamente en tu base de datos de Google Sheets.</p>
             </div>
         </div>
 
@@ -223,9 +283,9 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
     </footer>
 
+    <!-- LÓGICA JAVASCRIPT MAESTRA DEL PANEL ADMIN -->
     <script>
-        
-        const API_URL = "https://script.google.com/macros/s/AKfycbxo-ukaK3YnPJ3PhkFBGA5wtVu2sVwRby2-HegBudp6EtZFdUAo4hxN13Cq8XvB4EZrTQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxS4scgnF4qFdz6EgLBErgxAFDe6DEZjv1gD8VDbYHqbzg0YIDcZVoOIwb_nIWp35VLCQ/exec";
 
         window.onload = function() {
             const adminActivo = localStorage.getItem('mvr_admin_activo');
@@ -262,8 +322,7 @@
                     cambiarTabAdmin('login');
                 } else {
                     await fetch(API_URL, {
-                        method: 'POST', 
-                        mode: 'no-cors',
+                        method: 'POST', mode: 'no-cors',
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({ accion: "guardarAdmin", admin: { usuario: usuario, password: pass } })
                     });
@@ -272,7 +331,7 @@
                     cambiarTabAdmin('login');
                 }
             } catch (error) {
-                alert("Error de conexión al registrar. Intenta de nuevo.\n" + error.message);
+                alert("Error de conexión al registrar. Intenta de nuevo.");
             }
             btn.innerText = "✨ Registrar Administrador";
         }
@@ -281,39 +340,29 @@
             event.preventDefault();
             const usuarioInput = document.getElementById('loginUsuarioAdmin').value.trim().toUpperCase();
             const passInput = document.getElementById('loginPassAdmin').value.trim();
-
             const btn = document.getElementById('btnAccesoAdmin');
             btn.innerText = "Verificando Nube...";
 
             try {
                 let res = await fetch(`${API_URL}?accion=obtenerAdmins&nocache=${new Date().getTime()}`);
-                let textoRespuesta = await res.text();
-                
-                try {
-                    let admins = JSON.parse(textoRespuesta);
-                    let accesoConcedido = false;
+                let admins = await res.json();
+                let accesoConcedido = false;
 
-                    for (let usuarioBD in admins) {
-                        let nombreLimpio = String(usuarioBD).trim().toUpperCase();
-                        let passLimpia = String(admins[usuarioBD]).trim();
-
-                        if (nombreLimpio === usuarioInput && passLimpia === passInput) {
-                            accesoConcedido = true;
-                            break;
-                        }
+                for (let usuarioBD in admins) {
+                    if (String(usuarioBD).trim().toUpperCase() === usuarioInput && String(admins[usuarioBD]).trim() === passInput) {
+                        accesoConcedido = true;
+                        break;
                     }
+                }
 
-                    if (accesoConcedido) {
-                        localStorage.setItem('mvr_admin_activo', usuarioInput);
-                        activarPanelAdmin(usuarioInput);
-                    } else {
-                        alert("Acceso denegado.\n\n📡 Datos leyendo desde Excel:\n" + textoRespuesta + "\n\n⌨️ Tú escribiste:\nUsuario: [" + usuarioInput + "]\nContraseña: [" + passInput + "]");
-                    }
-                } catch(e) {
-                    alert("⚠️ ERROR: Google no devolvió datos válidos. Respuesta:\n" + textoRespuesta.substring(0, 100));
+                if (accesoConcedido) {
+                    localStorage.setItem('mvr_admin_activo', usuarioInput);
+                    activarPanelAdmin(usuarioInput);
+                } else {
+                    alert("Acceso denegado. Usuario o contraseña incorrectos.");
                 }
             } catch (error) {
-                alert("Error de conexión. Intenta de nuevo.");
+                alert("Error de conexión al iniciar sesión.");
             }
             btn.innerText = "🔓 Ingresar al Sistema";
         }
@@ -333,10 +382,11 @@
             cambiarTabAdmin('login');
         }
 
+        // --- MÓDULO DE PROMOCIONES ---
         async function guardarPromocion(event) {
             event.preventDefault();
             const btn = document.getElementById('btnGuardarPromo');
-            btn.innerText = "Subiendo a la nube...";
+            btn.innerText = "Subiendo...";
             btn.disabled = true;
 
             const sucursal = document.getElementById('promoSucursal').value;
@@ -363,42 +413,137 @@
             btn.disabled = false;
         }
 
+        // --- MÓDULO DE INVENTARIO Y PRODUCTOS ---
+        async function agregarNuevoProducto(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnGuardarProd');
+            btn.innerText = "Registrando...";
+            btn.disabled = true;
+
+            const id = document.getElementById('nuevoId').value.trim().toUpperCase();
+            const sucursal = document.getElementById('nuevaSucursal').value;
+            const nombre = document.getElementById('nuevoNombre').value.trim();
+            const stock = parseInt(document.getElementById('nuevoStock').value) || 0;
+            const precio = parseFloat(document.getElementById('nuevoPrecio').value) || 0;
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        accion: "actualizarStock",
+                        inventario: { id: id, sucursal: sucursal, nombre: nombre, stock: stock, precio: precio }
+                    })
+                });
+                alert("✅ ¡Producto dado de alta con éxito!");
+                document.getElementById('formNuevoProducto').reset();
+                cargarTodoDesdeLaNube();
+            } catch (error) {
+                alert("Error al registrar el producto.");
+            }
+            btn.innerText = "➕ Dar de Alta Producto en la Nube";
+            btn.disabled = false;
+        }
+
+        async function guardarStockIndividual(id, sucursal, nombre, precio) {
+            const inputStock = document.getElementById(`stock-${id}`);
+            const nuevoStock = parseInt(inputStock.value) || 0;
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        accion: "actualizarStock",
+                        inventario: { id: id, sucursal: sucursal, nombre: nombre, stock: nuevoStock, precio: precio }
+                    })
+                });
+                alert(`✅ Stock actualizado para ${nombre} (Cantidad: ${nuevoStock})`);
+                cargarTodoDesdeLaNube();
+            } catch (error) {
+                alert("Error al actualizar el stock.");
+            }
+        }
+
+        async function eliminarProductoInventario(id, nombre) {
+            if (!confirm(`¿Estás seguro de eliminar el producto "${nombre}" (${id}) de la base de datos?`)) return;
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ accion: "eliminarStock", id: id })
+                });
+                alert(`🗑️ Producto eliminado correctamente.`);
+                cargarTodoDesdeLaNube();
+            } catch (error) {
+                alert("Error al eliminar el producto.");
+            }
+        }
+
+        // --- SINCRONIZACIÓN GENERAL CON LA NUBE ---
         async function cargarTodoDesdeLaNube() {
             const btn = document.getElementById('btnActualizarDatos');
-            btn.innerText = "Sincronizando con Google Sheets...";
+            if (btn) btn.innerText = "Sincronizando con Google Sheets...";
             
             try {
-                // 1. CARGAR PROMOTORAS
-                let resProm = await fetch(`${API_URL}?accion=obtenerPromotoras&nocache=${new Date().getTime()}`);
-                let credencialesPromotoras = await resProm.json();
-                
-                const cuerpoTablaPromotoras = document.getElementById('cuerpoTablaPromotoras');
-                cuerpoTablaPromotoras.innerHTML = "";
-                let listaPromotoras = Object.keys(credencialesPromotoras);
-
-                if (listaPromotoras.length === 0) {
-                    cuerpoTablaPromotoras.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">No hay promotoras registradas.</td></tr>`;
-                } else {
-                    listaPromotoras.forEach(promotora => {
-                        const password = credencialesPromotoras[promotora];
-                        const mensajeWsp = encodeURIComponent(`Hola ${promotora}, te contactamos de administración de Grupo MVR. Tu contraseña de acceso al portal es: *${password}*`);
-                        cuerpoTablaPromotoras.innerHTML += `
-                            <tr>
-                                <td><strong>${promotora}</strong></td>
-                                <td><span class="pass-badge">${password}</span></td>
-                                <td style="text-align: center;"><a href="https://wa.me/?text=${mensajeWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.4rem 0.8rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">💬 Enviar Contraseña</a></td>
-                            </tr>`;
-                    });
+                // 1. CARGAR INVENTARIO DINÁMICO
+                let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
+                let inventarioRemoto = await resInv.json();
+                const cuerpoInv = document.getElementById('cuerpoTablaInventarioAdmin');
+                if (cuerpoInv) {
+                    cuerpoInv.innerHTML = "";
+                    let ids = Object.keys(inventarioRemoto);
+                    if (ids.length === 0) {
+                        cuerpoInv.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888;">No hay productos registrados.</td></tr>`;
+                    } else {
+                        ids.forEach(id => {
+                            let prod = inventarioRemoto[id];
+                            let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(prod.precio || 0);
+                            cuerpoInv.innerHTML += `
+                                <tr>
+                                    <td><strong>${id}</strong></td>
+                                    <td>${prod.sucursal}</td>
+                                    <td>${prod.nombre}</td>
+                                    <td>${precioFmt}</td>
+                                    <td>
+                                        <input type="number" id="stock-${id}" value="${prod.stock}" min="0" style="width: 70px; padding: 4px; text-align: center; font-weight: bold; border: 1px solid #ccc; border-radius: 4px;">
+                                    </td>
+                                    <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
+                                        <button onclick="guardarStockIndividual('${id}', '${prod.sucursal}', '${String(prod.nombre).replace(/'/g, "")}', ${prod.precio})" style="background-color: #28a745; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">💾 Guardar</button>
+                                        <button onclick="eliminarProductoInventario('${id}', '${prod.nombre}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🗑️ Eliminar</button>
+                                    </td>
+                                </tr>`;
+                        });
+                    }
                 }
 
-                // 2. CARGAR PROMOCIONES
-                try {
-                    let resPromos = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
-                    let promosGuardadas = await resPromos.json();
-                    
-                    const cuerpoPromos = document.getElementById('cuerpoTablaPromos');
-                    cuerpoPromos.innerHTML = "";
+                // 2. CARGAR PROMOTORAS
+                let resProm = await fetch(`${API_URL}?accion=obtenerPromotoras&nocache=${new Date().getTime()}`);
+                let credencialesPromotoras = await resProm.json();
+                const cuerpoTablaPromotoras = document.getElementById('cuerpoTablaPromotoras');
+                if (cuerpoTablaPromotoras) {
+                    cuerpoTablaPromotoras.innerHTML = "";
+                    let listaPromotoras = Object.keys(credencialesPromotoras);
+                    if (listaPromotoras.length === 0) {
+                        cuerpoTablaPromotoras.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">No hay promotoras registradas.</td></tr>`;
+                    } else {
+                        listaPromotoras.forEach(promotora => {
+                            const password = credencialesPromotoras[promotora];
+                            const mensajeWsp = encodeURIComponent(`Hola ${promotora}, te contactamos de administración de Grupo MVR. Tu contraseña de acceso es: *${password}*`);
+                            cuerpoTablaPromotoras.innerHTML += `
+                                <tr>
+                                    <td><strong>${promotora}</strong></td>
+                                    <td><span class="pass-badge">${password}</span></td>
+                                    <td style="text-align: center;"><a href="https://wa.me/?text=${mensajeWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.4rem 0.8rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">💬 Enviar Contraseña</a></td>
+                                </tr>`;
+                        });
+                    }
+                }
 
+                // 3. CARGAR PROMOCIONES
+                let resPromos = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
+                let promosGuardadas = await resPromos.json();
+                const cuerpoPromos = document.getElementById('cuerpoTablaPromos');
+                if (cuerpoPromos) {
+                    cuerpoPromos.innerHTML = "";
                     if (promosGuardadas.length === 0) {
                         cuerpoPromos.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No hay promociones registradas.</td></tr>`;
                     } else {
@@ -413,71 +558,60 @@
                                 </tr>`;
                         });
                     }
-                } catch (e) {
-                    console.error("No se pudieron cargar las promociones", e);
                 }
 
-                // 3. CARGAR VALES Y CALCULAR MÉTRICAS
+                // 4. CARGAR VALES Y MÉTRICAS
                 let resVales = await fetch(`${API_URL}?accion=obtenerVales&nocache=${new Date().getTime()}`);
                 let valesGuardados = await resVales.json();
-                
                 const cuerpoTabla = document.getElementById('cuerpoTablaAdmin');
-                cuerpoTabla.innerHTML = "";
-                
-                let totalVales = 0; let montoTotalCalculado = 0;
-                let contDvilla = 0; let montoDvilla = 0;
-                let contRavali = 0; let montoRavali = 0;
-                let contMarcel = 0; let montoMarcel = 0;
+                if (cuerpoTabla) {
+                    cuerpoTabla.innerHTML = "";
+                    let totalVales = 0, montoTotalCalculado = 0;
+                    let contDvilla = 0, montoDvilla = 0;
+                    let contRavali = 0, montoRavali = 0;
+                    let contMarcel = 0, montoMarcel = 0;
 
-                if (valesGuardados.length === 0) {
-                    cuerpoTabla.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No hay vales registrados.</td></tr>`;
-                } else {
-                    valesGuardados.slice().reverse().forEach(v => {
-                        let valorMonto = parseFloat(v.monto) || 0;
-                        
-                        totalVales++;
-                        montoTotalCalculado += valorMonto;
+                    if (valesGuardados.length === 0) {
+                        cuerpoTabla.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No hay vales registrados.</td></tr>`;
+                    } else {
+                        valesGuardados.slice().reverse().forEach(v => {
+                            let valorMonto = parseFloat(v.monto) || 0;
+                            totalVales++;
+                            montoTotalCalculado += valorMonto;
 
-                        if (v.sucursal === "Óptica Ravali") {
-                            contRavali++;
-                            montoRavali += valorMonto;
-                        } else if (v.sucursal === "Marcel Boutique") {
-                            contMarcel++;
-                            montoMarcel += valorMonto;
-                        } else {
-                            contDvilla++;
-                            montoDvilla += valorMonto;
-                        }
+                            if (v.sucursal === "Óptica Ravali") { contRavali++; montoRavali += valorMonto; }
+                            else if (v.sucursal === "Marcel Boutique") { contMarcel++; montoMarcel += valorMonto; }
+                            else { contDvilla++; montoDvilla += valorMonto; }
 
-                        const esRavali = v.sucursal === "Óptica Ravali";
-                        const esMarcel = v.sucursal === "Marcel Boutique";
-                        const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
-                        const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(valorMonto);
+                            const esRavali = v.sucursal === "Óptica Ravali";
+                            const esMarcel = v.sucursal === "Marcel Boutique";
+                            const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
+                            const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(valorMonto);
 
-                        cuerpoTabla.innerHTML += `
-                            <tr>
-                                <td><strong>${v.folio}</strong></td><td>${v.fecha}</td><td>${v.promotora}</td>
-                                <td>${v.cliente}</td><td style="font-weight: bold; color: #28a745;">${montoF}</td>
-                                <td>${v.quincenas}</td><td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
-                            </tr>`;
-                    });
+                            cuerpoTabla.innerHTML += `
+                                <tr>
+                                    <td><strong>${v.folio}</strong></td><td>${v.fecha}</td><td>${v.promotora}</td>
+                                    <td>${v.cliente}</td><td style="font-weight: bold; color: #28a745;">${montoF}</td>
+                                    <td>${v.quincenas}</td><td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
+                                </tr>`;
+                        });
+                    }
+
+                    const formatear = (m) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(m);
+                    document.getElementById('resumenTotalVales').innerText = totalVales;
+                    document.getElementById('resumenMontoTotal').innerText = formatear(montoTotalCalculado);
+                    document.getElementById('totalDvilla').innerText = `${contDvilla} vales`;
+                    document.getElementById('montoDvilla').innerText = formatear(montoDvilla);
+                    document.getElementById('totalRavali').innerText = `${contRavali} vales`;
+                    document.getElementById('montoRavali').innerText = formatear(montoRavali);
+                    document.getElementById('totalMarcel').innerText = `${contMarcel} vales`;
+                    document.getElementById('montoMarcel').innerText = formatear(montoMarcel);
                 }
 
-                const formatear = (m) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(m);
-
-                document.getElementById('resumenTotalVales').innerText = totalVales;
-                document.getElementById('resumenMontoTotal').innerText = formatear(montoTotalCalculado);
-                document.getElementById('totalDvilla').innerText = `${contDvilla} vales`;
-                document.getElementById('montoDvilla').innerText = formatear(montoDvilla);
-                document.getElementById('totalRavali').innerText = `${contRavali} vales`;
-                document.getElementById('montoRavali').innerText = formatear(montoRavali);
-                document.getElementById('totalMarcel').innerText = `${contMarcel} vales`;
-                document.getElementById('montoMarcel').innerText = formatear(montoMarcel);
-
             } catch (error) {
-                alert("Hubo un error al conectar con Google Sheets.");
+                console.error("Error sincronizando con la nube", error);
             }
-            btn.innerText = "🔄 Actualizar Datos de la Nube";
+            if (btn) btn.innerText = "🔄 Sincronizar Todo con la Nube";
         }
     </script>
 </body>
