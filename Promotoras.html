@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupo MVR | Portal de Promotoras y Vales</title>
     <link rel="stylesheet" href="CSS/opticas-styles.css">
-    
-    <!-- Librería externa para generar el Código QR automáticamente -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         .form-container, .cartera-container {
@@ -126,10 +123,34 @@
         .badge-ravali { color: #a80f14; }
         .badge-marcel { color: #880e4f; }
 
+        /* --- BOTÓN FLOTANTE WHATSAPP DE SOPORTE --- */
+        .btn-whatsapp-soporte {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background-color: #25d366;
+            color: white;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        .btn-whatsapp-soporte:hover {
+            transform: scale(1.08);
+            background-color: #20ba5a;
+        }
+
         /* --- REGLAS DE IMPRESIÓN --- */
         @media print {
             body { background: #ffffff !important; color: #000000 !important; }
-            header, footer, .hero, #valeForm, button, label, input, select, div[style*="flex"] { display: none !important; }
+            header, footer, .hero, #valeForm, button, label, input, select, div[style*="flex"], .btn-whatsapp-soporte { display: none !important; }
             body.imprimiendo-vale .cartera-container { display: none !important; }
             body.imprimiendo-vale .form-container { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; }
             body.imprimiendo-cartera .form-container { display: none !important; }
@@ -163,7 +184,7 @@
     <section class="hero" style="background-color: #e6f0fa; text-align: center; padding: 2rem 1rem;">
         <h2 style="color: #002b55;">Portal Oficial para Promotoras</h2>
         <p style="font-style: italic; color: #555;">"Donde la salud, la visión y el estilo se encuentran"</p>
-        <p>Emite vales digitales con código QR y compártelos al instante.</p>
+        <p>Emite vales digitales con código QR de validación inmediata.</p>
     </section>
 
     <!-- FORMULARIO DE EMISIÓN -->
@@ -172,11 +193,11 @@
         
         <form id="valeForm" onsubmit="generarFolio(event)">
             <div class="form-grid">
-                <div class="form-group">
-                    <label for="numPromotora">N° Promotora Autorizada:</label>
-                    <input type="text" id="numPromotora" placeholder="Ej. P-4502" required>
+                <div class="form-group full-width">
+                    <label for="numPromotora">Nombre o N° de Promotora Autorizada:</label>
+                    <input type="text" id="numPromotora" placeholder="Ej. María López o P-4502" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label for="sucursalVale">Óptica/Boutique de Atención:</label>
                     <select id="sucursalVale" required>
                         <option value="Óptica D'villa">Óptica D'villa</option>
@@ -196,11 +217,11 @@
                     <label for="direccionCliente">Dirección Completa:</label>
                     <input type="text" id="direccionCliente" placeholder="Calle, número, colonia y ciudad" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label for="montoVale">Monto Autorizado ($ MXN):</label>
                     <input type="number" id="montoVale" placeholder="Ej. 1500" min="100" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label for="quincenasVale">Plazo de Pago:</label>
                     <select id="quincenasVale" required>
                         <option value="2 Quincenas">2 Quincenas</option>
@@ -214,7 +235,7 @@
             </div>
 
             <button type="submit" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 1rem; font-size: 1.1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1.5rem;">
-                🎟️ Generar Folio y Código QR
+                🎟️ Generar Folio y Código QR del Vale
             </button>
         </form>
 
@@ -225,21 +246,12 @@
     <!-- APARTADO DE CARTERA -->
     <section class="cartera-container">
         <h3 style="text-align: center; color: #002b55; margin-bottom: 0.5rem;">📂 Consulta de Cartera de Clientes</h3>
-        <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Filtra tus vales colocados por número de promotora.</p>
+        <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Filtra tus vales colocados por nombre o número de promotora.</p>
         
         <div class="form-grid">
-            <div class="form-group">
-                <label for="buscarPromotora">N° de Promotora:</label>
-                <input type="text" id="buscarPromotora" placeholder="Ej. P-4502">
-            </div>
-            <div class="form-group">
-                <label for="buscarQuincena">Seleccionar Quincena:</label>
-                <select id="buscarQuincena">
-                    <option value="1a Quincena de Agosto">1a Quincena de Agosto</option>
-                    <option value="2a Quincena de Agosto">2a Quincena de Agosto</option>
-                    <option value="1a Quincena de Septiembre">1a Quincena de Septiembre</option>
-                    <option value="2a Quincena de Septiembre">2a Quincena de Septiembre</option>
-                </select>
+            <div class="form-group full-width">
+                <label for="buscarPromotora">Nombre o N° de Promotora:</label>
+                <input type="text" id="buscarPromotora" placeholder="Ej. María López o P-4502">
             </div>
         </div>
 
@@ -267,12 +279,17 @@
         </div>
     </section>
 
+    <!-- BOTÓN FLOTANTE WHATSAPP DE SOPORTE -->
+    <a href="https://wa.me/8332854129?text=Hola,%20soy%20promotora%20de%20Grupo%20MVR%20y%20requiero%20asistencia%20con%20un%20vale." target="_blank" class="btn-whatsapp-soporte">
+        💬 Soporte Promotoras
+    </a>
+
     <!-- PIE DE PÁGINA -->
     <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR (D'villa, Ravali & Marcel). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- SCRIPT DE GENERACIÓN, QR, WHATSAPP Y LOCALSTORAGE -->
+    <!-- SCRIPT DE GENERACIÓN Y QR OPTIMIZADO -->
     <script>
         function generarFolio(event) {
             event.preventDefault();
@@ -280,7 +297,7 @@
             const aleatorio = Math.floor(10000 + Math.random() * 90000);
             const folio = "MVR-" + aleatorio;
 
-            const promotora = document.getElementById('numPromotora').value.trim().toUpperCase();
+            const promotora = document.getElementById('numPromotora').value.trim();
             const sucursal = document.getElementById('sucursalVale').value;
             const cliente = document.getElementById('nombreCliente').value;
             const telefono = document.getElementById('telefonoCliente').value.trim();
@@ -293,10 +310,10 @@
                 currency: 'MXN'
             }).format(montoRaw);
 
-            // Objeto del vale
             const nuevoVale = {
                 folio: folio,
-                promotora: promotora,
+                promotora: promotora.toUpperCase(),
+                promotoraOriginal: promotora,
                 cliente: cliente,
                 telefono: telefono,
                 direccion: direccion,
@@ -308,13 +325,12 @@
                 fecha: new Date().toLocaleDateString('es-MX')
             };
 
-            // Guardar en localStorage para sincronizar con la cartera y el administrador
             let valesGuardados = JSON.parse(localStorage.getItem('mvr_vales_emitidos')) || [];
             valesGuardados.push(nuevoVale);
             localStorage.setItem('mvr_vales_emitidos', JSON.stringify(valesGuardados));
 
             const contenedorResultado = document.getElementById('resultadoVale');
-            contenedorResultado.className = ""; // Limpiar clases anteriores
+            contenedorResultado.className = "";
 
             let logoImg = "dvilla.jpg";
             let logoFallback = "dvilla.png";
@@ -331,19 +347,30 @@
                 contenedorResultado.classList.add('tema-dvilla');
             }
 
-            // Mensaje preconfigurado para WhatsApp directo
             const mensajeWsp = encodeURIComponent(
                 `Hola *${cliente}*, su vale digital de *${sucursal}* ha sido autorizado por Grupo MVR.\n\n` +
                 `🎟️ *Folio:* ${folio}\n` +
                 `💰 *Monto:* ${montoFormateado} MXN\n` +
                 `📅 *Plazo:* ${quincenas}\n` +
-                `👤 *Promotora ID:* ${promotora}\n\n` +
-                `Presente este folio en sucursal para hacer válido su crédito.`
+                `👤 *Promotora:* ${promotora}\n\n` +
+                `Escanee o presente este vale en sucursal para hacer válido su crédito.`
             );
             const telLimpio = telefono.replace(/\D/g, '');
             const urlWsp = telLimpio.length >= 10 ? `https://api.whatsapp.com/send?phone=52${telLimpio}&text=${mensajeWsp}` : `https://api.whatsapp.com/send?text=${mensajeWsp}`;
 
-            // Inyectar diseño completo del ticket con QR y Botón de WhatsApp
+            const contenidoQR = encodeURIComponent(
+                `=== GRUPO MVR: VALE AUTORIZADO ===\n` +
+                `Folio: ${folio}\n` +
+                `Sucursal: ${sucursal}\n` +
+                `Cliente: ${cliente}\n` +
+                `Tel: ${telefono}\n` +
+                `Monto: ${montoFormateado}\n` +
+                `Plazo: ${quincenas}\n` +
+                `Promotora: ${promotora}\n` +
+                `Fecha: ${new Date().toLocaleDateString('es-MX')}`
+            );
+            const urlQrNativo = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${contenidoQR}`;
+
             contenedorResultado.innerHTML = `
                 <img src="${logoImg}" onerror="this.onerror=null; this.src='${logoFallback}';" class="logo-vale-head" alt="Logo Sucursal">
                 
@@ -352,8 +379,10 @@
                 
                 <div class="folio-box">${folio}</div>
                 
-                <!-- CONTENEDOR DEL CÓDIGO QR -->
-                <div id="qrcodeContainer" style="margin: 1rem auto; display: flex; justify-content: center;"></div>
+                <div style="margin: 1rem auto; display: flex; flex-direction: column; align-items: center;">
+                    <img src="${urlQrNativo}" alt="Código QR del Vale" style="padding: 6px; background: white; border-radius: 6px; border: 2px dashed #002b55;">
+                    <span style="font-size: 0.8rem; color: #444; margin-top: 5px; font-weight: bold;">Escanee para validar credenciales y datos del vale</span>
+                </div>
 
                 <div style="font-size: 1rem; color: #333; line-height: 1.7; text-align: left; background: #fff; padding: 1.2rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 1rem;">
                     <strong>Titular del Vale:</strong> ${cliente}<br>
@@ -363,49 +392,36 @@
                     <strong>Monto Autorizado:</strong> <span class="monto-destacado" style="font-weight: bold; font-size: 1.1rem;">${montoFormateado} MXN</span><br>
                     <strong>Plazo de Pago:</strong> ${quincenas}<br>
                     <strong>Sucursal Canje:</strong> ${sucursal}<br>
-                    <strong>Promotora ID:</strong> ${promotora}<br>
+                    <strong>Promotora:</strong> ${promotora}<br>
                     <strong>Fecha de Emisión:</strong> ${new Date().toLocaleDateString('es-MX')}
                 </div>
 
-                <!-- BOTONES DE ACCIÓN RÁPIDA -->
                 <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem;">
                     <a href="${urlWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.8rem 1.2rem; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
                         💬 Enviar por WhatsApp
                     </a>
                     
-                    <button onclick="imprimirElemento('vale')" style="background-color: #002b55; color: white; border: none; padding: 0.8rem 1.4font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer;">
+                    <button onclick="imprimirElemento('vale')" style="background-color: #002b55; color: white; border: none; padding: 0.8rem 1.4rem; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer;">
                         🖨️ Guardar Vale en PDF
                     </button>
                 </div>
             `;
-
-            // Generar el código QR físico dentro del contenedor
-            const textoQR = `VALE: ${folio} | CLIENTE: ${cliente} | MONTO: ${montoFormateado} | SUCURSAL: ${sucursal} | PROM: ${promotora}`;
-            new QRCode(document.getElementById("qrcodeContainer"), {
-                text: textoQR,
-                width: 128,
-                height: 128,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
 
             contenedorResultado.style.display = 'block';
             contenedorResultado.scrollIntoView({ behavior: 'smooth' });
             document.getElementById('valeForm').reset();
         }
 
-        // CARTERA DE CLIENTES LEYENDO DESDE LOCALSTORAGE
         function buscarCartera() {
-            const numBuscado = document.getElementById('buscarPromotora').value.trim().toUpperCase();
+            const busqueda = document.getElementById('buscarPromotora').value.trim().toUpperCase();
             const cuerpo = document.getElementById('cuerpoTablaCartera');
             cuerpo.innerHTML = "";
 
             let valesGuardados = JSON.parse(localStorage.getItem('mvr_vales_emitidos')) || [];
-            const filtrados = valesGuardados.filter(v => v.promotora === numBuscado);
+            const filtrados = valesGuardados.filter(v => v.promotora.includes(busqueda));
 
             if (filtrados.length === 0) {
-                cuerpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No se encontraron registros para la promotora "${numBuscado}".</td></tr>`;
+                cuerpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No se encontraron registros para "${busqueda}".</td></tr>`;
             } else {
                 filtrados.forEach(v => {
                     const esRavali = v.sucursal === "Óptica Ravali";
