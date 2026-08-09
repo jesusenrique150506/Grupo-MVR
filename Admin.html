@@ -250,7 +250,13 @@
                 <h4 style="margin-top: 0; color: #555; text-transform: uppercase; font-size: 0.9rem;">Promociones Registradas</h4>
                 <table class="tabla-admin" style="margin-top: 0;">
                     <thead style="background-color: #ff8c00;">
-                        <tr><th style="background-color: #ff8c00;">ID</th><th style="background-color: #ff8c00;">Sucursal</th><th style="background-color: #ff8c00;">Título</th><th style="background-color: #ff8c00;">Estado</th></tr>
+                        <tr>
+                            <th style="background-color: #ff8c00;">ID</th>
+                            <th style="background-color: #ff8c00;">Sucursal</th>
+                            <th style="background-color: #ff8c00;">Título</th>
+                            <th style="background-color: #ff8c00;">Estado</th>
+                            <th style="background-color: #ff8c00; text-align: center;">Control / Acciones</th>
+                        </tr>
                     </thead>
                     <tbody id="cuerpoTablaPromos"></tbody>
                 </table>
@@ -261,7 +267,12 @@
         <div style="overflow-x: auto; margin-bottom: 2.5rem; border: 1px solid #ddd; border-radius: 6px;">
             <table class="tabla-admin" style="margin-top: 0;">
                 <thead style="background-color: #d32f2f;">
-                    <tr><th style="background-color: #d32f2f;">ID / Nombre Promotora</th><th style="background-color: #d32f2f;">Contraseña Actual</th><th style="background-color: #d32f2f; text-align: center;">Asistencia</th></tr>
+                    <tr>
+                        <th style="background-color: #d32f2f;">ID / Nombre Promotora</th>
+                        <th style="background-color: #d32f2f;">Contraseña</th>
+                        <th style="background-color: #d32f2f;">Estado de Cuenta</th>
+                        <th style="background-color: #d32f2f; text-align: center;">Acciones & Control</th>
+                    </tr>
                 </thead>
                 <tbody id="cuerpoTablaPromotoras"></tbody>
             </table>
@@ -286,7 +297,7 @@
 
     <!-- LÓGICA JAVASCRIPT MAESTRA DEL PANEL ADMIN -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxS4scgnF4qFdz6EgLBErgxAFDe6DEZjv1gD8VDbYHqbzg0YIDcZVoOIwb_nIWp35VLCQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycby-dHlnYp2QiXSNFYWcqHp3UY-XSVqHt_5PFHW3tHktrc9y73pVEiorT3CZDStaDihXQg/exec";
 
         window.onload = function() {
             const adminActivo = localStorage.getItem('mvr_admin_activo');
@@ -393,7 +404,7 @@
             const sucursal = document.getElementById('promoSucursal').value;
             const titulo = document.getElementById('promoTitulo').value.trim();
             const desc = document.getElementById('promoDesc').value.trim();
-            const estado = document.getElementById('promoEstado').value.replace(/🟢 |🔴 /g, ""); 
+            const estado = document.getElementById('promoEstado').value; 
             const idPromo = "PROM-" + Math.floor(100 + Math.random() * 900); 
 
             try {
@@ -412,6 +423,64 @@
             }
             btn.innerText = "➕ Agregar Promoción";
             btn.disabled = false;
+        }
+
+        async function cambiarEstadoPromo(idPromo, estadoActual) {
+            let nuevoEstado = (estadoActual === "Activa") ? "Inactiva" : "Activa";
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ accion: "cambiarEstadoPromocion", id: idPromo, estado: nuevoEstado })
+                });
+                alert(`✅ Promoción actualizada a estado: ${nuevoEstado}`);
+                cargarTodoDesdeLaNube();
+            } catch (e) {
+                alert("Error al cambiar el estado de la promoción.");
+            }
+        }
+
+        async function eliminarPromocion(idPromo, titulo) {
+            if (!confirm(`¿Estás seguro de eliminar la promoción "${titulo}" (${idPromo})?`)) return;
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ accion: "eliminarPromocion", id: idPromo })
+                });
+                alert("🗑️ Promoción eliminada con éxito.");
+                cargarTodoDesdeLaNube();
+            } catch (e) {
+                alert("Error al eliminar la promoción.");
+            }
+        }
+
+        // --- MÓDULO DE PROMOTORAS (BLOQUEO Y ELIMINACIÓN) ---
+        async function cambiarEstadoPromotora(nombrePromotora, estadoActual) {
+            let nuevoEstado = (estadoActual === "Bloqueada") ? "Activa" : "Bloqueada";
+            let mensajeAlerta = nuevoEstado === "Bloqueada" ? `Promotora ${nombrePromotora} bloqueada con éxito.` : `Promotora ${nombrePromotora} reactivada con éxito.`;
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ accion: "cambiarEstadoPromotora", promotora: nombrePromotora, estado: nuevoEstado })
+                });
+                alert(mensajeAlerta);
+                cargarTodoDesdeLaNube();
+            } catch (e) {
+                alert("Error al actualizar el estado de la promotora.");
+            }
+        }
+
+        async function eliminarPromotora(nombrePromotora) {
+            if (!confirm(`¿Estás seguro de eliminar permanentemente la cuenta de la promotora "${nombrePromotora}"?`)) return;
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ accion: "eliminarPromotora", promotora: nombrePromotora })
+                });
+                alert("🗑️ Cuenta de promotora eliminada correctamente.");
+                cargarTodoDesdeLaNube();
+            } catch (e) {
+                alert("Error al eliminar la promotora.");
+            }
         }
 
         // --- MÓDULO DE INVENTARIO Y PRODUCTOS ---
@@ -516,7 +585,7 @@
                     }
                 }
 
-                // 2. CARGAR PROMOTORAS
+                // 2. CARGAR PROMOTORAS CON BOTONES DE BLOQUEO Y ELIMINACIÓN
                 let resProm = await fetch(`${API_URL}?accion=obtenerPromotoras&nocache=${new Date().getTime()}`);
                 let credencialesPromotoras = await resProm.json();
                 const cuerpoTablaPromotoras = document.getElementById('cuerpoTablaPromotoras');
@@ -524,38 +593,58 @@
                     cuerpoTablaPromotoras.innerHTML = "";
                     let listaPromotoras = Object.keys(credencialesPromotoras);
                     if (listaPromotoras.length === 0) {
-                        cuerpoTablaPromotoras.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">No hay promotoras registradas.</td></tr>`;
+                        cuerpoTablaPromotoras.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No hay promotoras registradas.</td></tr>`;
                     } else {
                         listaPromotoras.forEach(promotora => {
-                            const password = credencialesPromotoras[promotora];
+                            const datosProm = credencialesPromotoras[promotora];
+                            const password = typeof datosProm === 'object' ? datosProm.password : datosProm;
+                            const estado = typeof datosProm === 'object' ? datosProm.estado : "Activa";
+
+                            const colorEstadoBadge = estado === "Bloqueada" ? "#d32f2f" : "#28a745";
+                            const textoBotonBloqueo = estado === "Bloqueada" ? "🟢 Desbloquear" : "🔴 Bloquear";
+                            const colorBotonBloqueo = estado === "Bloqueada" ? "#28a745" : "#ff8c00";
+
                             const mensajeWsp = encodeURIComponent(`Hola ${promotora}, te contactamos de administración de Grupo MVR. Tu contraseña de acceso es: *${password}*`);
+                            
                             cuerpoTablaPromotoras.innerHTML += `
                                 <tr>
                                     <td><strong>${promotora}</strong></td>
                                     <td><span class="pass-badge">${password}</span></td>
-                                    <td style="text-align: center;"><a href="https://wa.me/?text=${mensajeWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.4rem 0.8rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">💬 Enviar Contraseña</a></td>
+                                    <td><span style="background-color: ${colorEstadoBadge}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${estado}</span></td>
+                                    <td style="text-align: center; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                                        <a href="https://wa.me/?text=${mensajeWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.4rem 0.6rem; border-radius: 4px; text-decoration: none; font-size: 0.75rem; font-weight: bold;">💬 WhatsApp</a>
+                                        <button onclick="cambiarEstadoPromotora('${promotora}', '${estado}')" style="background-color: ${colorBotonBloqueo}; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75rem;">${textoBotonBloqueo}</button>
+                                        <button onclick="eliminarPromotora('${promotora}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75rem;">🗑️ Eliminar</button>
+                                    </td>
                                 </tr>`;
                         });
                     }
                 }
 
-                // 3. CARGAR PROMOCIONES
+                // 3. CARGAR PROMOCIONES CON BOTONES DE ESTADO Y ELIMINACIÓN
                 let resPromos = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
                 let promosGuardadas = await resPromos.json();
                 const cuerpoPromos = document.getElementById('cuerpoTablaPromos');
                 if (cuerpoPromos) {
                     cuerpoPromos.innerHTML = "";
                     if (promosGuardadas.length === 0) {
-                        cuerpoPromos.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No hay promociones registradas.</td></tr>`;
+                        cuerpoPromos.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No hay promociones registradas.</td></tr>`;
                     } else {
                         promosGuardadas.slice().reverse().forEach(p => {
                             let colorEstado = p.estado === 'Activa' ? '#28a745' : '#d32f2f';
+                            let textoBotonEstado = p.estado === 'Activa' ? '🔴 Desactivar' : '🟢 Activar';
+                            let colorBotonEstado = p.estado === 'Activa' ? '#ff8c00' : '#28a745';
+
                             cuerpoPromos.innerHTML += `
                                 <tr>
                                     <td><strong>${p.id}</strong></td>
                                     <td>${p.sucursal}</td>
                                     <td>${p.titulo}</td>
                                     <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${p.estado}</span></td>
+                                    <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
+                                        <button onclick="cambiarEstadoPromo('${p.id}', '${p.estado}')" style="background-color: ${colorBotonEstado}; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">${textoBotonEstado}</button>
+                                        <button onclick="eliminarPromocion('${p.id}', '${String(p.titulo).replace(/'/g, "")}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem;">🗑️ Eliminar</button>
+                                    </td>
                                 </tr>`;
                         });
                     }

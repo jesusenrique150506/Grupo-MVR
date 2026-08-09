@@ -237,8 +237,7 @@
     </footer>
 
     <script>
-        
-        const API_URL = "https://script.google.com/macros/s/AKfycbxS4scgnF4qFdz6EgLBErgxAFDe6DEZjv1gD8VDbYHqbzg0YIDcZVoOIwb_nIWp35VLCQ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycby-dHlnYp2QiXSNFYWcqHp3UY-XSVqHt_5PFHW3tHktrc9y73pVEiorT3CZDStaDihXQg/exec";
 
         window.onload = function() {
             const activa = localStorage.getItem('mvr_promotora_activa');
@@ -272,7 +271,6 @@
             
             document.getElementById('btnRegistro').innerText = "Cargando...";
             try {
-                // Verificar si existe leyendo desde Google Sheets
                 let res = await fetch(`${API_URL}?accion=obtenerPromotoras`);
                 let credenciales = await res.json();
 
@@ -280,7 +278,6 @@
                     alert("Este número ya está registrado. Inicia sesión.");
                     cambiarTab('login');
                 } else {
-                    // Guardar en Google Sheets
                     await fetch(API_URL, {
                         method: 'POST', mode: 'no-cors',
                         body: JSON.stringify({ accion: "guardarPromotora", promotora: { id: num, password: pass } })
@@ -302,17 +299,24 @@
             
             document.getElementById('btnAcceso').innerText = "Verificando...";
             try {
-                // Leer base de datos de Google Sheets
                 let res = await fetch(`${API_URL}?accion=obtenerPromotoras`);
                 let credenciales = await res.json();
 
                 if (!credenciales[num]) {
                     alert("Promotora no registrada. Regístrate primero.");
-                } else if (credenciales[num] === pass) {
-                    localStorage.setItem('mvr_promotora_activa', num);
-                    activarPortal(num);
                 } else {
-                    alert("Contraseña incorrecta.");
+                    const datosProm = credenciales[num];
+                    const passwordReal = typeof datosProm === 'object' ? datosProm.password : datosProm;
+                    const estadoReal = typeof datosProm === 'object' ? datosProm.estado : "Activa";
+
+                    if (estadoReal === "Bloqueada") {
+                        alert("⚠️ Acceso suspendido por adeudo en cartera. Favor de comunicarse a administración.");
+                    } else if (passwordReal === pass) {
+                        localStorage.setItem('mvr_promotora_activa', num);
+                        activarPortal(num);
+                    } else {
+                        alert("Contraseña incorrecta.");
+                    }
                 }
             } catch (error) {
                 alert("Hubo un error de conexión al iniciar sesión.");
@@ -358,13 +362,11 @@
             };
 
             try {
-                // Enviar el vale directamente a Google Sheets
                 await fetch(API_URL, {
                     method: 'POST', mode: 'no-cors',
                     body: JSON.stringify({ accion: "guardarVale", vale: nuevoVale })
                 });
 
-                // Dibujar el vale
                 const contenedor = document.getElementById('resultadoVale');
                 contenedor.className = "";
                 let logoImg = "dvilla.jpg", logoFallback = "dvilla.png";
@@ -409,7 +411,6 @@
             cuerpo.innerHTML = "";
 
             try {
-                // Traer todos los vales de Google Sheets
                 let res = await fetch(`${API_URL}?accion=obtenerVales`);
                 let valesGuardados = await res.json();
                 
