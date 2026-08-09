@@ -112,6 +112,7 @@
             </button>
         </div>
 
+        <!-- Resumen Global -->
         <div class="dashboard-grid">
             <div class="card-resumen">
                 <h4>Total de Vales Emitidos</h4>
@@ -121,6 +122,30 @@
                 <h4>Monto Total Colocado</h4>
                 <p class="valor" id="resumenMontoTotal" style="color: #28a745;">$0.00</p>
             </div>
+        </div>
+
+        <!-- NUEVO: Desglose por Sucursal -->
+        <h4 style="color: #002b55; margin-bottom: 1rem; margin-top: 1rem;">🏢 Desglose por Sucursal</h4>
+        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            
+            <div class="card-resumen" style="border-left-color: #0059b3; background-color: #eef6ff; padding: 1rem;">
+                <h4 style="color: #0059b3; font-size: 0.85rem;">Óptica D'villa</h4>
+                <p class="valor" id="totalDvilla" style="font-size: 1.4rem; color: #002b55;">0 vales</p>
+                <p style="margin: 0; color: #555; font-size: 0.9rem;">Monto: <strong id="montoDvilla">$0.00</strong></p>
+            </div>
+            
+            <div class="card-resumen" style="border-left-color: #a80f14; background-color: #fff0f0; padding: 1rem;">
+                <h4 style="color: #a80f14; font-size: 0.85rem;">Óptica Ravali</h4>
+                <p class="valor" id="totalRavali" style="font-size: 1.4rem; color: #002b55;">0 vales</p>
+                <p style="margin: 0; color: #555; font-size: 0.9rem;">Monto: <strong id="montoRavali">$0.00</strong></p>
+            </div>
+            
+            <div class="card-resumen" style="border-left-color: #880e4f; background-color: #fff0f5; padding: 1rem;">
+                <h4 style="color: #880e4f; font-size: 0.85rem;">Marcel Boutique</h4>
+                <p class="valor" id="totalMarcel" style="font-size: 1.4rem; color: #002b55;">0 vales</p>
+                <p style="margin: 0; color: #555; font-size: 0.9rem;">Monto: <strong id="montoMarcel">$0.00</strong></p>
+            </div>
+
         </div>
 
         <h4 style="color: #d32f2f; margin-bottom: 1rem; margin-top: 1rem;">🔐 Directorio de Promotoras y Contraseñas</h4>
