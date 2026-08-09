@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo MVR | Panel de Administración</title>
+    <link rel="stylesheet" href="CSS/opticas-styles.css">
+
+    <style>
+        .admin-container { max-width: 900px; margin: 2rem auto; background: #ffffff; padding: 2.5rem; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+        .login-admin-container { max-width: 500px; margin: 4rem auto; background: #ffffff; padding: 2.5rem; border-radius: 10px; box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+        .form-group { text-align: left; margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-weight: bold; color: #002b55; font-size: 0.95rem; }
+        .form-group input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.95rem; }
+        #panelProtegidoAdmin { display: none; }
+        .tab-buttons { display: flex; gap: 10px; margin-bottom: 1.5rem; }
+        .tab-btn { flex: 1; padding: 0.7rem; background: #e9ecef; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #555; }
+        .tab-btn.active { background: #002b55; color: white; }
+        .auth-form { display: none; }
+        .auth-form.active { display: block; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .card-resumen { background: #f8f9fa; border-left: 5px solid #002b55; padding: 1.5rem; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card-resumen h4 { margin: 0 0 0.5rem 0; color: #555; font-size: 0.9rem; text-transform: uppercase; }
+        .card-resumen .valor { font-size: 1.8rem; font-weight: bold; color: #002b55; margin: 0; }
+        .tabla-admin { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+        .tabla-admin th { background-color: #002b55; color: white; padding: 0.8rem; text-align: left; }
+        .tabla-admin td { padding: 0.8rem; border-bottom: 1px solid #ddd; vertical-align: middle; }
+        .tabla-admin tr:hover { background-color: #f1f7ff; }
+        .badge-optica { display: inline-flex; align-items: center; gap: 6px; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
+        .badge-dvilla { color: #0059b3; background: #eef6ff; }
+        .badge-ravali { color: #a80f14; background: #fff0f0; }
+        .badge-marcel { color: #880e4f; background: #fff0f5; }
+        .pass-badge { background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 1rem; color: #d32f2f; font-weight: bold; }
+        @media print { body { background: #ffffff !important; color: #000000 !important; } header, footer, .hero, .login-admin-container, button, a { display: none !important; } .admin-container { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; } }
+    </style>
+</head>
+<body>
+
+    <header class="main-header" style="background-color: #002b55;">
+        <div class="logo">
+            <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <img src="mvr.jpg" onerror="this.onerror=null; this.src='mvr.png';" style="height: 45px; border-radius: 4px; background: #fff; padding: 2px;">
+                <h1 style="margin: 0; font-size: 1.5rem; color: white;">Grupo MVR | Admin</h1>
+            </a>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="D´villa.html">Óptica D'villa</a></li>
+                <li><a href="Ravali.html">Óptica Ravali</a></li>
+                <li><a href="Marcel.html">Marcel Boutique</a></li>
+                <li><a href="Promotoras.html">Promotoras / Vales</a></li>
+                <li><a href="Admin.html" class="active" style="background-color: #0d233a;">Administración</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero" style="background-color: #e6f0fa; text-align: center; padding: 1.5rem 1rem;">
+        <h2 style="color: #002b55; margin:0;">Centro de Control MVR</h2>
+        <p style="color: #555; margin-top: 5px;">Supervisión conectada a la Nube.</p>
+    </section>
+
+    <main id="panelLoginAdmin" class="login-admin-container">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="cambiarTabAdmin('login')">Iniciar Sesión</button>
+            <button class="tab-btn" onclick="cambiarTabAdmin('registro')">Registrar Admin</button>
+        </div>
+
+        <form id="formLoginAdmin" class="auth-form active" onsubmit="iniciarSesionAdmin(event)">
+            <h3 style="color: #002b55; margin-bottom: 1rem; text-align: center;">🛡️ Acceso Administrativo</h3>
+            <div class="form-group">
+                <label>Usuario Administrador:</label>
+                <input type="text" id="loginUsuarioAdmin" placeholder="Ej. ADMIN-MASTER" required>
+            </div>
+            <div class="form-group">
+                <label>Contraseña:</label>
+                <input type="password" id="loginPassAdmin" placeholder="********" required>
+            </div>
+            <button type="submit" style="width: 100%; background-color: #002b55; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                🔓 Ingresar al Sistema
+            </button>
+        </form>
+
+        <form id="formRegistroAdmin" class="auth-form" onsubmit="registrarAdmin(event)">
+            <h3 style="color: #002b55; margin-bottom: 1rem; text-align: center;">⚙️ Crear Nuevo Administrador</h3>
+            <div class="form-group">
+                <label>Nuevo Usuario Admin:</label>
+                <input type="text" id="regUsuarioAdmin" placeholder="Ej. ADMIN-MASTER" required>
+            </div>
+            <div class="form-group">
+                <label>Contraseña Maestra:</label>
+                <input type="password" id="regPassAdmin" placeholder="Crea una contraseña segura" required>
+            </div>
+            <button type="submit" style="width: 100%; background-color: #28a745; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                ✨ Registrar Administrador
+            </button>
+        </form>
+    </main>
+
+    <main id="panelProtegidoAdmin" class="admin-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
+            <div>
+                <h3 style="color: #002b55; margin: 0; font-size: 1.5rem;">📊 Panel de Control y Reportes (Google Sheets)</h3>
+                <p style="margin: 5px 0 0 0; color: #666;">Usuario activo: <strong id="adminActivoLabel"></strong></p>
+            </div>
+            <button onclick="cerrarSesionAdmin()" style="background: #a80f14; color: white; border: none; padding: 0.5rem 1rem; font-size: 0.9rem; border-radius: 4px; cursor: pointer; font-weight: bold;">Cerrar Sesión</button>
+        </div>
+
+        <div style="text-align: right; margin-bottom: 1rem;">
+            <button onclick="cargarTodoDesdeLaNube()" id="btnActualizarDatos" style="background-color: #28a745; color: white; border: none; padding: 0.6rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                🔄 Actualizar Datos de la Nube
+            </button>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card-resumen">
+                <h4>Total de Vales Emitidos</h4>
+                <p class="valor" id="resumenTotalVales">0</p>
+            </div>
+            <div class="card-resumen" style="border-left-color: #28a745;">
+                <h4>Monto Total Colocado</h4>
+                <p class="valor" id="resumenMontoTotal" style="color: #28a745;">$0.00</p>
+            </div>
+        </div>
+
+        <h4 style="color: #d32f2f; margin-bottom: 1rem; margin-top: 1rem;">🔐 Directorio de Promotoras y Contraseñas</h4>
+        <div style="overflow-x: auto; margin-bottom: 2.5rem; border: 1px solid #ddd; border-radius: 6px;">
+            <table class="tabla-admin" style="margin-top: 0;">
+                <thead style="background-color: #d32f2f;">
+                    <tr><th style="background-color: #d32f2f;">ID / Nombre Promotora</th><th style="background-color: #d32f2f;">Contraseña Actual</th><th style="background-color: #d32f2f; text-align: center;">Asistencia</th></tr>
+                </thead>
+                <tbody id="cuerpoTablaPromotoras"></tbody>
+            </table>
+        </div>
+
+        <h4 style="color: #002b55; margin-bottom: 1rem;">📋 Historial Global de Vales</h4>
+        <div style="overflow-x: auto;">
+            <table class="tabla-admin">
+                <thead><tr><th>Folio</th><th>Fecha</th><th>Promotora</th><th>Cliente</th><th>Monto</th><th>Plazo</th><th>Sucursal</th></tr></thead>
+                <tbody id="cuerpoTablaAdmin"></tbody>
+            </table>
+        </div>
+
+        <button onclick="window.print()" style="width: 100%; background-color: #002b55; color: white; border: none; padding: 1rem; font-weight: bold; border-radius: 5px; margin-top: 2rem; cursor: pointer; font-size: 1.1rem;">
+            🖨️ Exportar Reporte Global a PDF
+        </button>
+    </main>
+
+    <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
+        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // ¡SÚPER IMPORTANTE! Reemplaza esto con tu URL exacta completa generada por Apps Script
+        const API_URL = "https://script.google.com/macros/s/AKfycby8L9DyebxQTVg5yrlXTeIqkrOLJW3FxD5dsBxfphWliYo3Sab7ctgC7D6jM4eVj1e1ag/exec";
+
+        // (La cuenta de Administrador se queda guardada de forma segura en la laptop/celular que lo usa)
+        window.onload = function() {
+            const adminActivo = localStorage.getItem('mvr_admin_activo');
+            if (adminActivo) activarPanelAdmin(adminActivo);
+        };
+
+        function cambiarTabAdmin(tipo) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            if (tipo === 'login') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('formLoginAdmin').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('formRegistroAdmin').classList.add('active');
+            }
+        }
+
+        function registrarAdmin(event) {
+            event.preventDefault();
+            const usuario = document.getElementById('regUsuarioAdmin').value.trim().toUpperCase();
+            const pass = document.getElementById('regPassAdmin').value.trim();
+            if (!usuario || pass.length < 4) return alert("Ingresa un usuario y contraseña válidos.");
+
+            let admins = JSON.parse(localStorage.getItem('mvr_admin_credenciales')) || {};
+            if (admins[usuario]) {
+                alert("Este usuario ya existe.");
+                return;
+            }
+            admins[usuario] = pass;
+            localStorage.setItem('mvr_admin_credenciales', JSON.stringify(admins));
+            alert("Administrador registrado. Inicia sesión.");
+            document.getElementById('formRegistroAdmin').reset();
+            cambiarTabAdmin('login');
+        }
+
+        function iniciarSesionAdmin(event) {
+            event.preventDefault();
+            const usuario = document.getElementById('loginUsuarioAdmin').value.trim().toUpperCase();
+            const pass = document.getElementById('loginPassAdmin').value.trim();
+            let admins = JSON.parse(localStorage.getItem('mvr_admin_credenciales')) || {};
+
+            if (admins[usuario] && admins[usuario] === pass) {
+                localStorage.setItem('mvr_admin_activo', usuario);
+                activarPanelAdmin(usuario);
+            } else {
+                alert("Credenciales incorrectas.");
+            }
+        }
+
+        function activarPanelAdmin(usuario) {
+            document.getElementById('panelLoginAdmin').style.display = 'none';
+            document.getElementById('panelProtegidoAdmin').style.display = 'block';
+            document.getElementById('adminActivoLabel').innerText = usuario;
+            cargarTodoDesdeLaNube();
+        }
+
+        function cerrarSesionAdmin() {
+            localStorage.removeItem('mvr_admin_activo');
+            document.getElementById('panelProtegidoAdmin').style.display = 'none';
+            document.getElementById('panelLoginAdmin').style.display = 'block';
+            document.getElementById('formLoginAdmin').reset();
+        }
+
+        async function cargarTodoDesdeLaNube() {
+            const btn = document.getElementById('btnActualizarDatos');
+            btn.innerText = "Sincronizando con Google Sheets...";
+            
+            try {
+                // 1. CARGAR PROMOTORAS
+                let resProm = await fetch(`${API_URL}?accion=obtenerPromotoras`);
+                let credencialesPromotoras = await resProm.json();
+                
+                const cuerpoTablaPromotoras = document.getElementById('cuerpoTablaPromotoras');
+                cuerpoTablaPromotoras.innerHTML = "";
+                let listaPromotoras = Object.keys(credencialesPromotoras);
+
+                if (listaPromotoras.length === 0) {
+                    cuerpoTablaPromotoras.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">No hay promotoras registradas.</td></tr>`;
+                } else {
+                    listaPromotoras.forEach(promotora => {
+                        const password = credencialesPromotoras[promotora];
+                        const mensajeWsp = encodeURIComponent(`Hola ${promotora}, te contactamos de administración de Grupo MVR. Tu contraseña de acceso al portal es: *${password}*`);
+                        cuerpoTablaPromotoras.innerHTML += `
+                            <tr>
+                                <td><strong>${promotora}</strong></td>
+                                <td><span class="pass-badge">${password}</span></td>
+                                <td style="text-align: center;"><a href="https://wa.me/?text=${mensajeWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.4rem 0.8rem; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">💬 Enviar Contraseña</a></td>
+                            </tr>`;
+                    });
+                }
+
+                // 2. CARGAR VALES
+                let resVales = await fetch(`${API_URL}?accion=obtenerVales`);
+                let valesGuardados = await resVales.json();
+                
+                const cuerpoTabla = document.getElementById('cuerpoTablaAdmin');
+                cuerpoTabla.innerHTML = "";
+                let totalVales = 0; let montoTotalCalculado = 0;
+
+                if (valesGuardados.length === 0) {
+                    cuerpoTabla.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No hay vales registrados.</td></tr>`;
+                } else {
+                    // Mostrar los vales más recientes primero
+                    valesGuardados.slice().reverse().forEach(v => {
+                        totalVales++;
+                        montoTotalCalculado += parseFloat(v.monto) || 0;
+                        const esRavali = v.sucursal === "Óptica Ravali";
+                        const esMarcel = v.sucursal === "Marcel Boutique";
+                        const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
+                        const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v.monto);
+
+                        cuerpoTabla.innerHTML += `
+                            <tr>
+                                <td><strong>${v.folio}</strong></td><td>${v.fecha}</td><td>${v.promotora}</td>
+                                <td>${v.cliente}</td><td style="font-weight: bold; color: #28a745;">${montoF}</td>
+                                <td>${v.quincenas}</td><td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
+                            </tr>`;
+                    });
+                }
+
+                document.getElementById('resumenTotalVales').innerText = totalVales;
+                document.getElementById('resumenMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoTotalCalculado);
+
+            } catch (error) {
+                alert("Hubo un error al conectar con Google Sheets.");
+            }
+            btn.innerText = "🔄 Actualizar Datos de la Nube";
+        }
+    </script>
+</body>
+</html>

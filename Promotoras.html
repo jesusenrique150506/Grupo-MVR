@@ -20,7 +20,7 @@
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 1.2rem;
         }
-        .form-group { text-align: left; }
+        .form-group { text-align: left; margin-bottom: 1rem; }
         .form-group.full-width { grid-column: 1 / -1; }
         .form-group label {
             display: block;
@@ -38,119 +38,42 @@
             font-size: 0.95rem;
         }
 
-        /* --- CONTROL DE ACCESO Y TABS --- */
         #panelProtegido { display: none; }
-        .tab-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 1.5rem;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 0.7rem;
-            background: #e9ecef;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #555;
-        }
-        .tab-btn.active {
-            background: #002b55;
-            color: white;
-        }
+        .tab-buttons { display: flex; gap: 10px; margin-bottom: 1.5rem; }
+        .tab-btn { flex: 1; padding: 0.7rem; background: #e9ecef; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: #555; }
+        .tab-btn.active { background: #002b55; color: white; }
         .auth-form { display: none; }
         .auth-form.active { display: block; }
 
-        /* --- TARJETA DE RESULTADO DEL VALE --- */
-        #resultadoVale {
-            display: none;
-            margin-top: 2rem;
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        .logo-vale-head {
-            max-height: 60px;
-            width: auto;
-            object-fit: contain;
-            margin-bottom: 0.5rem;
-        }
-        .folio-box {
-            font-size: 1.8rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            margin: 0.8rem 0;
-            background: #ffffff;
-            padding: 0.5rem;
-            border-radius: 6px;
-        }
+        #resultadoVale { display: none; margin-top: 2rem; padding: 1.5rem; border-radius: 8px; text-align: center; }
+        .logo-vale-head { max-height: 60px; width: auto; object-fit: contain; margin-bottom: 0.5rem; }
+        .folio-box { font-size: 1.8rem; font-weight: bold; letter-spacing: 2px; margin: 0.8rem 0; background: #ffffff; padding: 0.5rem; border-radius: 6px; }
 
-        /* TEMAS DE COLOR DINÁMICOS PARA EL VALE */
         .tema-dvilla { background-color: #f0f7ff !important; border: 2px dashed #0059b3 !important; }
         .tema-dvilla .titulo-vale { color: #0059b3 !important; }
         .tema-dvilla .folio-box { color: #0059b3 !important; border: 1px solid #0059b3 !important; }
-        .tema-dvilla .monto-destacado { color: #0059b3 !important; }
-
         .tema-ravali { background-color: #fdf2f2 !important; border: 2px dashed #a80f14 !important; }
         .tema-ravali .titulo-vale { color: #a80f14 !important; }
         .tema-ravali .folio-box { color: #a80f14 !important; border: 1px solid #a80f14 !important; }
-        .tema-ravali .monto-destacado { color: #a80f14 !important; }
-
         .tema-marcel { background-color: #fce4ec !important; border: 2px dashed #880e4f !important; }
         .tema-marcel .titulo-vale { color: #880e4f !important; }
         .tema-marcel .folio-box { color: #880e4f !important; border: 1px solid #880e4f !important; }
-        .tema-marcel .monto-destacado { color: #880e4f !important; }
 
-        /* --- ESTILOS DE LA TABLA DE CARTERA --- */
-        .tabla-cartera {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-        }
+        .tabla-cartera { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 0.9rem; }
         .tabla-cartera th { background-color: #002b55; color: white; padding: 0.8rem; text-align: left; }
         .tabla-cartera td { padding: 0.8rem; border-bottom: 1px solid #ddd; vertical-align: middle; }
         .row-dvilla { background-color: #eef6ff !important; border-left: 4px solid #0059b3 !important; }
         .row-ravali { background-color: #fff0f0 !important; border-left: 4px solid #a80f14 !important; }
         .row-marcel { background-color: #fff0f5 !important; border-left: 4px solid #880e4f !important; }
         
-        .badge-optica {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: bold;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
+        .badge-optica { display: inline-flex; align-items: center; gap: 6px; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 0.85rem; }
         .badge-dvilla { color: #0059b3; }
         .badge-ravali { color: #a80f14; }
         .badge-marcel { color: #880e4f; }
 
-        /* --- BOTÓN FLOTANTE WHATSAPP DE SOPORTE --- */
-        .btn-whatsapp-soporte {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            background-color: #25d366;
-            color: white;
-            border-radius: 50px;
-            padding: 12px 20px;
-            font-size: 1rem;
-            font-weight: bold;
-            text-decoration: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 1000;
-            transition: transform 0.3s ease;
-        }
+        .btn-whatsapp-soporte { position: fixed; bottom: 25px; right: 25px; background-color: #25d366; color: white; border-radius: 50px; padding: 12px 20px; font-size: 1rem; font-weight: bold; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; z-index: 1000; transition: transform 0.3s ease; }
         .btn-whatsapp-soporte:hover { transform: scale(1.08); background-color: #20ba5a; }
 
-        /* --- REGLAS DE IMPRESIÓN --- */
         @media print {
             body { background: #ffffff !important; color: #000000 !important; }
             header, footer, .hero, #valeForm, .login-promotora-container, button, label, input, select, div[style*="flex"], .btn-whatsapp-soporte { display: none !important; }
@@ -163,7 +86,6 @@
 </head>
 <body>
 
-    <!-- ENCABEZADO -->
     <header class="main-header" style="background-color: #002b55;">
         <div class="logo">
             <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
@@ -183,63 +105,52 @@
         </nav>
     </header>
 
-    <!-- BANNER -->
     <section class="hero" style="background-color: #e6f0fa; text-align: center; padding: 2rem 1rem;">
         <h2 style="color: #002b55;">Portal Oficial para Promotoras</h2>
         <p style="font-style: italic; color: #555;">"Donde la salud, la visión y el estilo se encuentran"</p>
-        <p>Registro, control y emisión de vales digitales seguros.</p>
     </section>
 
-    <!-- 🔒 PANTALLA DE ACCESO Y REGISTRO -->
     <main id="panelLogin" class="login-promotora-container">
         <div class="tab-buttons">
             <button class="tab-btn active" onclick="cambiarTab('login')">Iniciar Sesión</button>
             <button class="tab-btn" onclick="cambiarTab('registro')">Registrar Nueva Promotora</button>
         </div>
 
-        <!-- FORMULARIO DE INICIO DE SESIÓN -->
         <form id="formLogin" class="auth-form active" onsubmit="iniciarSesion(event)">
             <h3 style="color: #002b55; margin-bottom: 1rem;">🔐 Iniciar Sesión</h3>
-            <div class="form-group" style="margin-bottom: 1rem;">
+            <div class="form-group">
                 <label for="loginNum">N° o ID de Promotora:</label>
                 <input type="text" id="loginNum" placeholder="Ej. P-4502" required>
             </div>
-            <div class="form-group" style="margin-bottom: 1rem;">
+            <div class="form-group">
                 <label for="loginPass">Contraseña:</label>
                 <input type="password" id="loginPass" placeholder="Tu contraseña personal" required>
             </div>
-            
-            <!-- ENLACE DE RECUPERACIÓN POR WHATSAPP -->
             <div style="text-align: right; margin-bottom: 1.2rem;">
                 <a href="#" onclick="pedirAyudaPassword(event)" style="font-size: 0.85rem; color: #0059b3; text-decoration: none; font-weight: bold;">¿Olvidaste tu contraseña?</a>
             </div>
-
-            <button type="submit" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+            <button type="submit" id="btnAcceso" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
                 🔓 Ingresar al Portal
             </button>
         </form>
 
-        <!-- FORMULARIO DE REGISTRO -->
         <form id="formRegistro" class="auth-form" onsubmit="registrarPromotora(event)">
             <h3 style="color: #002b55; margin-bottom: 1rem;">📝 Registro de Promotora</h3>
-            <div class="form-group" style="margin-bottom: 1rem;">
+            <div class="form-group">
                 <label for="regNum">N° o ID de Promotora:</label>
                 <input type="text" id="regNum" placeholder="Ej. P-4502" required>
             </div>
-            <div class="form-group" style="margin-bottom: 1.2rem;">
+            <div class="form-group">
                 <label for="regPass">Elige tu Contraseña:</label>
                 <input type="password" id="regPass" placeholder="Crea una contraseña segura" required>
             </div>
-            <button type="submit" class="btn" style="width: 100%; background-color: #28a745; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+            <button type="submit" id="btnRegistro" class="btn" style="width: 100%; background-color: #28a745; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
                 ✨ Registrarme Ahora
             </button>
         </form>
     </main>
 
-    <!-- 🔓 PANEL PRINCIPAL (OCULTO HASTA AUTENTICARSE) -->
     <div id="panelProtegido">
-        
-        <!-- FORMULARIO DE EMISIÓN -->
         <main class="form-container">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h3 style="color: #002b55; margin: 0;">✍️ Registro de Vale Digital</h3>
@@ -249,7 +160,7 @@
             <form id="valeForm" onsubmit="generarFolio(event)">
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label for="numPromotora">Promotora Autorizada (Sesión Activa):</label>
+                        <label for="numPromotora">Promotora Autorizada:</label>
                         <input type="text" id="numPromotora" readonly style="background-color: #e9ecef; font-weight: bold; color: #002b55;">
                     </div>
                     <div class="form-group full-width">
@@ -288,77 +199,55 @@
                         </select>
                     </div>
                 </div>
-
-                <button type="submit" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 1rem; font-size: 1.1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1.5rem;">
-                    🎟️ Generar Folio y Código QR del Vale
+                <button type="submit" id="btnGenerarVale" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 1rem; font-size: 1.1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1.5rem;">
+                    🎟️ Generar Folio y Código QR
                 </button>
             </form>
 
-            <!-- TARJETA DE RESULTADO CON QR Y BOTONES -->
             <div id="resultadoVale"></div>
         </main>
 
-        <!-- APARTADO DE CARTERA -->
         <section class="cartera-container">
             <h3 style="text-align: center; color: #002b55; margin-bottom: 0.5rem;">📂 Consulta de Cartera de Clientes</h3>
-            <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Vales colocados por tu cuenta.</p>
-            
             <div class="form-grid">
                 <div class="form-group full-width">
                     <label for="buscarPromotora">Promotora Activa:</label>
                     <input type="text" id="buscarPromotora" readonly style="background-color: #e9ecef; font-weight: bold; color: #002b55;">
                 </div>
             </div>
-
-            <button onclick="buscarCartera()" class="btn" style="width: 100%; background-color: #28a745; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
+            <button onclick="buscarCartera()" id="btnConsultarCartera" class="btn" style="width: 100%; background-color: #28a745; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
                 🔍 Consultar mi Cartera
             </button>
-
             <div id="tablaCarteraResultado" style="display: none; margin-top: 1.5rem;">
                 <table class="tabla-cartera">
-                    <thead>
-                        <tr>
-                            <th>Folio</th>
-                            <th>Cliente</th>
-                            <th>Monto</th>
-                            <th>Plazo</th>
-                            <th>Sucursal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoTablaCartera">
-                    </tbody>
+                    <thead><tr><th>Folio</th><th>Cliente</th><th>Monto</th><th>Plazo</th><th>Sucursal</th></tr></thead>
+                    <tbody id="cuerpoTablaCartera"></tbody>
                 </table>
                 <button onclick="imprimirElemento('cartera')" style="width: 100%; background-color: #002b55; color: white; border: none; padding: 0.8rem; font-weight: bold; border-radius: 5px; margin-top: 1.5rem; cursor: pointer;">
                     🖨️ Exportar Cartera en PDF
                 </button>
             </div>
         </section>
-
     </div>
 
-    <!-- BOTÓN FLOTANTE WHATSAPP DE SOPORTE -->
-    <a href="https://wa.me/8332854129?text=Hola,%20soy%20promotora%20de%20Grupo%20MVR%20y%20requiero%20asistencia%20con%20un%20vale." target="_blank" class="btn-whatsapp-soporte">
-        💬 Soporte Promotoras
-    </a>
+    <a href="https://wa.me/528332854129?text=Hola,%20soy%20promotora%20de%20Grupo%20MVR%20y%20requiero%20asistencia%20con%20un%20vale." target="_blank" class="btn-whatsapp-soporte">💬 Soporte Promotoras</a>
 
-    <!-- PIE DE PÁGINA -->
     <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR (D'villa, Ravali & Marcel). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- SCRIPT DE GESTIÓN DE CUENTAS Y RECUPERACIÓN -->
     <script>
+        // ¡SÚPER IMPORTANTE! Reemplaza esto con tu URL exacta completa generada por Apps Script
+        const API_URL = "https://script.google.com/macros/s/AKfycby8L9DyebxQTVg5yrlXTeIqkrOLJW3FxD5dsBxfphWliYo3Sab7ctgC7D6jM4eVj1e1ag/exec";
+
         window.onload = function() {
             const activa = localStorage.getItem('mvr_promotora_activa');
-            if (activa) {
-                activarPortal(activa);
-            }
+            if (activa) activarPortal(activa);
         };
 
         function cambiarTab(tipo) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
-
             if (tipo === 'login') {
                 document.querySelectorAll('.tab-btn')[0].classList.add('active');
                 document.getElementById('formLogin').classList.add('active');
@@ -368,58 +257,67 @@
             }
         }
 
-        function registrarPromotora(event) {
-            event.preventDefault();
-            const num = document.getElementById('regNum').value.trim().toUpperCase();
-            const pass = document.getElementById('regPass').value.trim();
-
-            if (!num || pass.length < 4) {
-                alert("Por favor ingresa un número válido y una contraseña de al menos 4 caracteres.");
-                return;
-            }
-
-            let credenciales = JSON.parse(localStorage.getItem('mvr_promotoras_credenciales')) || {};
-
-            if (credenciales[num]) {
-                alert("Este número de promotora ya está registrado. Por favor inicia sesión.");
-                cambiarTab('login');
-                return;
-            }
-
-            credenciales[num] = pass;
-            localStorage.setItem('mvr_promotoras_credenciales', JSON.stringify(credenciales));
-            alert("¡Registro exitoso! Ahora puedes iniciar sesión con tu número y contraseña.");
-            document.getElementById('formRegistro').reset();
-            cambiarTab('login');
-        }
-
-        function iniciarSesion(event) {
-            event.preventDefault();
-            const num = document.getElementById('loginNum').value.trim().toUpperCase();
-            const pass = document.getElementById('loginPass').value.trim();
-
-            let credenciales = JSON.parse(localStorage.getItem('mvr_promotoras_credenciales')) || {};
-
-            if (!credenciales[num]) {
-                alert("Este número de promotora no está registrado. Regístrate primero.");
-                return;
-            }
-
-            if (credenciales[num] === pass) {
-                localStorage.setItem('mvr_promotora_activa', num);
-                activarPortal(num);
-            } else {
-                alert("Contraseña incorrecta. Verifica tus datos o usa la opción de ayuda.");
-            }
-        }
-
         function pedirAyudaPassword(event) {
             event.preventDefault();
             const numIngresado = document.getElementById('loginNum').value.trim().toUpperCase();
-            const mensaje = encodeURIComponent(
-                `Hola, soy la promotora con ID *${numIngresado || "Desconocido"}* y olvidé mi contraseña del portal de Grupo MVR. ¿Me pueden ayudar a restablecerla?`
-            );
+            const mensaje = encodeURIComponent(`Hola, soy la promotora con ID *${numIngresado || "Desconocido"}* y olvidé mi contraseña. ¿Me ayudan a restablecerla?`);
             window.open(`https://wa.me/528332854129?text=${mensaje}`, '_blank');
+        }
+
+        async function registrarPromotora(event) {
+            event.preventDefault();
+            const num = document.getElementById('regNum').value.trim().toUpperCase();
+            const pass = document.getElementById('regPass').value.trim();
+            if (!num || pass.length < 4) return alert("Ingresa un número y contraseña de al menos 4 caracteres.");
+            
+            document.getElementById('btnRegistro').innerText = "Cargando...";
+            try {
+                // Verificar si existe leyendo desde Google Sheets
+                let res = await fetch(`${API_URL}?accion=obtenerPromotoras`);
+                let credenciales = await res.json();
+
+                if (credenciales[num]) {
+                    alert("Este número ya está registrado. Inicia sesión.");
+                    cambiarTab('login');
+                } else {
+                    // Guardar en Google Sheets
+                    await fetch(API_URL, {
+                        method: 'POST', mode: 'no-cors',
+                        body: JSON.stringify({ accion: "guardarPromotora", promotora: { id: num, password: pass } })
+                    });
+                    alert("¡Registro exitoso! Ahora puedes iniciar sesión.");
+                    document.getElementById('formRegistro').reset();
+                    cambiarTab('login');
+                }
+            } catch (error) {
+                alert("Hubo un error de conexión.");
+            }
+            document.getElementById('btnRegistro').innerText = "✨ Registrarme Ahora";
+        }
+
+        async function iniciarSesion(event) {
+            event.preventDefault();
+            const num = document.getElementById('loginNum').value.trim().toUpperCase();
+            const pass = document.getElementById('loginPass').value.trim();
+            
+            document.getElementById('btnAcceso').innerText = "Verificando...";
+            try {
+                // Leer base de datos de Google Sheets
+                let res = await fetch(`${API_URL}?accion=obtenerPromotoras`);
+                let credenciales = await res.json();
+
+                if (!credenciales[num]) {
+                    alert("Promotora no registrada. Regístrate primero.");
+                } else if (credenciales[num] === pass) {
+                    localStorage.setItem('mvr_promotora_activa', num);
+                    activarPortal(num);
+                } else {
+                    alert("Contraseña incorrecta.");
+                }
+            } catch (error) {
+                alert("Hubo un error de conexión al iniciar sesión.");
+            }
+            document.getElementById('btnAcceso').innerText = "🔓 Ingresar al Portal";
         }
 
         function activarPortal(num) {
@@ -437,179 +335,115 @@
             cambiarTab('login');
         }
 
-        function generarFolio(event) {
+        async function generarFolio(event) {
             event.preventDefault();
+            const btn = document.getElementById('btnGenerarVale');
+            btn.innerText = "Sincronizando Vale...";
+            btn.disabled = true;
 
-            const aleatorio = Math.floor(10000 + Math.random() * 90000);
-            const folio = "MVR-" + aleatorio;
-
-            const promotora = document.getElementById('numPromotora').value.trim();
+            const folio = "MVR-" + Math.floor(10000 + Math.random() * 90000);
+            const promotora = document.getElementById('numPromotora').value.trim().toUpperCase();
             const sucursal = document.getElementById('sucursalVale').value;
             const cliente = document.getElementById('nombreCliente').value;
             const telefono = document.getElementById('telefonoCliente').value.trim();
             const direccion = document.getElementById('direccionCliente').value;
             const montoRaw = parseFloat(document.getElementById('montoVale').value) || 0;
             const quincenas = document.getElementById('quincenasVale').value;
-
-            const montoFormateado = new Intl.NumberFormat('es-MX', {
-                style: 'currency',
-                currency: 'MXN'
-            }).format(montoRaw);
+            const montoFormateado = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoRaw);
 
             const nuevoVale = {
-                folio: folio,
-                promotora: promotora.toUpperCase(),
-                cliente: cliente,
-                telefono: telefono,
-                direccion: direccion,
-                monto: montoRaw,
-                montoStr: montoFormateado,
-                quincenas: quincenas,
-                empresa: sucursal,
-                sucursal: sucursal,
-                fecha: new Date().toLocaleDateString('es-MX')
+                folio: folio, promotora: promotora, cliente: cliente, telefono: telefono,
+                direccion: direccion, monto: montoRaw, quincenas: quincenas,
+                sucursal: sucursal, fecha: new Date().toLocaleDateString('es-MX')
             };
 
-            let valesGuardados = JSON.parse(localStorage.getItem('mvr_vales_emitidos')) || [];
-            valesGuardados.push(nuevoVale);
-            localStorage.setItem('mvr_vales_emitidos', JSON.stringify(valesGuardados));
+            try {
+                // Enviar el vale directamente a Google Sheets
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    body: JSON.stringify({ accion: "guardarVale", vale: nuevoVale })
+                });
 
-            const contenedorResultado = document.getElementById('resultadoVale');
-            contenedorResultado.className = "";
+                // Dibujar el vale
+                const contenedor = document.getElementById('resultadoVale');
+                contenedor.className = "";
+                let logoImg = "dvilla.jpg", logoFallback = "dvilla.png";
+                if (sucursal === "Óptica Ravali") { contenedor.classList.add('tema-ravali'); logoImg = "ravali.jpg"; logoFallback = "ravali.png"; } 
+                else if (sucursal === "Marcel Boutique") { contenedor.classList.add('tema-marcel'); logoImg = "marcel.png"; logoFallback = "mvr.png"; } 
+                else { contenedor.classList.add('tema-dvilla'); }
 
-            let logoImg = "dvilla.jpg";
-            let logoFallback = "dvilla.png";
+                const mensajeWsp = encodeURIComponent(`Hola *${cliente}*, su vale digital de *${sucursal}* ha sido autorizado por Grupo MVR.\n\n🎟️ *Folio:* ${folio}\n💰 *Monto:* ${montoFormateado} MXN\n📅 *Plazo:* ${quincenas}\n👤 *Promotora:* ${promotora}\n\nEscanee o presente este vale en sucursal.`);
+                const urlWsp = `https://api.whatsapp.com/send?phone=52${telefono}&text=${mensajeWsp}`;
+                const urlQrNativo = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(`=== GRUPO MVR: VALE ===\nFolio: ${folio}\nSucursal: ${sucursal}\nCliente: ${cliente}\nTel: ${telefono}\nMonto: ${montoFormateado}\nPlazo: ${quincenas}\nPromotora: ${promotora}\nFecha: ${nuevoVale.fecha}`)}`;
 
-            if (sucursal === "Óptica Ravali") {
-                contenedorResultado.classList.add('tema-ravali');
-                logoImg = "ravali.jpg";
-                logoFallback = "ravali.png";
-            } else if (sucursal === "Marcel Boutique") {
-                contenedorResultado.classList.add('tema-marcel');
-                logoImg = "marcel.png";
-                logoFallback = "mvr.png";
-            } else {
-                contenedorResultado.classList.add('tema-dvilla');
+                contenedor.innerHTML = `
+                    <img src="${logoImg}" onerror="this.onerror=null; this.src='${logoFallback}';" class="logo-vale-head">
+                    <h2 class="titulo-vale" style="margin: 0; text-transform: uppercase;">${sucursal} - Autorizado</h2>
+                    <div class="folio-box">${folio}</div>
+                    <div style="margin: 1rem auto; display: flex; flex-direction: column; align-items: center;">
+                        <img src="${urlQrNativo}" style="padding: 6px; background: white; border-radius: 6px; border: 2px dashed #002b55;">
+                    </div>
+                    <div style="font-size: 1rem; color: #333; line-height: 1.7; text-align: left; background: #fff; padding: 1.2rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 1rem;">
+                        <strong>Cliente:</strong> ${cliente}<br><strong>Monto:</strong> <span class="monto-destacado" style="font-weight: bold; font-size: 1.1rem;">${montoFormateado} MXN</span><br>
+                        <strong>Plazo:</strong> ${quincenas}<br><strong>Promotora:</strong> ${promotora}
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem;">
+                        <a href="${urlWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.8rem 1.2rem; border-radius: 5px; text-decoration: none; font-weight: bold;">💬 Enviar por WhatsApp</a>
+                        <button onclick="imprimirElemento('vale')" style="background-color: #002b55; color: white; border: none; padding: 0.8rem 1.4rem; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer;">🖨️ Guardar PDF</button>
+                    </div>`;
+                contenedor.style.display = 'block';
+                contenedor.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('valeForm').reset();
+            } catch (error) {
+                alert("Ocurrió un error al guardar el vale en la base de datos.");
             }
-
-            const mensajeWsp = encodeURIComponent(
-                `Hola *${cliente}*, su vale digital de *${sucursal}* ha sido autorizado por Grupo MVR.\n\n` +
-                `🎟️ *Folio:* ${folio}\n` +
-                `💰 *Monto:* ${montoFormateado} MXN\n` +
-                `📅 *Plazo:* ${quincenas}\n` +
-                `👤 *Promotora:* ${promotora}\n\n` +
-                `Escanee o presente este vale en sucursal para hacer válido su crédito.`
-            );
-            const telLimpio = telefono.replace(/\D/g, '');
-            const urlWsp = telLimpio.length >= 10 ? `https://api.whatsapp.com/send?phone=52${telLimpio}&text=${mensajeWsp}` : `https://api.whatsapp.com/send?text=${mensajeWsp}`;
-
-            const contenidoQR = encodeURIComponent(
-                `=== GRUPO MVR: VALE AUTORIZADO ===\n` +
-                `Folio: ${folio}\n` +
-                `Sucursal: ${sucursal}\n` +
-                `Cliente: ${cliente}\n` +
-                `Tel: ${telefono}\n` +
-                `Monto: ${montoFormateado}\n` +
-                `Plazo: ${quincenas}\n` +
-                `Promotora: ${promotora}\n` +
-                `Fecha: ${new Date().toLocaleDateString('es-MX')}`
-            );
-            const urlQrNativo = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${contenidoQR}`;
-
-            contenedorResultado.innerHTML = `
-                <img src="${logoImg}" onerror="this.onerror=null; this.src='${logoFallback}';" class="logo-vale-head" alt="Logo Sucursal">
-                
-                <h2 class="titulo-vale" style="margin: 0; text-transform: uppercase;">${sucursal} - Vale Autorizado</h2>
-                <p style="margin-top: 0.3rem; color: #555; font-size: 0.9rem;">"Donde la salud, la visión y el estilo se encuentran"</p>
-                
-                <div class="folio-box">${folio}</div>
-                
-                <div style="margin: 1rem auto; display: flex; flex-direction: column; align-items: center;">
-                    <img src="${urlQrNativo}" alt="Código QR del Vale" style="padding: 6px; background: white; border-radius: 6px; border: 2px dashed #002b55;">
-                    <span style="font-size: 0.8rem; color: #444; margin-top: 5px; font-weight: bold;">Escanee para validar credenciales y datos del vale</span>
-                </div>
-
-                <div style="font-size: 1rem; color: #333; line-height: 1.7; text-align: left; background: #fff; padding: 1.2rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 1rem;">
-                    <strong>Titular del Vale:</strong> ${cliente}<br>
-                    <strong>Teléfono:</strong> ${telefono}<br>
-                    <strong>Dirección:</strong> ${direccion}<br>
-                    <hr style="border: 0; border-top: 1px solid #eee; margin: 0.5rem 0;">
-                    <strong>Monto Autorizado:</strong> <span class="monto-destacado" style="font-weight: bold; font-size: 1.1rem;">${montoFormateado} MXN</span><br>
-                    <strong>Plazo de Pago:</strong> ${quincenas}<br>
-                    <strong>Sucursal Canje:</strong> ${sucursal}<br>
-                    <strong>Promotora:</strong> ${promotora}<br>
-                    <strong>Fecha de Emisión:</strong> ${new Date().toLocaleDateString('es-MX')}
-                </div>
-
-                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem;">
-                    <a href="${urlWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.8rem 1.2rem; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">
-                        💬 Enviar por WhatsApp
-                    </a>
-                    
-                    <button onclick="imprimirElemento('vale')" style="background-color: #002b55; color: white; border: none; padding: 0.8rem 1.4rem; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer;">
-                        🖨️ Guardar Vale en PDF
-                    </button>
-                </div>
-            `;
-
-            contenedorResultado.style.display = 'block';
-            contenedorResultado.scrollIntoView({ behavior: 'smooth' });
-            document.getElementById('nombreCliente').value = '';
-            document.getElementById('telefonoCliente').value = '';
-            document.getElementById('direccionCliente').value = '';
-            document.getElementById('montoVale').value = '';
+            btn.innerText = "🎟️ Generar Folio y Código QR";
+            btn.disabled = false;
         }
 
-        function buscarCartera() {
+        async function buscarCartera() {
+            const btn = document.getElementById('btnConsultarCartera');
+            btn.innerText = "Descargando Cartera...";
             const busqueda = document.getElementById('buscarPromotora').value.trim().toUpperCase();
             const cuerpo = document.getElementById('cuerpoTablaCartera');
             cuerpo.innerHTML = "";
 
-            let valesGuardados = JSON.parse(localStorage.getItem('mvr_vales_emitidos')) || [];
-            const filtrados = valesGuardados.filter(v => v.promotora.includes(busqueda));
+            try {
+                // Traer todos los vales de Google Sheets
+                let res = await fetch(`${API_URL}?accion=obtenerVales`);
+                let valesGuardados = await res.json();
+                
+                const filtrados = valesGuardados.filter(v => String(v.promotora).toUpperCase().includes(busqueda));
 
-            if (filtrados.length === 0) {
-                cuerpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No se encontraron registros para "${busqueda}".</td></tr>`;
-            } else {
-                filtrados.forEach(v => {
-                    const esRavali = v.sucursal === "Óptica Ravali";
-                    const esMarcel = v.sucursal === "Marcel Boutique";
+                if (filtrados.length === 0) {
+                    cuerpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No se encontraron registros.</td></tr>`;
+                } else {
+                    filtrados.forEach(v => {
+                        const esRavali = v.sucursal === "Óptica Ravali";
+                        const esMarcel = v.sucursal === "Marcel Boutique";
+                        const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
+                        const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v.monto);
 
-                    const claseFila = esRavali ? "row-ravali" : (esMarcel ? "row-marcel" : "row-dvilla");
-                    const logoImg = esRavali ? "ravali.jpg" : (esMarcel ? "marcel.png" : "dvilla.jpg");
-                    const logoFallback = esRavali ? "ravali.png" : (esMarcel ? "mvr.png" : "dvilla.png");
-                    const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
-
-                    cuerpo.innerHTML += `
-                        <tr class="${claseFila}">
-                            <td><strong>${v.folio}</strong></td>
-                            <td>${v.cliente}</td>
-                            <td>${v.montoStr}</td>
-                            <td>${v.quincenas}</td>
-                            <td>
-                                <span class="badge-optica ${claseBadge}">
-                                    <img src="${logoImg}" onerror="this.onerror=null; this.src='${logoFallback}';" style="height: 18px; width: auto; border-radius: 2px;">
-                                    ${v.sucursal}
-                                </span>
-                            </td>
-                        </tr>
-                    `;
-                });
+                        cuerpo.innerHTML += `
+                            <tr class="${esRavali ? 'row-ravali' : (esMarcel ? 'row-marcel' : 'row-dvilla')}">
+                                <td><strong>${v.folio}</strong></td><td>${v.cliente}</td><td>${montoF}</td><td>${v.quincenas}</td>
+                                <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
+                            </tr>`;
+                    });
+                }
+                document.getElementById('tablaCarteraResultado').style.display = 'block';
+            } catch (error) {
+                alert("Error al cargar la cartera.");
             }
-
-            document.getElementById('tablaCarteraResultado').style.display = 'block';
+            btn.innerText = "🔍 Consultar mi Cartera";
         }
 
         function imprimirElemento(tipo) {
             document.body.classList.remove('imprimiendo-vale', 'imprimiendo-cartera');
-            if (tipo === 'vale') {
-                document.body.classList.add('imprimiendo-vale');
-            } else if (tipo === 'cartera') {
-                document.body.classList.add('imprimiendo-cartera');
-            }
+            if (tipo === 'vale') document.body.classList.add('imprimiendo-vale');
+            else if (tipo === 'cartera') document.body.classList.add('imprimiendo-cartera');
             window.print();
         }
     </script>
-
 </body>
 </html>
