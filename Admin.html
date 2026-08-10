@@ -8,7 +8,7 @@
 
     <style>
         body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .admin-container { max-width: 1050px; margin: 2rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .admin-container { max-width: 1150px; margin: 2rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
         .login-admin-container { max-width: 450px; margin: 4rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
         .form-group { text-align: left; margin-bottom: 1.2rem; }
         .form-group label { display: block; margin-bottom: 0.4rem; font-weight: bold; color: #002b55; font-size: 0.95rem; }
@@ -204,7 +204,7 @@
             </div>
         </div>
 
-        <!-- MÓDULO 4: VALES (CON FILTRO POR SUCURSAL) -->
+        <!-- MÓDULO 4: VALES (CON FILTRO POR SUCURSAL Y DATOS DEL CLIENTE) -->
         <button class="btn-acordeon" onclick="toggleSeccion('seccionVales')">
             <span>📋 Historial Global de Vales y Cortes de Caja</span>
             <span class="icono-flecha">▼</span>
@@ -221,8 +221,22 @@
             </div>
             <div style="overflow-x: auto;">
                 <table class="tabla-admin">
-                    <thead><tr><th>Folio</th><th>Fecha</th><th>Promotora</th><th>Cliente</th><th>Monto</th><th>Plazo</th><th>Sucursal</th><th>Pago</th><th>Canje</th></tr></thead>
-                    <tbody id="cuerpoTablaAdmin"><tr><td colspan="9" style="text-align:center;">Cargando...</td></tr></tbody>
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Fecha</th>
+                            <th>Promotora</th>
+                            <th>Cliente</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th>Monto</th>
+                            <th>Plazo</th>
+                            <th>Sucursal</th>
+                            <th>Pago</th>
+                            <th>Canje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaAdmin"><tr><td colspan="11" style="text-align:center;">Cargando...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -533,7 +547,7 @@
             let totalVales = 0, montoTotal = 0;
 
             if (vales.length === 0) {
-                cuerpoVales.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#888;">No hay vales registrados para esta selección.</td></tr>`;
+                cuerpoVales.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#888;">No hay vales registrados para esta selección.</td></tr>`;
             } else {
                 vales.slice().reverse().forEach(v => {
                     let monto = parseFloat(v.monto) || 0;
@@ -547,8 +561,14 @@
 
                     cuerpoVales.innerHTML += `
                         <tr>
-                            <td><strong>${v.folio}</strong></td><td>${v.fecha}</td><td>${v.promotora}</td><td>${v.cliente}</td>
-                            <td style="font-weight: bold; color: #28a745;">${montoF}</td><td>${v.quincenas}</td>
+                            <td><strong>${v.folio}</strong></td>
+                            <td>${v.fecha}</td>
+                            <td>${v.promotora}</td>
+                            <td>${v.cliente}</td>
+                            <td>${v.telefono || 'N/D'}</td>
+                            <td>${v.direccion || 'N/D'}</td>
+                            <td style="font-weight: bold; color: #28a745;">${montoF}</td>
+                            <td>${v.quincenas}</td>
                             <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
                             <td><strong style="color: ${pagoColor};">${v.estatusPago}</strong></td>
                             <td><strong style="color: ${canjeColor};">${v.estatusCanje}</strong></td>

@@ -217,10 +217,30 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxjUsJiDd385o3_TcSFwLg8x_8dbhms7PXMqv805aPhFVmZeEAl1mbW30wz5n7vfYTrAQ/exec";
 
+        let temporizadorInactividad;
+        const TIEMPO_LIMITE_INACTIVIDAD = 10 * 60 * 1000; // 10 minutos en milisegundos
+
         window.onload = function() {
             const activa = localStorage.getItem('mvr_promotora_activa');
-            if (activa) activarPortal(activa);
+            if (activa) {
+                activarPortal(activa);
+            }
         };
+
+        // --- SISTEMA DE INACTIVIDAD (10 MINUTOS) ---
+        function reiniciarTemporizadorInactividad() {
+            if (!localStorage.getItem('mvr_promotora_activa')) return;
+            clearTimeout(temporizadorInactividad);
+            temporizadorInactividad = setTimeout(() => {
+                alert("⏱️ Su sesión ha expirado por inactividad (10 minutos). Inicie sesión nuevamente.");
+                cerrarSesion();
+            }, TIEMPO_LIMITE_INACTIVIDAD);
+        }
+
+        // Registrar eventos de interacción del usuario
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
+            window.addEventListener(evento, reiniciarTemporizadorInactividad);
+        });
 
         function pedirAyudaPassword(event) {
             event.preventDefault();
@@ -266,10 +286,12 @@
             document.getElementById('panelProtegido').style.display = 'block';
             document.getElementById('numPromotora').value = num;
             document.getElementById('buscarPromotora').value = num;
+            reiniciarTemporizadorInactividad(); // Iniciar conteo al activar
         }
 
         function cerrarSesion() {
             localStorage.removeItem('mvr_promotora_activa');
+            clearTimeout(temporizadorInactividad);
             document.getElementById('panelProtegido').style.display = 'none';
             document.getElementById('panelLogin').style.display = 'block';
             document.getElementById('formLogin').reset();
@@ -277,6 +299,7 @@
 
         async function generarFolio(event) {
             event.preventDefault();
+            reiniciarTemporizadorInactividad();
             const btn = document.getElementById('btnGenerarVale');
             btn.innerText = "Sincronizando Vale...";
             btn.disabled = true;
@@ -314,6 +337,7 @@
                 const urlWsp = `https://api.whatsapp.com/send?phone=52${telefono}&text=${mensajeWsp}`;
                 const urlQrNativo = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(`=== GRUPO MVR: VALE ===\nFolio: ${folio}\nSucursal: ${sucursal}\nCliente: ${cliente}\nTel: ${telefono}\nMonto: ${montoFormateado}\nPlazo: ${quincenas}\nPromotora: ${promotora}\nFecha: ${nuevoVale.fecha}`)}`;
 
+                // Nota: Se ha retirado el botón de marcar como canjeado de este panel, ya que el sistema lo hace de forma automática en caja.
                 contenedor.innerHTML = `
                     <img src="${logoImg}" onerror="this.onerror=null; this.src='${logoFallback}';" class="logo-vale-head">
                     <h2 class="titulo-vale" style="margin: 0; text-transform: uppercase;">${sucursal} - Autorizado</h2>
@@ -327,7 +351,6 @@
                     </div>
                     <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem;">
                         <a href="${urlWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.8rem 1.2rem; border-radius: 5px; text-decoration: none; font-weight: bold;">💬 Enviar por WhatsApp</a>
-                        <button onclick="canjearValeDirecto('${folio}')" style="background-color: #ff8c00; color: white; border: none; padding: 0.8rem 1.2rem; border-radius: 5px; font-weight: bold; cursor: pointer;">⚡ Marcar como Canjeado</button>
                         <button onclick="imprimirElemento('vale')" style="background-color: #002b55; color: white; border: none; padding: 0.8rem 1.4rem; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer;">🖨️ Guardar PDF</button>
                     </div>`;
                 contenedor.style.display = 'block';
@@ -340,20 +363,8 @@
             btn.disabled = false;
         }
 
-        async function canjearValeDirecto(folio) {
-            if (!confirm(`¿Confirmas que deseas canjear el folio ${folio}? Esta acción actualizará el sistema en tiempo real.`)) return;
-            try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ accion: "canjearVale", folio: folio })
-                });
-                alert(`✅ ¡El vale ${folio} ha sido registrado como CANJEADO con éxito en la nube!`);
-            } catch (e) {
-                alert("Error al procesar el canje.");
-            }
-        }
-
         async function buscarCartera() {
+            reiniciarTemporizadorInactividad();
             const btn = document.getElementById('btnConsultarCartera');
             btn.innerText = "Descargando Cartera...";
             const busqueda = document.getElementById('buscarPromotora').value.trim().toUpperCase();
@@ -390,6 +401,7 @@
         }
 
         function imprimirElemento(tipo) {
+            reiniciarTemporizadorInactividad();
             document.body.classList.remove('imprimiendo-vale', 'imprimiendo-cartera');
             if (tipo === 'vale') document.body.classList.add('imprimiendo-vale');
             else if (tipo === 'cartera') document.body.classList.add('imprimiendo-cartera');
