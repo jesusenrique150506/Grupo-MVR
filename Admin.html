@@ -49,6 +49,7 @@
         .badge-ravali { color: #a80f14; background: #fff0f0; }
         .badge-marcel { color: #880e4f; background: #fff0f5; }
         .pass-badge { background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 1rem; color: #d32f2f; font-weight: bold; }
+        .alerta-stock-bajo { background-color: #fff5f5 !important; border: 2px solid #d32f2f; color: #d32f2f; font-weight: bold; padding: 4px 8px; border-radius: 4px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -74,7 +75,7 @@
 
     <section class="hero" style="background-color: #e6f0fa; background-image: linear-gradient(rgba(230, 240, 250, 0.92), rgba(230, 240, 250, 0.92)), url('mvr.jpg'); background-size: cover; background-position: center; text-align: center; padding: 3rem 1rem; position: relative;">
         <h2 style="color: #002b55; font-size: 2rem; margin: 0; position: relative; z-index: 2;">Centro de Control MVR</h2>
-        <p style="color: #555; margin-top: 5px; position: relative; z-index: 2;">Supervisión conectada a la Nube.</p>
+        <p style="color: #555; margin-top: 5px; position: relative; z-index: 2;">Supervisión conectada a la Nube con Filtros por Sucursal.</p>
     </section>
 
     <!-- LOGIN ADMIN -->
@@ -147,7 +148,7 @@
             </div>
             <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
                 <table class="tabla-admin">
-                    <thead><tr><th>Imagen</th><th>ID</th><th>Sucursal</th><th>Producto</th><th>Precio</th><th>Stock</th><th style="text-align: center;">Acciones</th></tr></thead>
+                    <thead><tr><th>Imagen</th><th>ID</th><th>Sucursal</th><th>Producto</th><th>Precio</th><th>Stock (Estatus)</th><th style="text-align: center;">Acciones</th></tr></thead>
                     <tbody id="cuerpoTablaInventarioAdmin"><tr><td colspan="7" style="text-align:center;">Cargando...</td></tr></tbody>
                 </table>
             </div>
@@ -203,12 +204,21 @@
             </div>
         </div>
 
-        <!-- MÓDULO 4: VALES -->
+        <!-- MÓDULO 4: VALES (CON FILTRO POR SUCURSAL) -->
         <button class="btn-acordeon" onclick="toggleSeccion('seccionVales')">
-            <span>📋 Historial Global de Vales</span>
+            <span>📋 Historial Global de Vales y Cortes de Caja</span>
             <span class="icono-flecha">▼</span>
         </button>
         <div id="seccionVales" class="contenido-desplegable">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: #f8f9fa; padding: 1rem; border-radius: 6px;">
+                <label for="filtroSucursalVales" style="font-weight: bold; color: #002b55; margin: 0;">Filtrar Vales por Sucursal:</label>
+                <select id="filtroSucursalVales" onchange="filtrarValesPorSucursal()" style="max-width: 250px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+                    <option value="TODAS">Todas las Sucursales</option>
+                    <option value="Óptica D'villa">Óptica D'villa</option>
+                    <option value="Óptica Ravali">Óptica Ravali</option>
+                    <option value="Marcel Boutique">Marcel Boutique</option>
+                </select>
+            </div>
             <div style="overflow-x: auto;">
                 <table class="tabla-admin">
                     <thead><tr><th>Folio</th><th>Fecha</th><th>Promotora</th><th>Cliente</th><th>Monto</th><th>Plazo</th><th>Sucursal</th><th>Pago</th><th>Canje</th></tr></thead>
@@ -225,7 +235,8 @@
     </footer>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzlabxub8xOhUM9gevHDcedz1ni7MAkxRlk-KMoSGyf_tzZQaRvr8-lIjsgQL0-G7lhoA/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycby-dHlnYp2QiXSNFYWcqHp3UY-XSVqHt_5PFHW3tHktrc9y73pVEiorT3CZDStaDihXQg/exec";
+        let listaGlobalVales = []; // Almacena temporalmente los vales para el filtro
 
         window.onload = function() {
             const adminActivo = localStorage.getItem('mvr_admin_activo');
@@ -410,7 +421,7 @@
             } catch (e) {}
         }
 
-        // --- SINCRONIZACIÓN MAESTRA DE DATOS ---
+        // --- SINCRONIZACIÓN MAESTRA Y RENDERIZADO DE VALES CON FILTRO ---
         async function cargarTodoDesdeLaNube() {
             const btn = document.getElementById('btnActualizarDatos');
             if (btn) btn.innerText = "Sincronizando con Google Sheets...";
@@ -429,11 +440,22 @@
                         let prod = inventarioRemoto[id];
                         let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(prod.precio || 0);
                         let imgSrc = prod.imagen ? prod.imagen : 'mvr.jpg';
+                        let stockNum = parseInt(prod.stock) || 0;
+                        let alertaHtml = '';
+                        if (stockNum === 0) {
+                            alertaHtml = `<span style="color: #d32f2f; font-weight: bold; font-size: 0.75rem; display:block;">⚠️ Agotado</span>`;
+                        } else if (stockNum <= 3) {
+                            alertaHtml = `<span class="alerta-stock-bajo" style="font-size: 0.75rem; display:block; margin-top:2px;">⚠️ ¡Stock Bajo!</span>`;
+                        }
+
                         cuerpoInv.innerHTML += `
                             <tr>
                                 <td><img src="${imgSrc}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;" onerror="this.src='mvr.jpg';"></td>
                                 <td><strong>${id}</strong></td><td>${prod.sucursal}</td><td>${prod.nombre}</td><td>${precioFmt}</td>
-                                <td><input type="number" id="stock-${id}" value="${prod.stock}" min="0" style="width: 70px; text-align: center; font-weight: bold;"></td>
+                                <td>
+                                    <input type="number" id="stock-${id}" value="${stockNum}" min="0" style="width: 70px; text-align: center; font-weight: bold;">
+                                    ${alertaHtml}
+                                </td>
                                 <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
                                     <button onclick="guardarStockIndividual('${id}', '${prod.sucursal}', '${String(prod.nombre).replace(/'/g, "")}', ${prod.precio}, '${prod.imagen || ''}')" style="background-color: #28a745; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 Guardar</button>
                                     <button onclick="eliminarProductoInventario('${id}', '${prod.nombre}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
@@ -493,44 +515,59 @@
                     });
                 }
 
-                // 4. VALES Y MÉTRICAS
+                // 4. VALES Y MÉTRICAS (Guardando en lista global para filtros)
                 let resVales = await fetch(`${API_URL}?accion=obtenerVales&nocache=${new Date().getTime()}`);
-                let valesGuardados = await resVales.json();
-                const cuerpoVales = document.getElementById('cuerpoTablaAdmin');
-                cuerpoVales.innerHTML = "";
-                let totalVales = 0, montoTotal = 0;
-
-                if (valesGuardados.length === 0) {
-                    cuerpoVales.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#888;">No hay vales registrados.</td></tr>`;
-                } else {
-                    valesGuardados.slice().reverse().forEach(v => {
-                        let monto = parseFloat(v.monto) || 0;
-                        totalVales++;
-                        montoTotal += monto;
-
-                        let claseBadge = v.sucursal === "Óptica Ravali" ? "badge-ravali" : (v.sucursal === "Marcel Boutique" ? "badge-marcel" : "badge-dvilla");
-                        let montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(monto);
-                        let pagoColor = v.estatusPago === "Vencido" ? "#d32f2f" : "#28a745";
-                        let canjeColor = v.estatusCanje === "Canjeado" ? "#0059b3" : "#888";
-
-                        cuerpoVales.innerHTML += `
-                            <tr>
-                                <td><strong>${v.folio}</strong></td><td>${v.fecha}</td><td>${v.promotora}</td><td>${v.cliente}</td>
-                                <td style="font-weight: bold; color: #28a745;">${montoF}</td><td>${v.quincenas}</td>
-                                <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
-                                <td><strong style="color: ${pagoColor};">${v.estatusPago}</strong></td>
-                                <td><strong style="color: ${canjeColor};">${v.estatusCanje}</strong></td>
-                            </tr>`;
-                    });
-                }
-
-                document.getElementById('resumenTotalVales').innerText = totalVales;
-                document.getElementById('resumenMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoTotal);
+                listaGlobalVales = await resVales.json();
+                
+                renderizarTablaVales(listaGlobalVales);
 
             } catch (error) {
                 console.error("Error cargando datos de la nube:", error);
             }
             if (btn) btn.innerText = "🔄 Sincronizar Todo con la Nube";
+        }
+
+        function renderizarTablaVales(vales) {
+            const cuerpoVales = document.getElementById('cuerpoTablaAdmin');
+            cuerpoVales.innerHTML = "";
+            let totalVales = 0, montoTotal = 0;
+
+            if (vales.length === 0) {
+                cuerpoVales.innerHTML = `<tr><td colspan="9" style="text-align:center; color:#888;">No hay vales registrados para esta selección.</td></tr>`;
+            } else {
+                vales.slice().reverse().forEach(v => {
+                    let monto = parseFloat(v.monto) || 0;
+                    totalVales++;
+                    montoTotal += monto;
+
+                    let claseBadge = v.sucursal === "Óptica Ravali" ? "badge-ravali" : (v.sucursal === "Marcel Boutique" ? "badge-marcel" : "badge-dvilla");
+                    let montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(monto);
+                    let pagoColor = v.estatusPago === "Vencido" ? "#d32f2f" : "#28a745";
+                    let canjeColor = v.estatusCanje === "Canjeado" ? "#0059b3" : "#888";
+
+                    cuerpoVales.innerHTML += `
+                        <tr>
+                            <td><strong>${v.folio}</strong></td><td>${v.fecha}</td><td>${v.promotora}</td><td>${v.cliente}</td>
+                            <td style="font-weight: bold; color: #28a745;">${montoF}</td><td>${v.quincenas}</td>
+                            <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
+                            <td><strong style="color: ${pagoColor};">${v.estatusPago}</strong></td>
+                            <td><strong style="color: ${canjeColor};">${v.estatusCanje}</strong></td>
+                        </tr>`;
+                });
+            }
+
+            document.getElementById('resumenTotalVales').innerText = totalVales;
+            document.getElementById('resumenMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoTotal);
+        }
+
+        function filtrarValesPorSucursal() {
+            let sucursalSeleccionada = document.getElementById('filtroSucursalVales').value;
+            if (sucursalSeleccionada === "TODAS") {
+                renderizarTablaVales(listaGlobalVales);
+            } else {
+                let valesFiltrados = listaGlobalVales.filter(v => String(v.sucursal).trim() === sucursalSeleccionada);
+                renderizarTablaVales(valesFiltrados);
+            }
         }
     </script>
 </body>

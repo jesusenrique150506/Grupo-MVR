@@ -91,6 +91,45 @@
             transform: translateY(-2px);
         }
 
+        /* --- BARRA DE BÚSQUEDA Y FILTROS --- */
+        .filtros-container {
+            max-width: 800px;
+            margin: 2rem auto 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .buscador-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+        }
+        .filtro-btns {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-filtro {
+            background: #e9ecef;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-filtro.activo, .btn-filtro:hover {
+            background: #880e4f;
+            color: white;
+        }
+
         /* --- ESTILOS DE LA VENTANA EMERGENTE (MODAL) --- */
         .modal-overlay {
             display: none;
@@ -180,6 +219,15 @@
     <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE -->
     <div id="contenedorPromosCliente" style="max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;"></div>
 
+    <!-- BARRA DE BÚSQUEDA Y FILTROS -->
+    <div class="filtros-container">
+        <input type="text" id="inputBuscador" class="buscador-input" placeholder="🔍 Buscar por nombre o ID de producto..." oninput="filtrarProductos()">
+        <div class="filtro-btns">
+            <button class="btn-filtro activo" onclick="cambiarFiltro('todos', this)">Todos</button>
+            <button class="btn-filtro" onclick="cambiarFiltro('disponible', this)">Disponibles</button>
+        </div>
+    </div>
+
     <!-- CATÁLOGOS DINÁMICO DE PRODUCTOS MARCEL BOUTIQUE DESDE LA NUBE -->
     <main>
         <section id="contenedorCatalogoMarcel" class="grid-productos">
@@ -253,9 +301,11 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Marcel Boutique (Grupo MVR). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT: PROMOCIONES, INVENTARIO DINÁMICO Y CARRITO -->
+    <!-- LÓGICA JAVASCRIPT CON BUSCADOR Y FILTROS -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzlabxub8xOhUM9gevHDcedz1ni7MAkxRlk-KMoSGyf_tzZQaRvr8-lIjsgQL0-G7lhoA/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycby-dHlnYp2QiXSNFYWcqHp3UY-XSVqHt_5PFHW3tHktrc9y73pVEiorT3CZDStaDihXQg/exec";
+        let listaGlobalProductos = [];
+        let filtroActual = 'todos';
 
         window.addEventListener('DOMContentLoaded', async () => {
             // 1. CARGAR PROMOCIONES DINÁMICAS
@@ -292,64 +342,92 @@
             try {
                 let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
                 let inventario = await resInv.json();
-                let contenedorCatalogo = document.getElementById('contenedorCatalogoMarcel');
-                
-                if (contenedorCatalogo) {
-                    contenedorCatalogo.innerHTML = "";
-                    let ids = Object.keys(inventario);
-                    let hayProductosMarcel = false;
+                let ids = Object.keys(inventario);
 
-                    ids.forEach(id => {
-                        let p = inventario[id];
-                        if (p.sucursal === "Marcel Boutique") {
-                            hayProductosMarcel = true;
-                            let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.precio || 0);
-                            let imgSrc = p.imagen ? p.imagen : 'marcel.png';
-                            let stock = parseInt(p.stock) || 0;
-
-                            let botonHtml = '';
-                            let estadoTexto = '';
-
-                            if (stock <= 0) {
-                                estadoTexto = `<span style="background: #d32f2f; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold;">🔴 PRODUCTO AGOTADO</span>`;
-                                botonHtml = `<button disabled style="background: #ccc; color: white; border: none; padding: 0.8rem; border-radius: 5px; font-weight: bold; cursor: not-allowed;">No disponible</button>`;
-                            } else {
-                                estadoTexto = `${precioFmt} <small style="color:#666; font-size:0.8rem;">(Stock: ${stock})</small>`;
-                                botonHtml = `
-                                    <button class="btn-secundario" onclick="abrirModalPagos('${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio})">💳 Ver Quincenas y Promos</button>
-                                    <button onclick="agregarAlCarrito('${id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Marcel Boutique')" style="background-color: #880e4f; color: white; border: none; padding: 0.8rem; border-radius: 5px; font-weight: bold; cursor: pointer;">🛒 Agregar al Carrito</button>
-                                `;
-                            }
-
-                            contenedorCatalogo.innerHTML += `
-                                <div class="card-producto">
-                                    <div>
-                                        <div class="img-container">
-                                            <img src="${imgSrc}" alt="${p.nombre}" onerror="this.src='marcel.png';">
-                                        </div>
-                                        <h3>${p.nombre}</h3>
-                                        <p>ID: ${id} - Colección exclusiva de moda y elegancia en Marcel Boutique.</p>
-                                    </div>
-                                    <div>
-                                        <div class="precio">${estadoTexto}</div>
-                                        <div class="botones-card">
-                                            ${botonHtml}
-                                        </div>
-                                    </div>
-                                </div>`;
-                        }
-                    });
-
-                    if (!hayProductosMarcel) {
-                        contenedorCatalogo.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #777; padding: 2rem;">No hay productos registrados en Marcel Boutique actualmente.</p>`;
+                listaGlobalProductos = [];
+                ids.forEach(id => {
+                    let p = inventario[id];
+                    let sucRemota = String(p.sucursal).trim().toLowerCase();
+                    if (sucRemota.includes("marcel")) {
+                        listaGlobalProductos.push({ id: id, ...p });
                     }
-                }
+                });
+
+                renderizarCatalogo(listaGlobalProductos);
             } catch (error) {
                 console.error("Error al cargar inventario", error);
             }
 
             actualizarContadorCarrito();
         });
+
+        function renderizarCatalogo(productos) {
+            let contenedorCatalogo = document.getElementById('contenedorCatalogoMarcel');
+            if (!contenedorCatalogo) return;
+
+            contenedorCatalogo.innerHTML = "";
+            if (productos.length === 0) {
+                contenedorCatalogo.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #777; padding: 2rem;">No se encontraron productos en Marcel Boutique.</p>`;
+                return;
+            }
+
+            productos.forEach(p => {
+                let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.precio || 0);
+                let imgSrc = (p.imagen && p.imagen.length > 20) ? p.imagen : 'marcel.png';
+                let stock = parseInt(p.stock) || 0;
+
+                let botonHtml = '';
+                let estadoTexto = '';
+
+                if (stock <= 0) {
+                    estadoTexto = `<span style="background: #d32f2f; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold;">🔴 PRODUCTO AGOTADO</span>`;
+                    botonHtml = `<button disabled style="background: #ccc; color: white; border: none; padding: 0.8rem; border-radius: 5px; font-weight: bold; cursor: not-allowed;">No disponible</button>`;
+                } else {
+                    estadoTexto = `${precioFmt} <small style="color:#666; font-size:0.8rem;">(Stock: ${stock})</small>`;
+                    botonHtml = `
+                        <button class="btn-secundario" onclick="abrirModalPagos('${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio})">💳 Ver Quincenas y Promos</button>
+                        <button onclick="agregarAlCarrito('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Marcel Boutique')" style="background-color: #880e4f; color: white; border: none; padding: 0.8rem; border-radius: 5px; font-weight: bold; cursor: pointer;">🛒 Agregar al Carrito</button>
+                    `;
+                }
+
+                contenedorCatalogo.innerHTML += `
+                    <div class="card-producto">
+                        <div>
+                            <div class="img-container">
+                                <img src="${imgSrc}" alt="${p.nombre}" onerror="this.src='marcel.png';">
+                            </div>
+                            <h3>${p.nombre}</h3>
+                            <p>ID: ${p.id} - Colección exclusiva de moda y elegancia en Marcel Boutique.</p>
+                        </div>
+                        <div>
+                            <div class="precio">${estadoTexto}</div>
+                            <div class="botones-card">${botonHtml}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function filtrarProductos() {
+            let texto = document.getElementById('inputBuscador').value.toLowerCase().trim();
+            
+            let filtrados = listaGlobalProductos.filter(p => {
+                let coincideTexto = p.nombre.toLowerCase().includes(texto) || p.id.toLowerCase().includes(texto);
+                let coincideFiltro = true;
+                if (filtroActual === 'disponible') {
+                    coincideFiltro = (parseInt(p.stock) || 0) > 0;
+                }
+                return coincideTexto && coincideFiltro;
+            });
+
+            renderizarCatalogo(filtrados);
+        }
+
+        function cambiarFiltro(tipo, btn) {
+            filtroActual = tipo;
+            document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('activo'));
+            btn.classList.add('activo');
+            filtrarProductos();
+        }
 
         // --- LÓGICA DEL MODAL DE PAGOS ---
         function abrirModalPagos(nombreProducto, precioTotal) {
@@ -362,13 +440,7 @@
                 const pagoCalculado = (precioTotal / q).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
                 const claseFila = (q === 8) ? 'fila-destacada' : '';
                 const textoPlazo = (q === 8) ? `${q} Quincenas ⭐` : `${q} Quincenas`;
-
-                cuerpoTabla.innerHTML += `
-                    <tr class="${claseFila}">
-                        <td>${textoPlazo}</td>
-                        <td style="font-weight: bold;">${pagoCalculado}</td>
-                    </tr>
-                `;
+                cuerpoTabla.innerHTML += `<tr class="${claseFila}"><td>${textoPlazo}</td><td style="font-weight: bold;">${pagoCalculado}</td></tr>`;
             });
 
             document.getElementById('modalPagos').style.display = 'flex';
