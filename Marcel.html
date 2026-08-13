@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupo MVR | Marcel Boutique</title>
-    <!-- Librería oficial de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Enlace a la hoja de estilos global -->
     <link rel="stylesheet" href="CSS/opticas-styles.css">
+    
     <style>
+        /* ESTILOS EXCLUSIVOS PARA MARCEL BOUTIQUE */
         .grid-productos {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -19,7 +21,7 @@
         .card-producto {
             background: #ffffff;
             border: 1px solid #e0e0e0;
-            border-top: 4px solid #8e44ad; /* Color distintivo para Marcel */
+            border-top: 4px solid #880e4f; /* Magenta oscuro */
             border-radius: 8px;
             padding: 1.2rem;
             text-align: center;
@@ -31,11 +33,11 @@
         }
         .card-producto:hover {
             transform: translateY(-6px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
         }
         .img-container {
             width: 100%;
-            height: 220px;
+            height: 250px;
             overflow: hidden;
             border-radius: 6px;
             margin-bottom: 1rem;
@@ -63,7 +65,7 @@
         }
         .precio {
             font-size: 1.3rem;
-            color: #8e44ad;
+            color: #880e4f;
             font-weight: bold;
             margin-bottom: 1rem;
         }
@@ -73,9 +75,9 @@
             gap: 10px;
         }
         .btn-secundario {
-            background-color: #f5eeu9;
-            color: #8e44ad;
-            border: 2px solid #8e44ad;
+            background-color: #fce4ec; /* Rosa claro */
+            color: #880e4f;
+            border: 2px solid #880e4f;
             padding: 0.7rem;
             text-decoration: none;
             border-radius: 5px;
@@ -84,8 +86,9 @@
             transition: all 0.3s ease;
         }
         .btn-secundario:hover {
-            background-color: #8e44ad;
+            background-color: #880e4f;
             color: #ffffff;
+            transform: translateY(-2px);
         }
 
         /* --- BARRA DE BÚSQUEDA Y FILTROS --- */
@@ -123,7 +126,7 @@
             transition: background 0.2s;
         }
         .btn-filtro.activo, .btn-filtro:hover {
-            background: #8e44ad;
+            background: #880e4f;
             color: white;
         }
 
@@ -145,7 +148,7 @@
             width: 90%;
             position: relative;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            border-top: 5px solid #8e44ad;
+            border-top: 5px solid #880e4f;
         }
         .cerrar-modal {
             position: absolute;
@@ -155,15 +158,15 @@
             color: #555;
             cursor: pointer;
         }
-        .cerrar-modal:hover { color: #8e44ad; }
+        .cerrar-modal:hover { color: #880e4f; }
         .promo-box {
-            background-color: #f4ecf7;
-            border-left: 4px solid #8e44ad;
+            background-color: #fff6e5;
+            border-left: 4px solid #ffa500;
             padding: 1rem;
             margin: 1rem 0;
             border-radius: 4px;
             font-size: 0.95rem;
-            color: #5b2c6f;
+            color: #a66a00;
         }
         .tabla-quincenas {
             width: 100%;
@@ -176,18 +179,19 @@
             text-align: left;
         }
         .tabla-quincenas th { 
-            color: #8e44ad; 
-            border-bottom: 2px solid #8e44ad; 
+            color: #880e4f; 
+            border-bottom: 2px solid #880e4f;
         }
-        .fila-destacada { background-color: #f4ecf7; font-weight: bold; }
+        .fila-destacada { background-color: #fce4ec; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <!-- ENCABEZADO EXCLUSIVO MARCEL -->
-    <header class="main-header" style="background-color: #8e44ad;">
+    <!-- ENCABEZADO EXCLUSIVO MARCEL BOUTIQUE -->
+    <header class="main-header" style="background-color: #880e4f;">
         <div class="logo">
             <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <img src="marcel.png" onerror="this.onerror=null; this.src='mvr.jpg';" alt="Logo Marcel Boutique" style="height: 45px; width: auto; object-fit: contain; border-radius: 4px; background: white; padding: 2px;">
                 <h1 style="margin: 0; font-size: 1.5rem; color: white;">Marcel Boutique</h1>
             </a>
         </div>
@@ -202,11 +206,18 @@
         </nav>
     </header>
 
-    <!-- BANNER DE BIENVENIDA MARCEL -->
-    <section class="hero" style="background-color: #f4ecf7; text-align: center; padding: 3rem 1rem;">
-        <h2 style="color: #8e44ad; font-size: 2rem; margin-bottom: 0.5rem;">Elegancia y Estilo en Marcel Boutique</h2>
-        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem;">"Moda y exclusividad a tu alcance"</p>
+    <!-- BANNER DE BIENVENIDA MARCEL BOUTIQUE CON LOGO DE FONDO -->
+    <section class="hero" style="background-color: #fce4ec; background-image: linear-gradient(rgba(252, 228, 236, 0.92), rgba(252, 228, 236, 0.92)), url('marcel.png'); background-size: cover; background-position: center; text-align: center; padding: 3rem 1rem; position: relative;">
+        <h2 style="color: #880e4f; font-size: 2rem; margin-bottom: 0.5rem; position: relative; z-index: 2;">Moda, Estilo y Elegancia</h2>
+        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem; position: relative; z-index: 2;">"Viste tu mejor versión todos los días"</p>
+        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto; position: relative; z-index: 2;">Descubre nuestra nueva colección de vestidos, conjuntos y accesorios diseñados para resaltar tu personalidad y belleza.</p>
+        <a href="https://maps.google.com/?q=Marcel+Boutique" target="_blank" class="btn" style="background-color: #880e4f; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; position: relative; z-index: 2;">
+            📍 Cómo llegar a Marcel Boutique
+        </a>
     </section>
+
+    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE -->
+    <div id="contenedorPromosCliente" style="max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;"></div>
 
     <!-- BARRA DE BÚSQUEDA Y FILTROS -->
     <div class="filtros-container">
@@ -217,25 +228,25 @@
         </div>
     </div>
 
-    <!-- CATÁLOGO DINÁMICO DESDE SUPABASE -->
+    <!-- CATÁLOGOS DINÁMICO DE PRODUCTOS MARCEL BOUTIQUE DESDE LA NUBE -->
     <main>
         <section id="contenedorCatalogoMarcel" class="grid-productos">
-            <p style="grid-column: 1 / -1; text-align: center; color: #666; padding: 2rem;">Cargando catálogo desde Supabase...</p>
+            <p style="grid-column: 1 / -1; text-align: center; color: #666; padding: 2rem;">Cargando catálogo desde la nube...</p>
         </section>
     </main>
 
-    <!-- VENTANA EMERGENTE (MODAL) DE PAGOS Y QUINCENAS -->
+    <!-- VENTANA EMERGENTE (MODAL) DE PROMOCIONES Y PAGOS -->
     <div id="modalPagos" class="modal-overlay">
         <div class="modal-content">
             <span class="cerrar-modal" onclick="cerrarModal()">&times;</span>
-            <h3 id="modalTitulo" style="color: #8e44ad; margin-top: 0; font-size: 1.4rem;">Nombre del Producto</h3>
+            <h3 id="modalTitulo" style="color: #880e4f; margin-top: 0; font-size: 1.4rem;">Nombre del Producto</h3>
             
             <div class="promo-box">
-                <strong>🎁 Promoción Exclusiva:</strong><br>
-                Llévate beneficios especiales al pagar mediante sistema de apartado o vales autorizados.
+                <strong>🎁 Promoción del Mes:</strong><br>
+                En compras mayores a $1,000 MXN llévate un accesorio sorpresa ¡Totalmente Gratis!
             </div>
 
-            <p style="color: #555; margin-bottom: 0.5rem; font-size: 0.95rem;">Selecciona el plazo de tu vale:</p>
+            <p style="color: #555; margin-bottom: 0.5rem; font-size: 0.95rem;">Selecciona el plazo de tu vale que mejor se adapte a ti:</p>
             
             <table class="tabla-quincenas">
                 <thead>
@@ -244,28 +255,32 @@
                         <th>Pago por Quincena</th>
                     </tr>
                 </thead>
-                <tbody id="cuerpoQuincenas"></tbody>
+                <tbody id="cuerpoQuincenas">
+                    <!-- Los pagos se calculan e insertan aquí por Javascript -->
+                </tbody>
             </table>
 
-            <a href="Promotoras.html" class="btn" style="background-color: #8e44ad; color: white; display: block; padding: 1rem; text-align: center; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            <a href="Promotoras.html" class="btn" style="background-color: #880e4f; color: white; display: block; padding: 1rem; text-align: center; text-decoration: none; border-radius: 5px; font-weight: bold; transition: all 0.3s ease;">
                 🎟️ Solicitar Vale con mi Promotora
             </a>
         </div>
     </div>
 
     <!-- BOTÓN Y MODAL FLOTANTE DEL CARRITO GLOBAL -->
-    <div id="btnFlotanteCarrito" onclick="abrirCarritoGlobal()" style="position: fixed; bottom: 95px; right: 25px; background-color: #8e44ad; color: white; border-radius: 50px; padding: 12px 20px; font-size: 1rem; font-weight: bold; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; z-index: 1000; cursor: pointer; transition: transform 0.3s ease;">
+    <div id="btnFlotanteCarrito" onclick="abrirCarritoGlobal()" style="position: fixed; bottom: 95px; right: 25px; background-color: #880e4f; color: white; border-radius: 50px; padding: 12px 20px; font-size: 1rem; font-weight: bold; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; z-index: 1000; cursor: pointer; transition: transform 0.3s ease;">
         🛒 Carrito <span id="contadorCarrito" style="background: #ff8c00; color: white; padding: 2px 8px; border-radius: 50px; font-size: 0.85rem;">0</span>
     </div>
 
     <div id="modalCarritoGlobal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center;">
-        <div style="background-color: #fff; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-top: 5px solid #8e44ad; max-height: 85vh; overflow-y: auto;">
+        <div style="background-color: #fff; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-top: 5px solid #880e4f; max-height: 85vh; overflow-y: auto;">
             <span onclick="cerrarCarritoGlobal()" style="position: absolute; top: 15px; right: 20px; font-size: 1.5rem; font-weight: bold; color: #555; cursor: pointer;">&times;</span>
-            <h3 style="color: #8e44ad; margin-top: 0; font-size: 1.4rem;">🛍️ Tu Carrito Global MVR</h3>
+            <h3 style="color: #880e4f; margin-top: 0; font-size: 1.4rem;">🛍️ Tu Carrito Global MVR</h3>
             
-            <div id="listaProductosCarrito" style="margin: 1rem 0; max-height: 250px; overflow-y: auto; border-bottom: 1px solid #eee; padding-bottom: 1rem;"></div>
+            <div id="listaProductosCarrito" style="margin: 1rem 0; max-height: 250px; overflow-y: auto; border-bottom: 1px solid #eee; padding-bottom: 1rem;">
+                <!-- Productos del carrito -->
+            </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: #8e44ad; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: #880e4f; margin-bottom: 1.5rem;">
                 <span>Total a Pagar:</span>
                 <span id="totalCarritoMxn">$0.00 MXN</span>
             </div>
@@ -274,51 +289,73 @@
                 <button onclick="enviarPedidoWhatsApp()" style="background-color: #25d366; color: white; border: none; padding: 0.9rem; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1rem;">
                     💬 Enviar Pedido por WhatsApp
                 </button>
-                <button onclick="vaciarCarrito()" style="background-color: #8e44ad; color: white; border: none; padding: 0.6rem; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
+                <button onclick="vaciarCarrito()" style="background-color: #a80f14; color: white; border: none; padding: 0.6rem; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">
                     🗑️ Vaciar Carrito
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- PIE DE PÁGINA -->
-    <footer style="background-color: #8e44ad; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
+    <!-- PIE DE PÁGINA MARCEL BOUTIQUE -->
+    <footer style="background-color: #880e4f; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Marcel Boutique (Grupo MVR). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT CON SUPABASE -->
+    <!-- LÓGICA JAVASCRIPT CON BUSCADOR Y FILTROS -->
     <script>
-        const SUPABASE_URL = "https://pjcrbljzrcbgbxymmjyt.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_VuWXg4Zq2phIiRjstlqL2Q_V5PREAzb";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        const API_URL = "https://script.google.com/macros/s/AKfycbxjUsJiDd385o3_TcSFwLg8x_8dbhms7PXMqv805aPhFVmZeEAl1mbW30wz5n7vfYTrAQ/exec";
         let listaGlobalProductos = [];
         let filtroActual = 'todos';
 
         window.addEventListener('DOMContentLoaded', async () => {
+            // 1. CARGAR PROMOCIONES DINÁMICAS
+            const contenedorPromos = document.getElementById('contenedorPromosCliente');
+            if (contenedorPromos) {
+                try {
+                    let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
+                    let promos = await res.json();
+
+                    let promosActivas = promos.filter(p => {
+                        if (p.estado !== "Activa") return false;
+                        let suc = String(p.sucursal).trim().toLowerCase();
+                        return suc.includes("marcel") || suc.includes("general") || suc.includes("todas");
+                    });
+
+                    if (promosActivas.length > 0) {
+                        let htmlPromos = "";
+                        promosActivas.forEach(p => {
+                            htmlPromos += `
+                                <div style="background: linear-gradient(135deg, #880e4f, #ad1457); color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); text-align: center;">
+                                    <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">¡Promoción Especial!</span>
+                                    <h3 style="margin: 8px 0 5px 0; font-size: 1.3rem; color: #ffffff;">${p.titulo}</h3>
+                                    <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
+                                </div>`;
+                        });
+                        contenedorPromos.innerHTML = htmlPromos;
+                    }
+                } catch (error) {
+                    console.error("Error al cargar promociones", error);
+                }
+            }
+
+            // 2. CARGAR INVENTARIO DINÁMICO DESDE LA NUBE
             try {
-                let { data, error } = await supabaseClient
-                    .from('Inventario')
-                    .select('*');
+                let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
+                let inventario = await resInv.json();
+                let ids = Object.keys(inventario);
 
-                if (error) throw error;
-
-                // Filtramos por la sucursal "Marcel"
-                listaGlobalProductos = data
-                    .filter(p => String(p.Sucursal).toLowerCase().includes("marcel"))
-                    .map(p => ({
-                        id: p.id,
-                        sucursal: p.Sucursal,
-                        nombre: p.Nombre,
-                        stock: p.Stock,
-                        precio: p.Precio,
-                        imagen: p.Imagen
-                    }));
+                listaGlobalProductos = [];
+                ids.forEach(id => {
+                    let p = inventario[id];
+                    let sucRemota = String(p.sucursal).trim().toLowerCase();
+                    if (sucRemota.includes("marcel")) {
+                        listaGlobalProductos.push({ id: id, ...p });
+                    }
+                });
 
                 renderizarCatalogo(listaGlobalProductos);
             } catch (error) {
-                console.error("Error al cargar inventario desde Supabase", error);
-                document.getElementById('contenedorCatalogoMarcel').innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #d32f2f; padding: 2rem;">Error al conectar con la base de datos.</p>`;
+                console.error("Error al cargar inventario", error);
             }
 
             actualizarContadorCarrito();
@@ -336,8 +373,12 @@
 
             productos.forEach(p => {
                 let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.precio || 0);
-                let imgSrc = (p.imagen && p.imagen.trim() !== "" && p.imagen !== "x") ? p.imagen : 'marcel.jpg';
+                
+                // --- CORRECCIÓN CLAVE DE IMAGEN ---
+                let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'marcel.png';
+                
                 let stock = parseInt(p.stock) || 0;
+
                 let botonHtml = '';
                 let estadoTexto = '';
 
@@ -348,7 +389,7 @@
                     estadoTexto = `${precioFmt} <small style="color:#666; font-size:0.8rem;">(Stock: ${stock})</small>`;
                     botonHtml = `
                         <button class="btn-secundario" onclick="abrirModalPagos('${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio})">💳 Ver Quincenas y Promos</button>
-                        <button onclick="agregarAlCarrito('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Marcel Boutique')" style="background-color: #8e44ad; color: white; border: none; padding: 0.8rem; border-radius: 5px; font-weight: bold; cursor: pointer;">🛒 Agregar al Carrito</button>
+                        <button onclick="agregarAlCarrito('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Marcel Boutique')" style="background-color: #880e4f; color: white; border: none; padding: 0.8rem; border-radius: 5px; font-weight: bold; cursor: pointer;">🛒 Agregar al Carrito</button>
                     `;
                 }
 
@@ -356,10 +397,10 @@
                     <div class="card-producto">
                         <div>
                             <div class="img-container">
-                                <img src="${imgSrc}" alt="${p.nombre}" onerror="this.src='marcel.jpg';">
+                                <img src="${imgSrc}" alt="${p.nombre}" onerror="this.src='marcel.png';">
                             </div>
                             <h3>${p.nombre}</h3>
-                            <p>ID: ${p.id} - Colección exclusiva de Marcel Boutique.</p>
+                            <p>ID: ${p.id} - Colección exclusiva de moda y elegancia en Marcel Boutique.</p>
                         </div>
                         <div>
                             <div class="precio">${estadoTexto}</div>
@@ -371,6 +412,7 @@
 
         function filtrarProductos() {
             let texto = document.getElementById('inputBuscador').value.toLowerCase().trim();
+            
             let filtrados = listaGlobalProductos.filter(p => {
                 let coincideTexto = p.nombre.toLowerCase().includes(texto) || p.id.toLowerCase().includes(texto);
                 let coincideFiltro = true;
@@ -379,6 +421,7 @@
                 }
                 return coincideTexto && coincideFiltro;
             });
+
             renderizarCatalogo(filtrados);
         }
 
@@ -389,6 +432,7 @@
             filtrarProductos();
         }
 
+        // --- LÓGICA DEL MODAL DE PAGOS ---
         function abrirModalPagos(nombreProducto, precioTotal) {
             document.getElementById('modalTitulo').innerText = nombreProducto;
             const quincenas = [2, 4, 6, 8, 10, 12];
@@ -401,27 +445,40 @@
                 const textoPlazo = (q === 8) ? `${q} Quincenas ⭐` : `${q} Quincenas`;
                 cuerpoTabla.innerHTML += `<tr class="${claseFila}"><td>${textoPlazo}</td><td style="font-weight: bold;">${pagoCalculado}</td></tr>`;
             });
+
             document.getElementById('modalPagos').style.display = 'flex';
         }
 
-        function cerrarModal() { document.getElementById('modalPagos').style.display = 'none'; }
+        function cerrarModal() {
+            document.getElementById('modalPagos').style.display = 'none';
+        }
 
-        function obtenerCarrito() { return JSON.parse(localStorage.getItem('mvr_carrito_global')) || []; }
-        function guardarCarrito(carrito) { localStorage.setItem('mvr_carrito_global', JSON.stringify(carrito)); actualizarContadorCarrito(); }
-        
+        // --- LÓGICA DEL CARRITO GLOBAL ---
+        function obtenerCarrito() {
+            return JSON.parse(localStorage.getItem('mvr_carrito_global')) || [];
+        }
+
+        function guardarCarrito(carrito) {
+            localStorage.setItem('mvr_carrito_global', JSON.stringify(carrito));
+            actualizarContadorCarrito();
+        }
+
         function actualizarContadorCarrito() {
             let carrito = obtenerCarrito();
-            document.getElementById('contadorCarrito').innerText = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+            let totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+            document.getElementById('contadorCarrito').innerText = totalItems;
         }
 
         function agregarAlCarrito(id, nombre, precio, sucursal) {
             let carrito = obtenerCarrito();
             let index = carrito.findIndex(item => item.id === id);
-            if (index > -1) { 
-                carrito[index].cantidad += 1; 
-            } else { 
-                carrito.push({ id: id, nombre: nombre, precio: parseFloat(precio), sucursal: sucursal, cantidad: 1 }); 
+
+            if (index > -1) {
+                carrito[index].cantidad += 1;
+            } else {
+                carrito.push({ id: id, nombre: nombre, precio: parseFloat(precio), sucursal: sucursal, cantidad: 1 });
             }
+
             guardarCarrito(carrito);
             alert(`✅ ¡"${nombre}" agregado al carrito global!`);
         }
@@ -431,7 +488,7 @@
             let listaDiv = document.getElementById('listaProductosCarrito');
             let totalMxn = 0;
             listaDiv.innerHTML = "";
-            
+
             if (carrito.length === 0) {
                 listaDiv.innerHTML = `<p style="text-align: center; color: #777;">Tu carrito está vacío.</p>`;
             } else {
@@ -439,53 +496,70 @@
                     let subtotal = item.precio * item.cantidad;
                     totalMxn += subtotal;
                     let subtotalFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(subtotal);
+
                     listaDiv.innerHTML += `
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border-radius: 5px; font-size: 0.9rem;">
-                            <div><strong>${item.nombre}</strong><br><small style="color: #666;">${item.sucursal} - $${item.precio} x ${item.cantidad}</small></div>
-                            <div style="display: flex; align-items: center; gap: 8px;"><span style="font-weight: bold; color: #28a745;">${subtotalFmt}</span><button onclick="eliminarItemCarrito(${index})" style="background: #8e44ad; color: white; border: none; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">❌</button></div>
+                            <div>
+                                <strong>${item.nombre}</strong><br>
+                                <small style="color: #666;">${item.sucursal} - $${item.precio} x ${item.cantidad}</small>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-weight: bold; color: #28a745;">${subtotalFmt}</span>
+                                <button onclick="eliminarItemCarrito(${index})" style="background: #a80f14; color: white; border: none; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">❌</button>
+                            </div>
                         </div>`;
                 });
             }
+
             document.getElementById('totalCarritoMxn').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(totalMxn);
             document.getElementById('modalCarritoGlobal').style.display = 'flex';
         }
 
-        function cerrarCarritoGlobal() { document.getElementById('modalCarritoGlobal').style.display = 'none'; }
-        
-        function eliminarItemCarrito(index) { 
-            let carrito = obtenerCarrito(); 
-            carrito.splice(index, 1); 
-            guardarCarrito(carrito); 
-            abrirCarritoGlobal(); 
+        function cerrarCarritoGlobal() {
+            document.getElementById('modalCarritoGlobal').style.display = 'none';
         }
 
-        function vaciarCarrito() { 
-            if (confirm("¿Estás seguro de vaciar el carrito?")) { 
-                localStorage.removeItem('mvr_carrito_global'); 
-                actualizarContadorCarrito(); 
-                abrirCarritoGlobal(); 
-            } 
+        function eliminarItemCarrito(index) {
+            let carrito = obtenerCarrito();
+            carrito.splice(index, 1);
+            guardarCarrito(carrito);
+            abrirCarritoGlobal();
+        }
+
+        function vaciarCarrito() {
+            if (confirm("¿Estás seguro de vaciar el carrito?")) {
+                localStorage.removeItem('mvr_carrito_global');
+                actualizarContadorCarrito();
+                abrirCarritoGlobal();
+            }
         }
 
         function enviarPedidoWhatsApp() {
             let carrito = obtenerCarrito();
             if (carrito.length === 0) return alert("El carrito está vacío.");
+
             let mensaje = "Hola, me gustaría realizar el siguiente pedido global en Grupo MVR:\n\n";
             let total = 0;
+
             carrito.forEach(item => {
-                let sub = item.precio * item.cantidad; 
+                let sub = item.precio * item.cantidad;
                 total += sub;
                 mensaje += `▪️ *${item.nombre}* (${item.sucursal}) x${item.cantidad} - $${sub} MXN\n`;
             });
+
             let totalFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(total);
             mensaje += `\n💰 *Total Estimado:* ${totalFmt}\n\nQuedo a la espera de las instrucciones de pago o validación con vale.`;
+
             window.open(`https://wa.me/528332854129?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
         window.onclick = function(event) {
-            if (event.target === document.getElementById('modalPagos')) document.getElementById('modalPagos').style.display = 'none';
-            if (event.target === document.getElementById('modalCarritoGlobal')) document.getElementById('modalCarritoGlobal').style.display = 'none';
+            const modalPagos = document.getElementById('modalPagos');
+            const modalCarrito = document.getElementById('modalCarritoGlobal');
+            if (event.target === modalPagos) modalPagos.style.display = 'none';
+            if (event.target === modalCarrito) modalCarrito.style.display = 'none';
         }
     </script>
+
 </body>
 </html>

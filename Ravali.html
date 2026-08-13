@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupo MVR | Óptica Ravali</title>
-    <!-- Librería oficial de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="CSS/opticas-styles.css">
     <style>
         .grid-productos {
@@ -177,7 +175,7 @@
         }
         .tabla-quincenas th { 
             color: #a80f14; 
-            border-bottom: 2px solid #a80f14; 
+            border-bottom: 2px solid #a80f14;
         }
         .fila-destacada { background-color: #fff5f5; font-weight: bold; }
     </style>
@@ -203,7 +201,7 @@
         </nav>
     </header>
 
-    <!-- BANNER DE BIENVENIDA RAVALI -->
+    <!-- BANNER DE BIENVENIDA RAVALI CON LOGO DE FONDO -->
     <section class="hero" style="background-color: #fff5f5; background-image: linear-gradient(rgba(255, 245, 245, 0.92), rgba(255, 245, 245, 0.92)), url('ravali.jpg'); background-size: cover; background-position: center; text-align: center; padding: 3rem 1rem; position: relative;">
         <h2 style="color: #a80f14; font-size: 2rem; margin-bottom: 0.5rem; position: relative; z-index: 2;">Estilo y Vanguardia en Óptica Ravali</h2>
         <p style="font-style: italic; color: #555; margin-bottom: 0.5rem; position: relative; z-index: 2;">"Moda, diseño y máxima protección visual para ti"</p>
@@ -212,6 +210,9 @@
             📍 Cómo llegar a Sucursal Ravali
         </a>
     </section>
+
+    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE -->
+    <div id="contenedorPromosCliente" style="max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;"></div>
 
     <!-- BARRA DE BÚSQUEDA Y FILTROS -->
     <div class="filtros-container">
@@ -222,14 +223,14 @@
         </div>
     </div>
 
-    <!-- CATÁLOGO DINÁMICO DE PRODUCTOS RAVALI DESDE SUPABASE -->
+    <!-- CATÁLOGO DINÁMICO DE PRODUCTOS RAVALI DESDE LA NUBE -->
     <main>
         <section id="contenedorCatalogoRavali" class="grid-productos">
-            <p style="grid-column: 1 / -1; text-align: center; color: #666; padding: 2rem;">Cargando catálogo desde Supabase...</p>
+            <p style="grid-column: 1 / -1; text-align: center; color: #666; padding: 2rem;">Cargando catálogo desde la nube...</p>
         </section>
     </main>
 
-    <!-- VENTANA EMERGENTE (MODAL) DE PAGOS Y QUINCENAS -->
+    <!-- VENTANA EMERGENTE (MODAL) DE PROMOCIONES Y PAGOS -->
     <div id="modalPagos" class="modal-overlay">
         <div class="modal-content">
             <span class="cerrar-modal" onclick="cerrarModal()">&times;</span>
@@ -295,41 +296,57 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Óptica Ravali (Grupo MVR). Todos los derechos reservados.</p>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT CON SUPABASE -->
+    <!-- LÓGICA JAVASCRIPT CON BUSCADOR Y FILTROS -->
     <script>
-        // CONFIGURACIÓN SUPABASE
-        const SUPABASE_URL = "https://pjcrbljzrcbgbxymmjyt.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_VuWXg4Zq2phIiRjstlqL2Q_V5PREAzb";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        const API_URL = "https://script.google.com/macros/s/AKfycbxjUsJiDd385o3_TcSFwLg8x_8dbhms7PXMqv805aPhFVmZeEAl1mbW30wz5n7vfYTrAQ/exec";
         let listaGlobalProductos = [];
         let filtroActual = 'todos';
 
         window.addEventListener('DOMContentLoaded', async () => {
-            // CARGAR INVENTARIO DESDE SUPABASE
+            // 1. CARGAR PROMOCIONES DINÁMICAS
+            const contenedorPromos = document.getElementById('contenedorPromosCliente');
+            if (contenedorPromos) {
+                try {
+                    let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
+                    let promos = await res.json();
+                    let promosActivas = promos.filter(p => {
+                        if (p.estado !== "Activa") return false;
+                        let suc = String(p.sucursal).trim().toLowerCase();
+                        return suc.includes("ravali") || suc.includes("general") || suc.includes("todas");
+                    });
+                    if (promosActivas.length > 0) {
+                        let htmlPromos = "";
+                        promosActivas.forEach(p => {
+                            htmlPromos += `
+                                <div style="background: linear-gradient(135deg, #a80f14, #d32f2f); color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); text-align: center;">
+                                    <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">¡Promoción Especial!</span>
+                                    <h3 style="margin: 8px 0 5px 0; font-size: 1.3rem; color: #ffffff;">${p.titulo}</h3>
+                                    <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
+                                </div>`;
+                        });
+                        contenedorPromos.innerHTML = htmlPromos;
+                    }
+                } catch (error) { console.error("Error al cargar promociones", error); }
+            }
+
+            // 2. CARGAR INVENTARIO DINÁMICO DESDE LA NUBE
             try {
-                let { data, error } = await supabaseClient
-                    .from('Inventario')
-                    .select('*');
+                let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
+                let inventario = await resInv.json();
+                let ids = Object.keys(inventario);
 
-                if (error) throw error;
-
-                // Mapear los datos de Supabase al formato que usa la página
-                listaGlobalProductos = data
-                    .filter(p => String(p.Sucursal).toLowerCase().includes("ravali"))
-                    .map(p => ({
-                        id: p.id,
-                        sucursal: p.Sucursal,
-                        nombre: p.Nombre,
-                        stock: p.Stock,
-                        precio: p.Precio,
-                        imagen: p.Imagen
-                    }));
+                listaGlobalProductos = [];
+                ids.forEach(id => {
+                    let p = inventario[id];
+                    let sucRemota = String(p.sucursal).trim().toLowerCase();
+                    if (sucRemota.includes("ravali")) {
+                        listaGlobalProductos.push({ id: id, ...p });
+                    }
+                });
 
                 renderizarCatalogo(listaGlobalProductos);
             } catch (error) {
-                console.error("Error al cargar inventario desde Supabase", error);
-                document.getElementById('contenedorCatalogoRavali').innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #d32f2f; padding: 2rem;">Error al conectar con la base de datos.</p>`;
+                console.error("Error al cargar inventario", error);
             }
 
             actualizarContadorCarrito();
@@ -348,8 +365,8 @@
             productos.forEach(p => {
                 let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.precio || 0);
                 
-                // Si la imagen es la "x" temporal de prueba o está vacía, usamos la imagen por defecto
-                let imgSrc = (p.imagen && p.imagen.trim() !== "" && p.imagen !== "x") ? p.imagen : 'ravali.jpg';
+                // --- CORRECCIÓN CLAVE DE IMAGEN ---
+                let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'ravali.jpg';
                 
                 let stock = parseInt(p.stock) || 0;
                 let botonHtml = '';
@@ -426,30 +443,23 @@
         // --- LÓGICA DEL CARRITO GLOBAL ---
         function obtenerCarrito() { return JSON.parse(localStorage.getItem('mvr_carrito_global')) || []; }
         function guardarCarrito(carrito) { localStorage.setItem('mvr_carrito_global', JSON.stringify(carrito)); actualizarContadorCarrito(); }
-        
         function actualizarContadorCarrito() {
             let carrito = obtenerCarrito();
             document.getElementById('contadorCarrito').innerText = carrito.reduce((sum, item) => sum + item.cantidad, 0);
         }
-
         function agregarAlCarrito(id, nombre, precio, sucursal) {
             let carrito = obtenerCarrito();
             let index = carrito.findIndex(item => item.id === id);
-            if (index > -1) { 
-                carrito[index].cantidad += 1; 
-            } else { 
-                carrito.push({ id: id, nombre: nombre, precio: parseFloat(precio), sucursal: sucursal, cantidad: 1 }); 
-            }
+            if (index > -1) { carrito[index].cantidad += 1; } 
+            else { carrito.push({ id: id, nombre: nombre, precio: parseFloat(precio), sucursal: sucursal, cantidad: 1 }); }
             guardarCarrito(carrito);
             alert(`✅ ¡"${nombre}" agregado al carrito global!`);
         }
-
         function abrirCarritoGlobal() {
             let carrito = obtenerCarrito();
             let listaDiv = document.getElementById('listaProductosCarrito');
             let totalMxn = 0;
             listaDiv.innerHTML = "";
-            
             if (carrito.length === 0) {
                 listaDiv.innerHTML = `<p style="text-align: center; color: #777;">Tu carrito está vacío.</p>`;
             } else {
@@ -467,39 +477,22 @@
             document.getElementById('totalCarritoMxn').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(totalMxn);
             document.getElementById('modalCarritoGlobal').style.display = 'flex';
         }
-
         function cerrarCarritoGlobal() { document.getElementById('modalCarritoGlobal').style.display = 'none'; }
-        
-        function eliminarItemCarrito(index) { 
-            let carrito = obtenerCarrito(); 
-            carrito.splice(index, 1); 
-            guardarCarrito(carrito); 
-            abrirCarritoGlobal(); 
-        }
-
-        function vaciarCarrito() { 
-            if (confirm("¿Estás seguro de vaciar el carrito?")) { 
-                localStorage.removeItem('mvr_carrito_global'); 
-                actualizarContadorCarrito(); 
-                abrirCarritoGlobal(); 
-            } 
-        }
-
+        function eliminarItemCarrito(index) { let carrito = obtenerCarrito(); carrito.splice(index, 1); guardarCarrito(carrito); abrirCarritoGlobal(); }
+        function vaciarCarrito() { if (confirm("¿Estás seguro de vaciar el carrito?")) { localStorage.removeItem('mvr_carrito_global'); actualizarContadorCarrito(); abrirCarritoGlobal(); } }
         function enviarPedidoWhatsApp() {
             let carrito = obtenerCarrito();
             if (carrito.length === 0) return alert("El carrito está vacío.");
             let mensaje = "Hola, me gustaría realizar el siguiente pedido global en Grupo MVR:\n\n";
             let total = 0;
             carrito.forEach(item => {
-                let sub = item.precio * item.cantidad; 
-                total += sub;
+                let sub = item.precio * item.cantidad; total += sub;
                 mensaje += `▪️ *${item.nombre}* (${item.sucursal}) x${item.cantidad} - $${sub} MXN\n`;
             });
             let totalFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(total);
             mensaje += `\n💰 *Total Estimado:* ${totalFmt}\n\nQuedo a la espera de las instrucciones de pago o validación con vale.`;
             window.open(`https://wa.me/528332854129?text=${encodeURIComponent(mensaje)}`, '_blank');
         }
-
         window.onclick = function(event) {
             if (event.target === document.getElementById('modalPagos')) document.getElementById('modalPagos').style.display = 'none';
             if (event.target === document.getElementById('modalCarritoGlobal')) document.getElementById('modalCarritoGlobal').style.display = 'none';

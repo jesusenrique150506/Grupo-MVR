@@ -3,175 +3,409 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Módulo de Promotoras y Vales | Grupo MVR</title>
-    <!-- Librería oficial de Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Grupo MVR | Portal de Promotoras y Vales</title>
     <link rel="stylesheet" href="CSS/opticas-styles.css">
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .promotoras-header { background-color: #a80f14; color: white; padding: 1.5rem; text-align: center; }
-        .promotoras-container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-        .card-promora { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem; }
-        .card-promora h2 { margin-top: 0; color: #a80f14; font-size: 1.3rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-weight: bold; font-size: 0.9rem; margin-bottom: 0.3rem; color: #555; }
-        .form-group input, .form-group select { padding: 0.7rem; border: 1px solid #ccc; border-radius: 5px; font-size: 0.95rem; }
-        .btn-accion { background-color: #a80f14; color: white; border: none; padding: 0.8rem 1.5rem; font-weight: bold; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
-        .btn-accion:hover { background-color: #800b0f; }
-        .resultado-vale { margin-top: 1.5rem; padding: 1rem; background: #fff5f5; border-left: 4px solid #a80f14; border-radius: 4px; display: none; }
+        .form-container, .cartera-container, .login-promotora-container {
+            max-width: 650px;
+            margin: 2rem auto;
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 10px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.2rem;
+        }
+        .form-group { text-align: left; margin-bottom: 1rem; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            color: #002b55;
+            font-size: 0.95rem;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+        }
+
+        #panelProtegido { display: none; }
+        
+        #resultadoVale { display: none; margin-top: 2rem; padding: 1.5rem; border-radius: 8px; text-align: center; }
+        .logo-vale-head { max-height: 60px; width: auto; object-fit: contain; margin-bottom: 0.5rem; }
+        .folio-box { font-size: 1.8rem; font-weight: bold; letter-spacing: 2px; margin: 0.8rem 0; background: #ffffff; padding: 0.5rem; border-radius: 6px; }
+
+        .tema-dvilla { background-color: #f0f7ff !important; border: 2px dashed #0059b3 !important; }
+        .tema-dvilla .titulo-vale { color: #0059b3 !important; }
+        .tema-dvilla .folio-box { color: #0059b3 !important; border: 1px solid #0059b3 !important; }
+        .tema-ravali { background-color: #fdf2f2 !important; border: 2px dashed #a80f14 !important; }
+        .tema-ravali .titulo-vale { color: #a80f14 !important; }
+        .tema-ravali .folio-box { color: #a80f14 !important; border: 1px solid #a80f14 !important; }
+        .tema-marcel { background-color: #fce4ec !important; border: 2px dashed #880e4f !important; }
+        .tema-marcel .titulo-vale { color: #880e4f !important; }
+        .tema-marcel .folio-box { color: #880e4f !important; border: 1px solid #880e4f !important; }
+
+        .tabla-cartera { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 0.9rem; }
+        .tabla-cartera th { background-color: #002b55; color: white; padding: 0.8rem; text-align: left; }
+        .tabla-cartera td { padding: 0.8rem; border-bottom: 1px solid #ddd; vertical-align: middle; }
+        .row-dvilla { background-color: #eef6ff !important; border-left: 4px solid #0059b3 !important; }
+        .row-ravali { background-color: #fff0f0 !important; border-left: 4px solid #a80f14 !important; }
+        .row-marcel { background-color: #fff0f5 !important; border-left: 4px solid #880e4f !important; }
+        
+        .badge-optica { display: inline-flex; align-items: center; gap: 6px; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 0.85rem; }
+        .badge-dvilla { color: #0059b3; }
+        .badge-ravali { color: #a80f14; }
+        .badge-marcel { color: #880e4f; }
+
+        .btn-whatsapp-soporte { position: fixed; bottom: 25px; right: 25px; background-color: #25d366; color: white; border-radius: 50px; padding: 12px 20px; font-size: 1rem; font-weight: bold; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; z-index: 1000; transition: transform 0.3s ease; }
+        .btn-whatsapp-soporte:hover { transform: scale(1.08); background-color: #20ba5a; }
+
+        @media print {
+            body { background: #ffffff !important; color: #000000 !important; }
+            header, footer, .hero, #valeForm, .login-promotora-container, button, label, input, select, div[style*="flex"], .btn-whatsapp-soporte { display: none !important; }
+            body.imprimiendo-vale .cartera-container { display: none !important; }
+            body.imprimiendo-vale .form-container { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; }
+            body.imprimiendo-cartera .form-container { display: none !important; }
+            body.imprimiendo-cartera .cartera-container { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; }
+        }
     </style>
 </head>
 <body>
 
-    <header class="promotoras-header">
-        <h1>🎟️ Módulo de Promotoras y Consulta de Vales</h1>
-        <p>Grupo MVR - Sistema en la Nube</p>
+    <header class="main-header" style="background-color: #002b55;">
+        <div class="logo">
+            <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <img src="mvr.jpg" onerror="this.onerror=null; this.src='mvr.png';" alt="Logo Grupo MVR" style="height: 45px; width: auto; object-fit: contain; border-radius: 4px; background: #fff; padding: 2px;">
+                <h1 style="margin: 0; font-size: 1.5rem; color: white;">Grupo MVR | Vales</h1>
+            </a>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="D´villa.html">Óptica D'villa</a></li>
+                <li><a href="Ravali.html">Óptica Ravali</a></li>
+                <li><a href="Marcel.html">Marcel Boutique</a></li>
+                <li><a href="Promotoras.html" class="active" style="background-color: #0d233a;">Promotoras / Vales</a></li>
+                <li><a href="Admin.html">Administración</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <div class="promotoras-container">
+    <section class="hero" style="background-color: #e6f0fa; text-align: center; padding: 2rem 1rem;">
+        <h2 style="color: #002b55;">Portal Oficial para Promotoras</h2>
+        <p style="font-style: italic; color: #555;">"Donde la salud, la visión y el estilo se encuentran"</p>
+    </section>
 
-        <!-- CONSULTA DE FOLIO DE VALE -->
-        <div class="card-promora">
-            <h2>🔍 Consultar Estatus de un Vale</h2>
-            <div class="form-grid">
-                <div class="form-group" style="grid-column: 1 / -1;">
-                    <label>Número de Folio:</label>
-                    <input type="text" id="inputFolioConsulta" placeholder="Ej. MVR-1001">
-                </div>
+    <!-- ACCESO EXCLUSIVO DE PROMOTORAS -->
+    <main id="panelLogin" class="login-promotora-container">
+        <form id="formLogin" onsubmit="iniciarSesion(event)">
+            <h3 style="color: #002b55; margin-bottom: 1rem; text-align: center;">🔐 Acceso Exclusivo para Promotoras</h3>
+            <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Ingresa con el ID y contraseña proporcionados por administración.</p>
+            
+            <div class="form-group">
+                <label for="loginNum">N° o ID de Promotora:</label>
+                <input type="text" id="loginNum" placeholder="Ej. P-4502" required>
             </div>
-            <button class="btn-accion" onclick="consultarVale()">Buscar Folio</button>
-
-            <div id="resultadoConsulta" class="resultado-vale">
-                <!-- Aquí se despliega la info del vale -->
+            <div class="form-group">
+                <label for="loginPass">Contraseña:</label>
+                <input type="password" id="loginPass" placeholder="Tu contraseña personal" required>
             </div>
-        </div>
+            <div style="text-align: right; margin-bottom: 1.2rem;">
+                <a href="#" onclick="pedirAyudaPassword(event)" style="font-size: 0.85rem; color: #0059b3; text-decoration: none; font-weight: bold;">¿Olvidaste tu contraseña?</a>
+            </div>
+            <button type="submit" id="btnAcceso" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                🔓 Ingresar al Portal de Vales
+            </button>
+        </form>
+    </main>
 
-        <!-- SOLICITUD / REGISTRO DE NUEVO VALE -->
-        <div class="card-promora">
-            <h2>📝 Registrar Nuevo Vale</h2>
-            <form id="formNuevoVale" onsubmit="registrarVale(event)">
+    <div id="panelProtegido">
+        <main class="form-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="color: #002b55; margin: 0;">✍️ Registro de Vale Digital</h3>
+                <button onclick="cerrarSesion()" style="background: #a80f14; color: white; border: none; padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold;">Cerrar Sesión</button>
+            </div>
+            
+            <form id="valeForm" onsubmit="generarFolio(event)">
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label>Folio del Vale:</label>
-                        <input type="text" id="valFolio" required placeholder="Ej. MVR-1002">
+                    <div class="form-group full-width">
+                        <label for="numPromotora">Promotora Autorizada:</label>
+                        <input type="text" id="numPromotora" readonly style="background-color: #e9ecef; font-weight: bold; color: #002b55;">
                     </div>
-                    <div class="form-group">
-                        <label>Nombre de la Promotora:</label>
-                        <input type="text" id="valPromotora" required placeholder="Nombre de la promotora">
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre del Cliente:</label>
-                        <input type="text" id="valCliente" required placeholder="Nombre completo">
-                    </div>
-                    <div class="form-group">
-                        <label>Teléfono:</label>
-                        <input type="tel" id="valTelefono" required placeholder="10 dígitos">
-                    </div>
-                    <div class="form-group">
-                        <label>Monto Total ($ MXN):</label>
-                        <input type="number" id="valMonto" required step="0.01" min="0" placeholder="0.00">
-                    </div>
-                    <div class="form-group">
-                        <label>Plazo (Quincenas):</label>
-                        <select id="valQuincenas">
-                            <option value="2">2 Quincenas</option>
-                            <option value="4">4 Quincenas</option>
-                            <option value="6">6 Quincenas</option>
-                            <option value="8" selected>8 Quincenas ⭐</option>
-                            <option value="10">10 Quincenas</option>
-                            <option value="12">12 Quincenas</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Sucursal:</label>
-                        <select id="valSucursal">
+                    <div class="form-group full-width">
+                        <label for="sucursalVale">Óptica/Boutique de Atención:</label>
+                        <select id="sucursalVale" required>
+                            <option value="Óptica D'villa">Óptica D'villa</option>
                             <option value="Óptica Ravali">Óptica Ravali</option>
                             <option value="Marcel Boutique">Marcel Boutique</option>
-                            <option value="Óptica D'villa">Óptica D'villa</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="nombreCliente">Nombre Completo del Cliente:</label>
+                        <input type="text" id="nombreCliente" placeholder="Ej. María López Hernández" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="telefonoCliente">Teléfono de Contacto (10 dígitos):</label>
+                        <input type="tel" id="telefonoCliente" placeholder="Ej. 8331234567" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="direccionCliente">Dirección Completa:</label>
+                        <input type="text" id="direccionCliente" placeholder="Calle, número, colonia y ciudad" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="montoVale">Monto Autorizado ($ MXN):</label>
+                        <input type="number" id="montoVale" placeholder="Ej. 1500" min="100" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="quincenasVale">Plazo de Pago:</label>
+                        <select id="quincenasVale" required>
+                            <option value="2 Quincenas">2 Quincenas</option>
+                            <option value="4 Quincenas">4 Quincenas</option>
+                            <option value="6 Quincenas">6 Quincenas</option>
+                            <option value="8 Quincenas">8 Quincenas</option>
+                            <option value="10 Quincenas">10 Quincenas</option>
+                            <option value="12 Quincenas">12 Quincenas</option>
                         </select>
                     </div>
                 </div>
-                <button type="submit" class="btn-accion">Registrar y Autorizar Vale</button>
+                <button type="submit" id="btnGenerarVale" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 1rem; font-size: 1.1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1.5rem;">
+                    🎟️ Generar Folio y Código QR
+                </button>
             </form>
-        </div>
 
+            <div id="resultadoVale"></div>
+        </main>
+
+        <section class="cartera-container">
+            <h3 style="text-align: center; color: #002b55; margin-bottom: 0.5rem;">📂 Consulta de Cartera de Clientes</h3>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="buscarPromotora">Promotora Activa:</label>
+                    <input type="text" id="buscarPromotora" readonly style="background-color: #e9ecef; font-weight: bold; color: #002b55;">
+                </div>
+            </div>
+            <button onclick="buscarCartera()" id="btnConsultarCartera" class="btn" style="width: 100%; background-color: #28a745; color: white; padding: 0.8rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem;">
+                🔍 Consultar mi Cartera
+            </button>
+            <div id="tablaCarteraResultado" style="display: none; margin-top: 1.5rem;">
+                <table class="tabla-cartera">
+                    <thead><tr><th>Folio</th><th>Cliente</th><th>Monto</th><th>Plazo</th><th>Sucursal</th></tr></thead>
+                    <tbody id="cuerpoTablaCartera"></tbody>
+                </table>
+                <button onclick="imprimirElemento('cartera')" style="width: 100%; background-color: #002b55; color: white; border: none; padding: 0.8rem; font-weight: bold; border-radius: 5px; margin-top: 1.5rem; cursor: pointer;">
+                    🖨️ Exportar Cartera en PDF
+                </button>
+            </div>
+        </section>
     </div>
 
-    <!-- LÓGICA JAVASCRIPT CON SUPABASE -->
+    <a href="https://wa.me/528332854129?text=Hola,%20soy%20promotora%20de%20Grupo%20MVR%20y%20requiero%20asistencia%20con%20un%20vale." target="_blank" class="btn-whatsapp-soporte">💬 Soporte Promotoras</a>
+
+    <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
+        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR (D'villa, Ravali & Marcel). Todos los derechos reservados.</p>
+    </footer>
+
     <script>
-        const SUPABASE_URL = "https://pjcrbljzrcbgbxymmjyt.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_VuWXg4Zq2phIiRjstlqL2Q_V5PREAzb";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const API_URL = "https://script.google.com/macros/s/AKfycbxjUsJiDd385o3_TcSFwLg8x_8dbhms7PXMqv805aPhFVmZeEAl1mbW30wz5n7vfYTrAQ/exec";
 
-        // 1. CONSULTAR VALE POR FOLIO
-        async function consultarVale() {
-            let folio = document.getElementById('inputFolioConsulta').value.trim();
-            let contenedor = document.getElementById('resultadoConsulta');
-            
-            if (!folio) {
-                alert("Por favor ingresa un folio a buscar.");
-                return;
+        let temporizadorInactividad;
+        const TIEMPO_LIMITE_INACTIVIDAD = 10 * 60 * 1000; // 10 minutos en milisegundos
+
+        window.onload = function() {
+            const activa = localStorage.getItem('mvr_promotora_activa');
+            if (activa) {
+                activarPortal(activa);
             }
+        };
 
-            contenedor.style.display = "block";
-            contenedor.innerHTML = "Buscando en la base de datos...";
-
-            try {
-                let { data, error } = await supabaseClient
-                    .from('Vales')
-                    .select('*')
-                    .eq('folio', folio)
-                    .single();
-
-                if (error || !data) {
-                    contenedor.innerHTML = `<span style="color: #d32f2f; font-weight: bold;">❌ No se encontró ningún vale con el folio "${folio}".</span>`;
-                    return;
-                }
-
-                let montoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(data.monto || 0);
-                contenedor.innerHTML = `
-                    <strong>✅ Vale Encontrado:</strong><br>
-                    ▪️ <strong>Cliente:</strong> ${data.cliente}<br>
-                    ▪️ <strong>Promotora:</strong> ${data.promotora}<br>
-                    ▪️ <strong>Sucursal:</strong> ${data.sucursal}<br>
-                    ▪️ <strong>Monto:</strong> ${montoFmt} (${data.quincenas} quincenas)<br>
-                    ▪️ <strong>Estatus de Pago:</strong> ${data.estatus_pago || 'Pendiente'}<br>
-                    ▪️ <strong>Estatus de Canje:</strong> ${data.estatus_canje || 'No canjeado'}
-                `;
-            } catch (err) {
-                console.error("Error al consultar vale:", err);
-                contenedor.innerHTML = `<span style="color: red;">Error al realizar la consulta. Asegúrate de haber creado la tabla 'Vales' en Supabase.</span>`;
-            }
+        // --- SISTEMA DE INACTIVIDAD (10 MINUTOS) ---
+        function reiniciarTemporizadorInactividad() {
+            if (!localStorage.getItem('mvr_promotora_activa')) return;
+            clearTimeout(temporizadorInactividad);
+            temporizadorInactividad = setTimeout(() => {
+                alert("⏱️ Su sesión ha expirado por inactividad (10 minutos). Inicie sesión nuevamente.");
+                cerrarSesion();
+            }, TIEMPO_LIMITE_INACTIVIDAD);
         }
 
-        // 2. REGISTRAR NUEVO VALE
-        async function registrarVale(event) {
-            event.preventDefault();
+        // Registrar eventos de interacción del usuario
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
+            window.addEventListener(evento, reiniciarTemporizadorInactividad);
+        });
 
-            let nuevoVale = {
-                folio: document.getElementById('valFolio').value.trim(),
-                promotora: document.getElementById('valPromotora').value.trim(),
-                cliente: document.getElementById('valCliente').value.trim(),
-                telefono: document.getElementById('valTelefono').value.trim(),
-                monto: parseFloat(document.getElementById('valMonto').value) || 0,
-                quincenas: parseInt(document.getElementById('valQuincenas').value) || 8,
-                sucursal: document.getElementById('valSucursal').value,
-                estatus_pago: 'Al corriente',
-                estatus_canje: 'Disponible'
+        function pedirAyudaPassword(event) {
+            event.preventDefault();
+            const numIngresado = document.getElementById('loginNum').value.trim().toUpperCase();
+            const mensaje = encodeURIComponent(`Hola, soy la promotora con ID *${numIngresado || "Desconocido"}* y olvidé mi contraseña. ¿Me ayudan a restablecerla?`);
+            window.open(`https://wa.me/528332854129?text=${mensaje}`, '_blank');
+        }
+
+        async function iniciarSesion(event) {
+            event.preventDefault();
+            const num = document.getElementById('loginNum').value.trim().toUpperCase();
+            const pass = document.getElementById('loginPass').value.trim();
+            
+            document.getElementById('btnAcceso').innerText = "Verificando...";
+            try {
+                let res = await fetch(`${API_URL}?accion=obtenerPromotoras&nocache=${new Date().getTime()}`);
+                let credenciales = await res.json();
+
+                if (!credenciales[num]) {
+                    alert("ID de promotora no autorizado. Favor de solicitar su cuenta en administración.");
+                } else {
+                    const datosProm = credenciales[num];
+                    const passwordReal = typeof datosProm === 'object' ? datosProm.password : datosProm;
+                    const estadoReal = typeof datosProm === 'object' ? datosProm.estado : "Activa";
+
+                    if (estadoReal === "Bloqueada") {
+                        alert("⚠️ Acceso suspendido por adeudo en cartera vencida. Favor de comunicarse a administración.");
+                    } else if (passwordReal === pass) {
+                        localStorage.setItem('mvr_promotora_activa', num);
+                        activarPortal(num);
+                    } else {
+                        alert("Contraseña incorrecta.");
+                    }
+                }
+            } catch (error) {
+                alert("Hubo un error de conexión al iniciar sesión.");
+            }
+            document.getElementById('btnAcceso').innerText = "🔓 Ingresar al Portal de Vales";
+        }
+
+        function activarPortal(num) {
+            document.getElementById('panelLogin').style.display = 'none';
+            document.getElementById('panelProtegido').style.display = 'block';
+            document.getElementById('numPromotora').value = num;
+            document.getElementById('buscarPromotora').value = num;
+            reiniciarTemporizadorInactividad(); // Iniciar conteo al activar
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('mvr_promotora_activa');
+            clearTimeout(temporizadorInactividad);
+            document.getElementById('panelProtegido').style.display = 'none';
+            document.getElementById('panelLogin').style.display = 'block';
+            document.getElementById('formLogin').reset();
+        }
+
+        async function generarFolio(event) {
+            event.preventDefault();
+            reiniciarTemporizadorInactividad();
+            const btn = document.getElementById('btnGenerarVale');
+            btn.innerText = "Sincronizando Vale...";
+            btn.disabled = true;
+
+            const folio = "MVR-" + Math.floor(10000 + Math.random() * 90000);
+            const promotora = document.getElementById('numPromotora').value.trim().toUpperCase();
+            const sucursal = document.getElementById('sucursalVale').value;
+            const cliente = document.getElementById('nombreCliente').value;
+            const telefono = document.getElementById('telefonoCliente').value.trim();
+            const direccion = document.getElementById('direccionCliente').value;
+            const montoRaw = parseFloat(document.getElementById('montoVale').value) || 0;
+            const quincenas = document.getElementById('quincenasVale').value;
+            const montoFormateado = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoRaw);
+
+            const nuevoVale = {
+                folio: folio, promotora: promotora, cliente: cliente, telefono: telefono,
+                direccion: direccion, monto: montoRaw, quincenas: quincenas,
+                sucursal: sucursal, fecha: new Date().toLocaleDateString('es-MX')
             };
 
-            const { error } = await supabaseClient
-                .from('Vales')
-                .insert([nuevoVale]);
+            try {
+                await fetch(API_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ accion: "guardarVale", vale: nuevoVale })
+                });
 
-            if (error) {
-                alert("❌ Error al registrar el vale: " + error.message + "\n(Recuerda crear la tabla 'Vales' en Supabase si aún no la tienes).");
-                return;
+                const contenedor = document.getElementById('resultadoVale');
+                contenedor.className = "";
+                let logoImg = "dvilla.jpg", logoFallback = "dvilla.png";
+                if (sucursal === "Óptica Ravali") { contenedor.classList.add('tema-ravali'); logoImg = "ravali.jpg"; logoFallback = "ravali.png"; } 
+                else if (sucursal === "Marcel Boutique") { contenedor.classList.add('tema-marcel'); logoImg = "marcel.png"; logoFallback = "mvr.png"; } 
+                else { contenedor.classList.add('tema-dvilla'); }
+
+                const mensajeWsp = encodeURIComponent(`Hola *${cliente}*, su vale digital de *${sucursal}* ha sido autorizado por Grupo MVR.\n\n🎟️ *Folio:* ${folio}\n💰 *Monto:* ${montoFormateado} MXN\n📅 *Plazo:* ${quincenas}\n👤 *Promotora:* ${promotora}\n\nEscanee o presente este vale en sucursal.`);
+                const urlWsp = `https://api.whatsapp.com/send?phone=52${telefono}&text=${mensajeWsp}`;
+                const urlQrNativo = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(`=== GRUPO MVR: VALE ===\nFolio: ${folio}\nSucursal: ${sucursal}\nCliente: ${cliente}\nTel: ${telefono}\nMonto: ${montoFormateado}\nPlazo: ${quincenas}\nPromotora: ${promotora}\nFecha: ${nuevoVale.fecha}`)}`;
+
+                // Nota: Se ha retirado el botón de marcar como canjeado de este panel, ya que el sistema lo hace de forma automática en caja.
+                contenedor.innerHTML = `
+                    <img src="${logoImg}" onerror="this.onerror=null; this.src='${logoFallback}';" class="logo-vale-head">
+                    <h2 class="titulo-vale" style="margin: 0; text-transform: uppercase;">${sucursal} - Autorizado</h2>
+                    <div class="folio-box">${folio}</div>
+                    <div style="margin: 1rem auto; display: flex; flex-direction: column; align-items: center;">
+                        <img src="${urlQrNativo}" style="padding: 6px; background: white; border-radius: 6px; border: 2px dashed #002b55;">
+                    </div>
+                    <div style="font-size: 1rem; color: #333; line-height: 1.7; text-align: left; background: #fff; padding: 1.2rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 1rem;">
+                        <strong>Cliente:</strong> ${cliente}<br><strong>Monto:</strong> <span style="font-weight: bold; font-size: 1.1rem;">${montoFormateado} MXN</span><br>
+                        <strong>Plazo:</strong> ${quincenas}<br><strong>Promotora:</strong> ${promotora}
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem;">
+                        <a href="${urlWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.8rem 1.2rem; border-radius: 5px; text-decoration: none; font-weight: bold;">💬 Enviar por WhatsApp</a>
+                        <button onclick="imprimirElemento('vale')" style="background-color: #002b55; color: white; border: none; padding: 0.8rem 1.4rem; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer;">🖨️ Guardar PDF</button>
+                    </div>`;
+                contenedor.style.display = 'block';
+                contenedor.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('valeForm').reset();
+            } catch (error) {
+                alert("Ocurrió un error al guardar el vale en la base de datos.");
             }
+            btn.innerText = "🎟️ Generar Folio y Código QR";
+            btn.disabled = false;
+        }
 
-            alert("✅ ¡Vale registrado con éxito en la nube!");
-            document.getElementById('formNuevoVale').reset();
+        async function buscarCartera() {
+            reiniciarTemporizadorInactividad();
+            const btn = document.getElementById('btnConsultarCartera');
+            btn.innerText = "Descargando Cartera...";
+            const busqueda = document.getElementById('buscarPromotora').value.trim().toUpperCase();
+            const cuerpo = document.getElementById('cuerpoTablaCartera');
+            cuerpo.innerHTML = "";
+
+            try {
+                let res = await fetch(`${API_URL}?accion=obtenerVales&nocache=${new Date().getTime()}`);
+                let valesGuardados = await res.json();
+                
+                const filtrados = valesGuardados.filter(v => String(v.promotora).toUpperCase().includes(busqueda));
+
+                if (filtrados.length === 0) {
+                    cuerpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No se encontraron registros.</td></tr>`;
+                } else {
+                    filtrados.forEach(v => {
+                        const esRavali = v.sucursal === "Óptica Ravali";
+                        const esMarcel = v.sucursal === "Marcel Boutique";
+                        const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
+                        const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(v.monto);
+
+                        cuerpo.innerHTML += `
+                            <tr class="${esRavali ? 'row-ravali' : (esMarcel ? 'row-marcel' : 'row-dvilla')}">
+                                <td><strong>${v.folio}</strong></td><td>${v.cliente}</td><td>${montoF}</td><td>${v.quincenas}</td>
+                                <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
+                            </tr>`;
+                    });
+                }
+                document.getElementById('tablaCarteraResultado').style.display = 'block';
+            } catch (error) {
+                alert("Error al cargar la cartera.");
+            }
+            btn.innerText = "🔍 Consultar mi Cartera";
+        }
+
+        function imprimirElemento(tipo) {
+            reiniciarTemporizadorInactividad();
+            document.body.classList.remove('imprimiendo-vale', 'imprimiendo-cartera');
+            if (tipo === 'vale') document.body.classList.add('imprimiendo-vale');
+            else if (tipo === 'cartera') document.body.classList.add('imprimiendo-cartera');
+            window.print();
         }
     </script>
 </body>
