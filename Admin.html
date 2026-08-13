@@ -3,591 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grupo MVR | Panel de Administración</title>
+    <title>Panel de Administración | Grupo MVR</title>
+    <!-- Librería oficial de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="CSS/opticas-styles.css">
-
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .admin-container { max-width: 1150px; margin: 2rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-        .login-admin-container { max-width: 450px; margin: 4rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-        .form-group { text-align: left; margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.4rem; font-weight: bold; color: #002b55; font-size: 0.95rem; }
-        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 1px solid #ccd1d9; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem; }
-        #panelProtegidoAdmin { display: none; }
-        
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .card-resumen { background: #f8f9fa; border-left: 5px solid #002b55; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .card-resumen h4 { margin: 0 0 0.5rem 0; color: #555; font-size: 0.85rem; text-transform: uppercase; }
-        .card-resumen .valor { font-size: 1.8rem; font-weight: bold; color: #002b55; margin: 0; }
-        
-        .tabla-admin { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
-        .tabla-admin th { background-color: #002b55; color: white; padding: 0.8rem; text-align: left; }
-        .tabla-admin td { padding: 0.8rem; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
-        .tabla-admin tr:hover { background-color: #f8fafc; }
-
-        .btn-acordeon {
-            width: 100%; background: #ffffff; color: #002b55; border: 2px solid #002b55;
-            padding: 1rem 1.2rem; font-size: 1.05rem; font-weight: bold; border-radius: 8px;
-            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-            margin-top: 1.5rem; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-        }
-        .btn-acordeon:hover { background-color: #002b55; color: #ffffff; }
-        .btn-acordeon .icono-flecha { transition: transform 0.3s ease; }
-        .btn-acordeon.activo .icono-flecha { transform: rotate(180deg); }
-
-        .contenido-desplegable {
-            max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.3s ease;
-            background: #ffffff; border-radius: 0 0 8px 8px;
-        }
-        .contenido-desplegable.abierto {
-            max-height: 2500px; transition: max-height 0.6s ease-in;
-            padding: 1.5rem 1rem; border: 1px solid #e2e8f0; border-top: none; margin-bottom: 1rem;
-        }
-
-        .badge-optica { display: inline-flex; align-items: center; gap: 6px; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
-        .badge-dvilla { color: #0059b3; background: #eef6ff; }
-        .badge-ravali { color: #a80f14; background: #fff0f0; }
-        .badge-marcel { color: #880e4f; background: #fff0f5; }
-        .pass-badge { background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 1rem; color: #d32f2f; font-weight: bold; }
-        .alerta-stock-bajo { background-color: #fff5f5 !important; border: 2px solid #d32f2f; color: #d32f2f; font-weight: bold; padding: 4px 8px; border-radius: 4px; display: inline-block; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; }
+        .admin-header { background-color: #222; color: white; padding: 1.5rem; text-align: center; }
+        .admin-container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+        .card-admin { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 2rem; }
+        .card-admin h2 { margin-top: 0; color: #333; font-size: 1.3rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-weight: bold; font-size: 0.9rem; margin-bottom: 0.3rem; color: #555; }
+        .form-group input, .form-group select { padding: 0.7rem; border: 1px solid #ccc; border-radius: 5px; font-size: 0.95rem; }
+        .btn-admin { background-color: #28a745; color: white; border: none; padding: 0.8rem 1.5rem; font-weight: bold; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .btn-admin:hover { background-color: #218838; }
+        .btn-danger { background-color: #dc3545; color: white; border: none; padding: 0.5rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+        .btn-danger:hover { background-color: #c82333; }
+        .tabla-admin { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.95rem; }
+        .tabla-admin th, .tabla-admin td { padding: 0.8rem; border-bottom: 1px solid #ddd; text-align: left; }
+        .tabla-admin th { background-color: #f8f9fa; color: #333; }
+        .preview-img { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
 
-    <header class="main-header" style="background-color: #002b55;">
-        <div class="logo">
-            <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-                <img src="mvr.jpg" onerror="this.onerror=null; this.src='mvr.png';" style="height: 45px; border-radius: 4px; background: #fff; padding: 2px;">
-                <h1 style="margin: 0; font-size: 1.5rem; color: white;">Grupo MVR | Admin</h1>
-            </a>
-        </div>
-        <nav class="main-nav">
-            <ul>
-                <li><a href="index.html">Inicio</a></li>
-                <li><a href="D´villa.html">Óptica D'villa</a></li>
-                <li><a href="Ravali.html">Óptica Ravali</a></li>
-                <li><a href="Marcel.html">Marcel Boutique</a></li>
-                <li><a href="Promotoras.html">Promotoras / Vales</a></li>
-                <li><a href="Admin.html" class="active" style="background-color: #0d233a;">Administración</a></li>
-            </ul>
-        </nav>
+    <header class="admin-header">
+        <h1>⚙️ Panel de Control General - Grupo MVR</h1>
+        <p>Administración de Inventario en la Nube (Supabase)</p>
     </header>
 
-    <section class="hero" style="background-color: #e6f0fa; background-image: linear-gradient(rgba(230, 240, 250, 0.92), rgba(230, 240, 250, 0.92)), url('mvr.jpg'); background-size: cover; background-position: center; text-align: center; padding: 3rem 1rem; position: relative;">
-        <h2 style="color: #002b55; font-size: 2rem; margin: 0; position: relative; z-index: 2;">Centro de Control MVR</h2>
-        <p style="color: #555; margin-top: 5px; position: relative; z-index: 2;">Supervisión conectada a la Nube con Filtros por Sucursal.</p>
-    </section>
+    <div class="admin-container">
 
-    <!-- LOGIN ADMIN -->
-    <main id="panelLoginAdmin" class="login-admin-container">
-        <form id="formLoginAdmin" onsubmit="iniciarSesionAdmin(event)">
-            <h3 style="color: #002b55; margin-bottom: 1rem; text-align: center;">🛡️ Acceso Administrativo Restringido</h3>
-            <div class="form-group">
-                <label>Usuario Administrador:</label>
-                <input type="text" id="loginUsuarioAdmin" placeholder="Ej. ADMIN-MASTER" required>
-            </div>
-            <div class="form-group">
-                <label>Contraseña:</label>
-                <input type="password" id="loginPassAdmin" placeholder="********" required>
-            </div>
-            <button type="submit" id="btnAccesoAdmin" style="width: 100%; background-color: #002b55; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                🔓 Ingresar al Sistema
-            </button>
-        </form>
-    </main>
-
-    <!-- PANEL PROTEGIDO -->
-    <main id="panelProtegidoAdmin" class="admin-container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1rem;">
-            <div>
-                <h3 style="color: #002b55; margin: 0; font-size: 1.5rem;">📊 Panel de Control y Reportes</h3>
-                <p style="margin: 5px 0 0 0; color: #666;">Usuario activo: <strong id="adminActivoLabel"></strong></p>
-            </div>
-            <button onclick="cerrarSesionAdmin()" style="background: #a80f14; color: white; border: none; padding: 0.5rem 1rem; font-size: 0.9rem; border-radius: 6px; cursor: pointer; font-weight: bold;">Cerrar Sesión</button>
-        </div>
-
-        <div style="text-align: right; margin-bottom: 1rem;">
-            <button onclick="cargarTodoDesdeLaNube()" id="btnActualizarDatos" style="background-color: #28a745; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: bold;">
-                🔄 Sincronizar Todo con la Nube
-            </button>
-        </div>
-
-        <!-- Resumen Global -->
-        <div class="dashboard-grid">
-            <div class="card-resumen">
-                <h4>Total de Vales Emitidos</h4>
-                <p class="valor" id="resumenTotalVales">0</p>
-            </div>
-            <div class="card-resumen" style="border-left-color: #28a745;">
-                <h4>Monto Total Colocado</h4>
-                <p class="valor" id="resumenMontoTotal" style="color: #28a745;">$0.00</p>
-            </div>
-        </div>
-
-        <!-- MÓDULO 1: INVENTARIO -->
-        <button class="btn-acordeon" onclick="toggleSeccion('seccionInventario')">
-            <span>📦 Gestor Dinámico de Productos e Inventario</span>
-            <span class="icono-flecha">▼</span>
-        </button>
-        <div id="seccionInventario" class="contenido-desplegable">
-            <div class="card-resumen" style="border-left-color: #0059b3; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h4 style="color: #0059b3; margin-bottom: 1rem;">Agregar Nuevo Producto a la Tienda</h4>
-                <form id="formNuevoProducto" onsubmit="agregarNuevoProducto(event)">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
-                        <div class="form-group"><label>ID / Código:</label><input type="text" id="nuevoId" placeholder="Ej. DV-001" required></div>
-                        <div class="form-group"><label>Sucursal:</label><select id="nuevaSucursal" required><option value="Óptica D'villa">Óptica D'villa</option><option value="Óptica Ravali">Óptica Ravali</option><option value="Marcel Boutique">Marcel Boutique</option></select></div>
-                        <div class="form-group"><label>Nombre:</label><input type="text" id="nuevoNombre" placeholder="Lentes" required></div>
-                        <div class="form-group"><label>Stock:</label><input type="number" id="nuevoStock" min="0" required></div>
-                        <div class="form-group"><label>Precio ($):</label><input type="number" id="nuevoPrecio" step="0.01" min="0" required></div>
-                        <div class="form-group" style="grid-column: 1 / -1; background: #f8f9fa; padding: 1rem; border: 1px dashed #0059b3; border-radius: 6px;">
-                            <label style="color: #0059b3;">📸 Imagen:</label><input type="file" id="nuevoImagenFile" accept="image/*" required style="width: 100%;">
-                        </div>
+        <!-- FORMULARIO PARA AGREGAR / EDITAR PRODUCTO -->
+        <div class="card-admin">
+            <h2 id="tituloFormulario">➕ Agregar Nuevo Producto al Inventario</h2>
+            <form id="formInventario" onsubmit="guardarProducto(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ID del Producto (Código único):</label>
+                        <input type="text" id="prodId" required placeholder="Ej. RAVAL-104">
                     </div>
-                    <button type="submit" id="btnGuardarProd" style="width: 100%; background-color: #0059b3; color: white; padding: 0.8rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 1rem;">➕ Guardar Producto</button>
-                </form>
-            </div>
-            <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
-                <table class="tabla-admin">
-                    <thead><tr><th>Imagen</th><th>ID</th><th>Sucursal</th><th>Producto</th><th>Precio</th><th>Stock (Estatus)</th><th style="text-align: center;">Acciones</th></tr></thead>
-                    <tbody id="cuerpoTablaInventarioAdmin"><tr><td colspan="7" style="text-align:center;">Cargando...</td></tr></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- MÓDULO 2: PROMOTORAS -->
-        <button class="btn-acordeon" onclick="toggleSeccion('seccionPromotoras')">
-            <span>👥 Gestor de Cuentas de Promotoras</span>
-            <span class="icono-flecha">▼</span>
-        </button>
-        <div id="seccionPromotoras" class="contenido-desplegable">
-            <div class="card-resumen" style="border-left-color: #d32f2f; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h4 style="color: #d32f2f; margin-bottom: 1rem;">Dar de Alta Promotora</h4>
-                <form id="formNuevaPromotora" onsubmit="darDeAltaPromotora(event)">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        <div class="form-group"><label>ID Promotora:</label><input type="text" id="regIdPromotora" placeholder="Ej. P-4505" required></div>
-                        <div class="form-group"><label>Contraseña:</label><input type="text" id="regPassPromotora" placeholder="Contraseña" required></div>
+                    <div class="form-group">
+                        <label>Sucursal:</label>
+                        <select id="prodSucursal" required>
+                            <option value="Óptica Ravali">Óptica Ravali</option>
+                            <option value="Marcel Boutique">Marcel Boutique</option>
+                            <option value="Óptica D'villa">Óptica D'villa</option>
+                        </select>
                     </div>
-                    <button type="submit" id="btnRegPromotora" style="width: 100%; background-color: #d32f2f; color: white; padding: 0.8rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 1rem;">✨ Crear Cuenta</button>
-                </form>
-            </div>
-            <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
-                <table class="tabla-admin">
-                    <thead><tr><th>ID Promotora</th><th>Contraseña</th><th>Estado</th><th style="text-align: center;">Acciones</th></tr></thead>
-                    <tbody id="cuerpoTablaPromotoras"><tr><td colspan="4" style="text-align:center;">Cargando...</td></tr></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- MÓDULO 3: PROMOCIONES -->
-        <button class="btn-acordeon" onclick="toggleSeccion('seccionPromos')">
-            <span>📢 Gestor de Promociones</span>
-            <span class="icono-flecha">▼</span>
-        </button>
-        <div id="seccionPromos" class="contenido-desplegable">
-            <div class="card-resumen" style="border-left-color: #ff8c00; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h4 style="color: #ff8c00; margin-bottom: 1rem;">Crear Promoción</h4>
-                <form id="formPromo" onsubmit="guardarPromocion(event)">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        <div class="form-group"><label>Sucursal:</label><select id="promoSucursal"><option value="General">Todas</option><option value="Óptica D'villa">Óptica D'villa</option><option value="Óptica Ravali">Óptica Ravali</option><option value="Marcel Boutique">Marcel Boutique</option></select></div>
-                        <div class="form-group"><label>Título:</label><input type="text" id="promoTitulo" required></div>
-                        <div class="form-group"><label>Descripción:</label><input type="text" id="promoDesc" required></div>
-                        <div class="form-group"><label>Estado:</label><select id="promoEstado"><option value="Activa">Activa</option><option value="Inactiva">Inactiva</option></select></div>
+                    <div class="form-group">
+                        <label>Nombre del Producto:</label>
+                        <input type="text" id="prodNombre" required placeholder="Ej. Armazón Clásico">
                     </div>
-                    <button type="submit" id="btnGuardarPromo" style="width: 100%; background-color: #ff8c00; color: white; padding: 0.8rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; margin-top: 1rem;">➕ Agregar</button>
-                </form>
-            </div>
-            <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
-                <table class="tabla-admin">
-                    <thead><tr><th>ID</th><th>Sucursal</th><th>Título</th><th>Estado</th><th style="text-align: center;">Acciones</th></tr></thead>
-                    <tbody id="cuerpoTablaPromos"><tr><td colspan="5" style="text-align:center;">Cargando...</td></tr></tbody>
-                </table>
-            </div>
+                    <div class="form-group">
+                        <label>Stock (Cantidad):</label>
+                        <input type="number" id="prodStock" required min="0" placeholder="Ej. 10">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio ($ MXN):</label>
+                        <input type="number" id="prodPrecio" required step="0.01" min="0" placeholder="Ej. 1250.00">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>URL de la Imagen o Código Base64:</label>
+                        <input type="text" id="prodImagen" placeholder="https://... o ruta de imagen">
+                    </div>
+                </div>
+                <button type="submit" class="btn-admin" id="btnGuardar">Guardar Producto</button>
+                <button type="button" onclick="limpiarFormulario()" style="background: #6c757d; color: white; border: none; padding: 0.8rem 1rem; border-radius: 5px; cursor: pointer; margin-left: 10px;">Cancelar</button>
+            </form>
         </div>
 
-        <!-- MÓDULO 4: VALES (CON FILTRO POR SUCURSAL Y DATOS DEL CLIENTE) -->
-        <button class="btn-acordeon" onclick="toggleSeccion('seccionVales')">
-            <span>📋 Historial Global de Vales y Cortes de Caja</span>
-            <span class="icono-flecha">▼</span>
-        </button>
-        <div id="seccionVales" class="contenido-desplegable">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: #f8f9fa; padding: 1rem; border-radius: 6px;">
-                <label for="filtroSucursalVales" style="font-weight: bold; color: #002b55; margin: 0;">Filtrar Vales por Sucursal:</label>
-                <select id="filtroSucursalVales" onchange="filtrarValesPorSucursal()" style="max-width: 250px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
-                    <option value="TODAS">Todas las Sucursales</option>
-                    <option value="Óptica D'villa">Óptica D'villa</option>
-                    <option value="Óptica Ravali">Óptica Ravali</option>
-                    <option value="Marcel Boutique">Marcel Boutique</option>
-                </select>
-            </div>
+        <!-- LISTADO DE INVENTARIO -->
+        <div class="card-admin">
+            <h2>📦 Inventario Actual en Supabase</h2>
             <div style="overflow-x: auto;">
                 <table class="tabla-admin">
                     <thead>
                         <tr>
-                            <th>Folio</th>
-                            <th>Fecha</th>
-                            <th>Promotora</th>
-                            <th>Cliente</th>
-                            <th>Teléfono</th>
-                            <th>Dirección</th>
-                            <th>Monto</th>
-                            <th>Plazo</th>
+                            <th>Imagen</th>
+                            <th>ID</th>
                             <th>Sucursal</th>
-                            <th>Pago</th>
-                            <th>Canje</th>
+                            <th>Nombre</th>
+                            <th>Stock</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpoTablaAdmin"><tr><td colspan="11" style="text-align:center;">Cargando...</td></tr></tbody>
+                    <tbody id="cuerpoTablaAdmin">
+                        <tr><td colspan="7" style="text-align: center; color: #777;">Cargando inventario...</td></tr>
+                    </tbody>
                 </table>
             </div>
         </div>
 
-        <button onclick="window.print()" style="width: 100%; background-color: #002b55; color: white; border: none; padding: 1rem; font-weight: bold; border-radius: 6px; margin-top: 2.5rem; cursor: pointer; font-size: 1.1rem;">🖨️ Exportar Reporte Global a PDF</button>
-    </main>
+    </div>
 
-    <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
-        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
-    </footer>
-
+    <!-- LÓGICA JAVASCRIPT CON SUPABASE -->
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxjUsJiDd385o3_TcSFwLg8x_8dbhms7PXMqv805aPhFVmZeEAl1mbW30wz5n7vfYTrAQ/exec";
-        let listaGlobalVales = []; // Almacena temporalmente los vales para el filtro
+        const SUPABASE_URL = "https://pjcrbljzrcbgbxymmjyt.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_VuWXg4Zq2phIiRjstlqL2Q_V5PREAzb";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        window.onload = function() {
-            const adminActivo = localStorage.getItem('mvr_admin_activo');
-            if (adminActivo) activarPanelAdmin(adminActivo);
-        };
+        window.addEventListener('DOMContentLoaded', () => {
+            cargarInventarioAdmin();
+        });
 
-        function toggleSeccion(idSeccion) {
-            const seccion = document.getElementById(idSeccion);
-            const boton = seccion.previousElementSibling;
-            seccion.classList.toggle('abierto');
-            boton.classList.toggle('activo');
-        }
-
-        async function iniciarSesionAdmin(event) {
-            event.preventDefault();
-            const usuarioInput = document.getElementById('loginUsuarioAdmin').value.trim().toUpperCase();
-            const passInput = document.getElementById('loginPassAdmin').value.trim();
-            const btn = document.getElementById('btnAccesoAdmin');
-            btn.innerText = "Verificando Nube...";
+        // 1. CARGAR INVENTARIO EN LA TABLA DEL ADMIN
+        async function cargarInventarioAdmin() {
+            let cuerpoTabla = document.getElementById('cuerpoTablaAdmin');
+            cuerpoTabla.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #777;">Cargando inventario...</td></tr>`;
 
             try {
-                let res = await fetch(`${API_URL}?accion=obtenerAdmins&nocache=${new Date().getTime()}`);
-                let admins = await res.json();
-                let accesoConcedido = false;
+                let { data, error } = await supabaseClient
+                    .from('Inventario')
+                    .select('*')
+                    .order('id', { ascending: true });
 
-                for (let usuarioBD in admins) {
-                    if (String(usuarioBD).trim().toUpperCase() === usuarioInput && String(admins[usuarioBD]).trim() === passInput) {
-                        accesoConcedido = true;
-                        break;
-                    }
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    cuerpoTabla.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #777;">No hay productos registrados.</td></tr>`;
+                    return;
                 }
 
-                if (accesoConcedido) {
-                    localStorage.setItem('mvr_admin_activo', usuarioInput);
-                    activarPanelAdmin(usuarioInput);
-                } else {
-                    alert("Acceso denegado. Usuario administrador no autorizado.");
-                }
-            } catch (error) {
-                alert("Error de conexión al iniciar sesión.");
-            }
-            btn.innerText = "🔓 Ingresar al Sistema";
-        }
+                cuerpoTabla.innerHTML = "";
+                data.forEach(p => {
+                    let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.Precio || 0);
+                    let imgSrc = (p.Imagen && p.Imagen.trim() !== "" && p.Imagen !== "x") ? p.Imagen : 'ravali.jpg';
 
-        function activarPanelAdmin(usuario) {
-            document.getElementById('panelLoginAdmin').style.display = 'none';
-            document.getElementById('panelProtegidoAdmin').style.display = 'block';
-            document.getElementById('adminActivoLabel').innerText = usuario;
-            cargarTodoDesdeLaNube();
-        }
-
-        function cerrarSesionAdmin() {
-            localStorage.removeItem('mvr_admin_activo');
-            document.getElementById('panelProtegidoAdmin').style.display = 'none';
-            document.getElementById('panelLoginAdmin').style.display = 'block';
-            document.getElementById('formLoginAdmin').reset();
-        }
-
-        async function darDeAltaPromotora(event) {
-            event.preventDefault();
-            const idPromo = document.getElementById('regIdPromotora').value.trim().toUpperCase();
-            const passPromo = document.getElementById('regPassPromotora').value.trim();
-            try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ accion: "guardarPromotora", promotora: { id: idPromo, password: passPromo } })
-                });
-                alert(`✅ ¡Promotora "${idPromo}" registrada con éxito!`);
-                document.getElementById('formNuevaPromotora').reset();
-                cargarTodoDesdeLaNube();
-            } catch (e) { alert("Error al registrar promotora."); }
-        }
-
-        async function cambiarEstadoPromotora(nombrePromotora, estadoActual) {
-            let nuevoEstado = (estadoActual === "Bloqueada") ? "Activa" : "Bloqueada";
-            try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ accion: "cambiarEstadoPromotora", promotora: nombrePromotora, estado: nuevoEstado })
-                });
-                cargarTodoDesdeLaNube();
-            } catch (e) {}
-        }
-
-        async function eliminarPromotora(nombrePromotora) {
-            if (!confirm(`¿Eliminar promotora "${nombrePromotora}"?`)) return;
-            try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ accion: "eliminarPromotora", promotora: nombrePromotora })
-                });
-                cargarTodoDesdeLaNube();
-            } catch (e) {}
-        }
-
-        async function guardarPromocion(event) {
-            event.preventDefault();
-            const sucursal = document.getElementById('promoSucursal').value;
-            const titulo = document.getElementById('promoTitulo').value.trim();
-            const desc = document.getElementById('promoDesc').value.trim();
-            const estado = document.getElementById('promoEstado').value; 
-            const idPromo = "PROM-" + Math.floor(100 + Math.random() * 900); 
-            try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ accion: "guardarPromocion", promocion: { id: idPromo, sucursal: sucursal, titulo: titulo, descripcion: desc, estado: estado } })
-                });
-                alert("✅ Promoción guardada.");
-                document.getElementById('formPromo').reset();
-                cargarTodoDesdeLaNube(); 
-            } catch (e) {}
-        }
-
-        async function cambiarEstadoPromo(idPromo, estadoActual) {
-            let nuevoEstado = (estadoActual === "Activa") ? "Inactiva" : "Activa";
-            try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ accion: "cambiarEstadoPromocion", id: idPromo, estado: nuevoEstado })
-                });
-                cargarTodoDesdeLaNube();
-            } catch (e) {}
-        }
-
-        async function eliminarPromocion(idPromo, titulo) {
-            if (!confirm(`¿Eliminar promoción "${titulo}"?`)) return;
-            try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ accion: "eliminarPromocion", id: idPromo })
-                });
-                cargarTodoDesdeLaNube();
-            } catch (e) {}
-        }
-
-        async function agregarNuevoProducto(event) {
-            event.preventDefault();
-            const id = document.getElementById('nuevoId').value.trim().toUpperCase();
-            const sucursal = document.getElementById('nuevaSucursal').value;
-            const nombre = document.getElementById('nuevoNombre').value.trim();
-            const stock = parseInt(document.getElementById('nuevoStock').value) || 0;
-            const precio = parseFloat(document.getElementById('nuevoPrecio').value) || 0;
-            const inputFile = document.getElementById('nuevoImagenFile').files[0];
-
-            if (!inputFile) { alert("Selecciona una imagen."); return; }
-
-            const reader = new FileReader();
-            reader.onload = async function(uploadEvent) {
-                try {
-                    await fetch(API_URL, {
-                        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ accion: "actualizarStock", inventario: { id: id, sucursal: sucursal, nombre: nombre, stock: stock, precio: precio, imagen: uploadEvent.target.result } })
-                    });
-                    alert("✅ ¡Producto registrado!");
-                    document.getElementById('formNuevoProducto').reset();
-                    cargarTodoDesdeLaNube();
-                } catch (e) {}
-            };
-            reader.readAsDataURL(inputFile);
-        }
-
-        async function guardarStockIndividual(id, sucursal, nombre, precio, imagenActual) {
-            const nuevoStock = parseInt(document.getElementById(`stock-${id}`).value) || 0;
-            try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ accion: "actualizarStock", inventario: { id: id, sucursal: sucursal, nombre: nombre, stock: nuevoStock, precio: precio, imagen: imagenActual || "" } })
-                });
-                alert(`✅ Stock actualizado para ${nombre}`);
-                cargarTodoDesdeLaNube();
-            } catch (e) {}
-        }
-
-        async function eliminarProductoInventario(id, nombre) {
-            if (!confirm(`¿Eliminar "${nombre}"?`)) return;
-            try {
-                await fetch(API_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ accion: "eliminarStock", id: id })
-                });
-                cargarTodoDesdeLaNube();
-            } catch (e) {}
-        }
-
-        // --- SINCRONIZACIÓN MAESTRA Y RENDERIZADO DE VALES CON FILTRO ---
-        async function cargarTodoDesdeLaNube() {
-            const btn = document.getElementById('btnActualizarDatos');
-            if (btn) btn.innerText = "Sincronizando con Google Sheets...";
-            
-            try {
-                // 1. INVENTARIO
-                let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
-                let inventarioRemoto = await resInv.json();
-                const cuerpoInv = document.getElementById('cuerpoTablaInventarioAdmin');
-                cuerpoInv.innerHTML = "";
-                let ids = Object.keys(inventarioRemoto);
-                if (ids.length === 0) {
-                    cuerpoInv.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No hay productos registrados.</td></tr>`;
-                } else {
-                    ids.forEach(id => {
-                        let prod = inventarioRemoto[id];
-                        let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(prod.precio || 0);
-                        let imgSrc = prod.imagen ? prod.imagen : 'mvr.jpg';
-                        let stockNum = parseInt(prod.stock) || 0;
-                        let alertaHtml = '';
-                        if (stockNum === 0) {
-                            alertaHtml = `<span style="color: #d32f2f; font-weight: bold; font-size: 0.75rem; display:block;">⚠️ Agotado</span>`;
-                        } else if (stockNum <= 3) {
-                            alertaHtml = `<span class="alerta-stock-bajo" style="font-size: 0.75rem; display:block; margin-top:2px;">⚠️ ¡Stock Bajo!</span>`;
-                        }
-
-                        cuerpoInv.innerHTML += `
-                            <tr>
-                                <td><img src="${imgSrc}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;" onerror="this.src='mvr.jpg';"></td>
-                                <td><strong>${id}</strong></td><td>${prod.sucursal}</td><td>${prod.nombre}</td><td>${precioFmt}</td>
-                                <td>
-                                    <input type="number" id="stock-${id}" value="${stockNum}" min="0" style="width: 70px; text-align: center; font-weight: bold;">
-                                    ${alertaHtml}
-                                </td>
-                                <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
-                                    <button onclick="guardarStockIndividual('${id}', '${prod.sucursal}', '${String(prod.nombre).replace(/'/g, "")}', ${prod.precio}, '${prod.imagen || ''}')" style="background-color: #28a745; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 Guardar</button>
-                                    <button onclick="eliminarProductoInventario('${id}', '${prod.nombre}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
-                                </td>
-                            </tr>`;
-                    });
-                }
-
-                // 2. PROMOTORAS
-                let resProm = await fetch(`${API_URL}?accion=obtenerPromotoras&nocache=${new Date().getTime()}`);
-                let credencialesPromotoras = await resProm.json();
-                const cuerpoProm = document.getElementById('cuerpoTablaPromotoras');
-                cuerpoProm.innerHTML = "";
-                let listaProm = Object.keys(credencialesPromotoras);
-                if (listaProm.length === 0) {
-                    cuerpoProm.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No hay promotoras.</td></tr>`;
-                } else {
-                    listaProm.forEach(prom => {
-                        let datosP = credencialesPromotoras[prom];
-                        let pass = typeof datosP === 'object' ? datosP.password : datosP;
-                        let estado = typeof datosP === 'object' ? datosP.estado : "Activa";
-                        let colorEstado = estado === "Bloqueada" ? "#d32f2f" : "#28a745";
-                        let textoBoton = estado === "Bloqueada" ? "🟢 Desbloquear" : "🔴 Bloquear";
-
-                        cuerpoProm.innerHTML += `
-                            <tr>
-                                <td><strong>${prom}</strong></td><td><span class="pass-badge">${pass}</span></td>
-                                <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold;">${estado}</span></td>
-                                <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
-                                    <button onclick="cambiarEstadoPromotora('${prom}', '${estado}')" style="background-color: #ff8c00; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">${textoBoton}</button>
-                                    <button onclick="eliminarPromotora('${prom}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
-                                </td>
-                            </tr>`;
-                    });
-                }
-
-                // 3. PROMOCIONES
-                let resPromos = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
-                let promosGuardadas = await resPromos.json();
-                const cuerpoPromos = document.getElementById('cuerpoTablaPromos');
-                cuerpoPromos.innerHTML = "";
-                if (promosGuardadas.length === 0) {
-                    cuerpoPromos.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No hay promociones.</td></tr>`;
-                } else {
-                    promosGuardadas.slice().reverse().forEach(p => {
-                        let colorEstado = p.estado === 'Activa' ? '#28a745' : '#d32f2f';
-                        let textoBoton = p.estado === 'Activa' ? '🔴 Desactivar' : '🟢 Activar';
-                        cuerpoPromos.innerHTML += `
-                            <tr>
-                                <td><strong>${p.id}</strong></td><td>${p.sucursal}</td><td>${p.titulo}</td>
-                                <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold;">${p.estado}</span></td>
-                                <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
-                                    <button onclick="cambiarEstadoPromo('${p.id}', '${p.estado}')" style="background-color: #ff8c00; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">${textoBoton}</button>
-                                    <button onclick="eliminarPromocion('${p.id}', '${String(p.titulo).replace(/'/g, "")}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
-                                </td>
-                            </tr>`;
-                    });
-                }
-
-                // 4. VALES Y MÉTRICAS (Guardando en lista global para filtros)
-                let resVales = await fetch(`${API_URL}?accion=obtenerVales&nocache=${new Date().getTime()}`);
-                listaGlobalVales = await resVales.json();
-                
-                renderizarTablaVales(listaGlobalVales);
-
-            } catch (error) {
-                console.error("Error cargando datos de la nube:", error);
-            }
-            if (btn) btn.innerText = "🔄 Sincronizar Todo con la Nube";
-        }
-
-        function renderizarTablaVales(vales) {
-            const cuerpoVales = document.getElementById('cuerpoTablaAdmin');
-            cuerpoVales.innerHTML = "";
-            let totalVales = 0, montoTotal = 0;
-
-            if (vales.length === 0) {
-                cuerpoVales.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#888;">No hay vales registrados para esta selección.</td></tr>`;
-            } else {
-                vales.slice().reverse().forEach(v => {
-                    let monto = parseFloat(v.monto) || 0;
-                    totalVales++;
-                    montoTotal += monto;
-
-                    let claseBadge = v.sucursal === "Óptica Ravali" ? "badge-ravali" : (v.sucursal === "Marcel Boutique" ? "badge-marcel" : "badge-dvilla");
-                    let montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(monto);
-                    let pagoColor = v.estatusPago === "Vencido" ? "#d32f2f" : "#28a745";
-                    let canjeColor = v.estatusCanje === "Canjeado" ? "#0059b3" : "#888";
-
-                    cuerpoVales.innerHTML += `
+                    cuerpoTabla.innerHTML += `
                         <tr>
-                            <td><strong>${v.folio}</strong></td>
-                            <td>${v.fecha}</td>
-                            <td>${v.promotora}</td>
-                            <td>${v.cliente}</td>
-                            <td>${v.telefono || 'N/D'}</td>
-                            <td>${v.direccion || 'N/D'}</td>
-                            <td style="font-weight: bold; color: #28a745;">${montoF}</td>
-                            <td>${v.quincenas}</td>
-                            <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
-                            <td><strong style="color: ${pagoColor};">${v.estatusPago}</strong></td>
-                            <td><strong style="color: ${canjeColor};">${v.estatusCanje}</strong></td>
+                            <td><img src="${imgSrc}" class="preview-img" onerror="this.src='ravali.jpg';"></td>
+                            <td><strong>${p.id}</strong></td>
+                            <td>${p.Sucursal}</td>
+                            <td>${p.Nombre}</td>
+                            <td>${p.Stock}</td>
+                            <td>${precioFmt}</td>
+                            <td>
+                                <button onclick="editarProducto('${p.id}', '${p.Sucursal}', '${p.Nombre.replace(/'/g, "\\'")}', ${p.Stock}, ${p.Precio}, '${p.Imagen || ""}')" style="background: #ffc107; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px;">✏️</button>
+                                <button class="btn-danger" onclick="eliminarProducto('${p.id}')">🗑️</button>
+                            </td>
                         </tr>`;
                 });
+            } catch (err) {
+                console.error("Error al cargar admin:", err);
+                cuerpoTabla.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Error al conectar con la base de datos.</td></tr>`;
             }
-
-            document.getElementById('resumenTotalVales').innerText = totalVales;
-            document.getElementById('resumenMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoTotal);
         }
 
-        function filtrarValesPorSucursal() {
-            let sucursalSeleccionada = document.getElementById('filtroSucursalVales').value;
-            if (sucursalSeleccionada === "TODAS") {
-                renderizarTablaVales(listaGlobalVales);
-            } else {
-                let valesFiltrados = listaGlobalVales.filter(v => String(v.sucursal).trim() === sucursalSeleccionada);
-                renderizarTablaVales(valesFiltrados);
+        // 2. GUARDAR O ACTUALIZAR PRODUCTO (UPSERT)
+        async function guardarProducto(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('prodId').value.trim();
+            const sucursal = document.getElementById('prodSucursal').value;
+            const nombre = document.getElementById('prodNombre').value.trim();
+            const stock = parseInt(document.getElementById('prodStock').value) || 0;
+            const precio = parseFloat(document.getElementById('prodPrecio').value) || 0;
+            const imagen = document.getElementById('prodImagen').value.trim() || "x";
+
+            // Usamos upsert de Supabase: si el ID ya existe lo actualiza, si no, lo crea nuevo
+            const { error } = await supabaseClient
+                .from('Inventario')
+                .upsert({
+                    id: id,
+                    Sucursal: sucursal,
+                    Nombre: nombre,
+                    Stock: stock,
+                    Precio: precio,
+                    Imagen: imagen
+                });
+
+            if (error) {
+                alert("❌ Error al guardar el producto: " + error.message);
+                return;
             }
+
+            alert("✅ ¡Producto guardado con éxito en Supabase!");
+            limpiarFormulario();
+            cargarInventarioAdmin();
+        }
+
+        // 3. CARGAR DATOS EN EL FORMULARIO PARA EDITAR
+        function editarProducto(id, sucursal, nombre, stock, precio, imagen) {
+            document.getElementById('prodId').value = id;
+            document.getElementById('prodId').readOnly = true; // El ID principal no debe cambiar al editar
+            document.getElementById('prodSucursal').value = sucursal;
+            document.getElementById('prodNombre').value = nombre;
+            document.getElementById('prodStock').value = stock;
+            document.getElementById('prodPrecio').value = precio;
+            document.getElementById('prodImagen').value = (imagen === "x") ? "" : imagen;
+
+            document.getElementById('tituloFormulario').innerText = "✏️ Editando Producto: " + id;
+            document.getElementById('btnGuardar').innerText = "Actualizar Cambios";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 4. ELIMINAR PRODUCTO
+        async function eliminarProducto(id) {
+            if (!confirm(`¿Estás seguro de eliminar el producto con ID "${id}"?`)) return;
+
+            const { error } = await supabaseClient
+                .from('Inventario')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert("❌ Error al eliminar: " + error.message);
+                return;
+            }
+
+            alert("🗑️ Producto eliminado correctamente.");
+            cargarInventarioAdmin();
+        }
+
+        // 5. LIMPIAR FORMULARIO
+        function limpiarFormulario() {
+            document.getElementById('formInventario').reset();
+            document.getElementById('prodId').readOnly = false;
+            document.getElementById('tituloFormulario').innerText = "➕ Agregar Nuevo Producto al Inventario";
+            document.getElementById('btnGuardar').innerText = "Guardar Producto";
         }
     </script>
 </body>
