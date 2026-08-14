@@ -8,7 +8,7 @@
 
     <style>
         body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .admin-container { max-width: 1150px; margin: 2rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .admin-container { max-width: 1250px; margin: 2rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
         .login-admin-container { max-width: 450px; margin: 4rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
         .form-group { text-align: left; margin-bottom: 1.2rem; }
         .form-group label { display: block; margin-bottom: 0.4rem; font-weight: bold; color: #002b55; font-size: 0.95rem; }
@@ -230,13 +230,14 @@
                             <th>Teléfono</th>
                             <th>Dirección</th>
                             <th>Monto</th>
+                            <th>Monto Venta</th>
                             <th>Plazo</th>
                             <th>Sucursal</th>
                             <th>Pago</th>
                             <th>Canje</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpoTablaAdmin"><tr><td colspan="11" style="text-align:center;">Cargando...</td></tr></tbody>
+                    <tbody id="cuerpoTablaAdmin"><tr><td colspan="12" style="text-align:center;">Cargando...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -547,15 +548,17 @@
             let totalVales = 0, montoTotal = 0;
 
             if (vales.length === 0) {
-                cuerpoVales.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#888;">No hay vales registrados para esta selección.</td></tr>`;
+                cuerpoVales.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#888;">No hay vales registrados para esta selección.</td></tr>`;
             } else {
                 vales.slice().reverse().forEach(v => {
                     let monto = parseFloat(v.monto) || 0;
+                    let montoVentaNum = parseFloat(v.montoVenta) || 0;
                     totalVales++;
                     montoTotal += monto;
 
                     let claseBadge = v.sucursal === "Óptica Ravali" ? "badge-ravali" : (v.sucursal === "Marcel Boutique" ? "badge-marcel" : "badge-dvilla");
                     let montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(monto);
+                    let montoVentaF = montoVentaNum > 0 ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoVentaNum) : '-';
                     let pagoColor = v.estatusPago === "Vencido" ? "#d32f2f" : "#28a745";
                     let canjeColor = v.estatusCanje === "Canjeado" ? "#0059b3" : "#888";
 
@@ -568,6 +571,7 @@
                             <td>${v.telefono || 'N/D'}</td>
                             <td>${v.direccion || 'N/D'}</td>
                             <td style="font-weight: bold; color: #28a745;">${montoF}</td>
+                            <td style="font-weight: bold; color: #0059b3;">${montoVentaF}</td>
                             <td>${v.quincenas}</td>
                             <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
                             <td><strong style="color: ${pagoColor};">${v.estatusPago}</strong></td>
