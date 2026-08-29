@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo MVR | Inicio</title>
+    <link rel="stylesheet" href="CSS/opticas-styles.css">
+</head>
+<body>
+
+    <!-- ENCABEZADO PRINCIPAL -->
+    <header class="main-header" style="background-color: #002b55;">
+        <div class="logo">
+            <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <img src="mvr.jpg" onerror="this.onerror=null; this.src='mvr.png';" alt="Logo Grupo MVR" style="height: 45px; width: auto; object-fit: contain; border-radius: 4px; background: white; padding: 2px;">
+                <h1 style="margin: 0; font-size: 1.5rem; color: white;">Grupo MVR</h1>
+            </a>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html" class="active">Inicio</a></li>
+                <li><a href="D´villa.html">Óptica D'villa</a></li>
+                <li><a href="Ravali.html">Óptica Ravali</a></li>
+                <li><a href="Marcel.html">Marcel Boutique</a></li>
+                <li><a href="Promotoras.html">Promotoras / Vales</a></li>
+                <li><a href="Admin.html">Administración</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- BANNER DE BIENVENIDA CON LOGO DE FONDO -->
+    <section class="hero" style="background-color: #e6f0fa; background-image: linear-gradient(rgba(230, 240, 250, 0.92), rgba(230, 240, 250, 0.92)), url('mvr.jpg'); background-size: cover; background-position: center; text-align: center; padding: 3.5rem 1rem; position: relative;">
+        <h2 style="color: #002b55; font-size: 2.2rem; margin-bottom: 0.5rem; position: relative; z-index: 2;">Bienvenido a Grupo MVR</h2>
+        <p style="font-style: italic; color: #555; margin-bottom: 1rem; position: relative; z-index: 2;">"Calidad, estilo y confianza en nuestras sucursales"</p>
+        <p style="color: #444; max-width: 700px; margin: 0 auto; position: relative; z-index: 2;">Explora nuestras diferentes sucursales especializadas en salud visual y moda, o solicita tu sistema de financiamiento por vales con nuestras promotoras.</p>
+    </section>
+
+    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES GLOBALES EN EL INICIO -->
+    <div style="max-width: 900px; margin: 2rem auto; padding: 0 1rem;">
+        <h3 style="text-align: center; color: #002b55; margin-bottom: 1rem; font-size: 1.5rem;">🔥 Promociones Activas en Grupo MVR</h3>
+        <div id="contenedorPromosInicio"></div>
+    </div>
+
+    <!-- SECCIÓN DE SUCURSALES -->
+    <main>
+        <h3 style="text-align: center; color: #002b55; margin-top: 2rem; font-size: 1.8rem;">Nuestras Sucursales</h3>
+        <section class="grid-sucursales">
+            
+            <!-- ÓPTICA D'VILLA -->
+            <div class="card-sucursal" style="border-top: 4px solid #0059b3;">
+                <div>
+                    <img src="dvilla.jpg" onerror="this.src='https://via.placeholder.com/300x200?text=Optica+Dvilla'" alt="Óptica D'villa">
+                    <h3>Óptica D'villa</h3>
+                    <p>Línea ejecutiva, micas antirreflejante y tecnología Blue Ray para el cuidado de tu visión.</p>
+                </div>
+                <div>
+                    <a href="D´villa.html" class="btn" style="background-color: #0059b3; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Catálogo D'villa</a>
+                </div>
+            </div>
+
+            <!-- Óptica RAVALI -->
+            <div class="card-sucursal" style="border-top: 4px solid #a80f14;">
+                <div>
+                    <img src="ravali.jpg" onerror="this.src='https://via.placeholder.com/300x200?text=Optica+Ravali'" alt="Óptica Ravali">
+                    <h3>Óptica Ravali</h3>
+                    <p>Diseños vanguardistas, armazones de moda y lentes solares polarizados de alta gama.</p>
+                </div>
+                <div>
+                    <a href="Ravali.html" class="btn" style="background-color: #a80f14; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Catálogo Ravali</a>
+                </div>
+            </div>
+
+            <!-- MARCEL BOUTIQUE -->
+            <div class="card-sucursal" style="border-top: 4px solid #880e4f;">
+                <div>
+                    <img src="marcel.png" onerror="this.src='https://via.placeholder.com/300x200?text=Marcel+Boutique'" alt="Marcel Boutique">
+                    <h3>Marcel Boutique</h3>
+                    <p>Moda, elegancia y estilo con colecciones exclusivas de vestidos, bolsos y calzado.</p>
+                </div>
+                <div>
+                    <a href="Marcel.html" class="btn" style="background-color: #880e4f; color: white; display: block; padding: 0.8rem; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Catálogo Marcel</a>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- BOTÓN Y MODAL FLOTANTE DEL CARRITO GLOBAL -->
+    <div id="btnFlotanteCarrito" class="btn-flotante-carrito" onclick="abrirCarritoGlobal()">
+        🛒 Carrito <span id="contadorCarrito" class="contador-carrito">0</span>
+    </div>
+
+    <div id="modalCarritoGlobal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="cerrar-modal" onclick="cerrarCarritoGlobal()">&times;</span>
+            <h3 style="color: var(--color-primary); margin-top: 0; font-size: 1.4rem;">🛍️ Tu Carrito Global MVR</h3>
+            
+            <div id="listaProductosCarrito" style="margin: 1rem 0; max-height: 250px; overflow-y: auto; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
+                <!-- Productos del carrito -->
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: var(--color-primary); margin-bottom: 1.5rem;">
+                <span>Total a Pagar:</span>
+                <span id="totalCarritoMxn" style="color: var(--color-primary);">$0.00 MXN</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-secondary" onclick="enviarPedidoWhatsApp()" style="font-size: 1rem; width: 100%;">
+                    💬 Enviar Pedido por WhatsApp
+                </button>
+                <button class="btn" onclick="vaciarCarrito()" style="background-color: #a80f14; color: white; font-size: 0.9rem; width: 100%;">
+                    🗑️ Vaciar Carrito
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 3rem;">
+        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- SCRIPT CENTRALIZADO Y CARGA DE PROMOS EN EL INICIO -->
+    <script src="js/api.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', async () => {
+            const contenedor = document.getElementById('contenedorPromosInicio');
+            if (!contenedor) return;
+
+            try {
+                let promos = await consumirAPI('obtenerPromociones');
+                if (promos) {
+                    let promosActivas = promos.filter(p => p.estado === "Activa");
+
+                    if (promosActivas.length > 0) {
+                        let htmlPromos = "";
+                        promosActivas.forEach(p => {
+                            let colorFondo = "#002b55";
+                            if (p.sucursal === "Óptica Ravali") colorFondo = "#a80f14";
+                            else if (p.sucursal === "Marcel Boutique") colorFondo = "#880e4f";
+                            else if (p.sucursal === "Óptica D'villa") colorFondo = "#0059b3";
+
+                            htmlPromos += `
+                                <div style="background: ${colorFondo}; color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                    <div>
+                                        <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">${p.sucursal}</span>
+                                        <h4 style="margin: 6px 0 3px 0; font-size: 1.2rem; color: #ffffff;">${p.titulo}</h4>
+                                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
+                                    </div>
+                                    <a href="${p.sucursal === 'Óptica Ravali' ? 'Ravali.html' : (p.sucursal === 'Marcel Boutique' ? 'Marcel.html' : 'D´villa.html')}" style="background: white; color: ${colorFondo}; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 0.85rem;">Ver Sucursal &rarr;</a>
+                                </div>`;
+                        });
+                        contenedor.innerHTML = htmlPromos;
+                    } else {
+                        contenedor.innerHTML = `<p style="text-align: center; color: #777; font-size: 0.95rem;">No hay promociones activas por el momento. ¡Consulta más tarde!</p>`;
+                    }
+                }
+            } catch (error) {
+                console.error("Error al cargar promociones en inicio", error);
+            }
+        });
+
+        window.onclick = function(event) {
+            const modalCarrito = document.getElementById('modalCarritoGlobal');
+            if (event.target === modalCarrito) modalCarrito.style.display = 'none';
+        };
+    </script>
+
+</body>
+</html>

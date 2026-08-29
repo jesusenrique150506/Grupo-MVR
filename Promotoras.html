@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo MVR | Portal de Promotoras y Vales</title>
+    <link rel="stylesheet" href="CSS/opticas-styles.css">
+
+    <style>
+        #panelProtegido { display: none; }
+        #resultadoVale { display: none; margin-top: 2rem; padding: 1.5rem; border-radius: 8px; text-align: center; }
+        .logo-vale-head { max-height: 60px; width: auto; object-fit: contain; margin-bottom: 0.5rem; }
+        .folio-box { font-size: 1.8rem; font-weight: bold; letter-spacing: 2px; margin: 0.8rem 0; background: #ffffff; padding: 0.5rem; border-radius: 6px; }
+    </style>
+</head>
+<body class="pagina-promotoras">
+
+    <header class="main-header" style="background-color: #002b55;">
+        <div class="logo">
+            <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <img src="mvr.jpg" onerror="this.onerror=null; this.src='mvr.png';" alt="Logo Grupo MVR" style="height: 45px; width: auto; object-fit: contain; border-radius: 4px; background: #fff; padding: 2px;">
+                <h1 style="margin: 0; font-size: 1.5rem; color: white;">Grupo MVR | Vales</h1>
+            </a>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="D´villa.html">Óptica D'villa</a></li>
+                <li><a href="Ravali.html">Óptica Ravali</a></li>
+                <li><a href="Marcel.html">Marcel Boutique</a></li>
+                <li><a href="Promotoras.html" class="active" style="background-color: #0d233a;">Promotoras / Vales</a></li>
+                <li><a href="Admin.html">Administración</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero" style="background-color: #e6f0fa; text-align: center; padding: 2rem 1rem;">
+        <h2 style="color: #002b55;">Portal Oficial para Promotoras</h2>
+        <p style="font-style: italic; color: #555;">"Donde la salud, la visión y el estilo se encuentran"</p>
+    </section>
+
+    <!-- ACCESO EXCLUSIVO DE PROMOTORAS -->
+    <main id="panelLogin" class="login-promotora-container">
+        <form id="formLogin" onsubmit="iniciarSesion(event)">
+            <h3 style="color: #002b55; margin-bottom: 1rem; text-align: center;">🔐 Acceso Exclusivo para Promotoras</h3>
+            <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Ingresa con el ID y contraseña proporcionados por administración.</p>
+            
+            <div class="form-group">
+                <label for="loginNum">N° o ID de Promotora:</label>
+                <input type="text" id="loginNum" placeholder="Ej. P-4502" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPass">Contraseña:</label>
+                <input type="password" id="loginPass" placeholder="Tu contraseña personal" required>
+            </div>
+            <div style="text-align: right; margin-bottom: 1.2rem;">
+                <a href="#" onclick="pedirAyudaPassword(event)" style="font-size: 0.85rem; color: #0059b3; text-decoration: none; font-weight: bold;">¿Olvidaste tu contraseña?</a>
+            </div>
+            <button type="submit" id="btnAcceso" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                🔓 Ingresar al Portal de Vales
+            </button>
+        </form>
+    </main>
+
+    <div id="panelProtegido">
+        <main class="form-container" style="max-width: 1000px; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px;">
+                <h3 style="color: #002b55; margin: 0;">👋 ¡Bienvenida, Promotora <span id="nombrePromotoraHeader" style="color: #0059b3;"></span>!</h3>
+                <button onclick="cerrarSesion()" style="background: #a80f14; color: white; border: none; padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: 4px; cursor: pointer; font-weight: bold;">Cerrar Sesión</button>
+            </div>
+
+            <!-- TARJETAS RESUMEN DE RENDIMIENTO DE LA PROMOTORA -->
+            <div class="kpi-promotoras-grid">
+                <div class="kpi-card-promotora kpi-verde">
+                    <div class="kpi-num-valor" id="kpiMontoTotal">$0.00</div>
+                    <div class="kpi-label-txt">Venta Total Colocada</div>
+                </div>
+                <div class="kpi-card-promotora kpi-naranja">
+                    <div class="kpi-num-valor" id="kpiComisionEstimada">$0.00</div>
+                    <div class="kpi-label-txt">Comisión Estimada (10%)</div>
+                </div>
+                <div class="kpi-card-promotora">
+                    <div class="kpi-num-valor" id="kpiTotalVales">0</div>
+                    <div class="kpi-label-txt">Vales Autorizados</div>
+                </div>
+                <div class="kpi-card-promotora kpi-rojo">
+                    <div class="kpi-num-valor" id="kpiClientesActivos">0</div>
+                    <div class="kpi-label-txt">Clientes en Cartera</div>
+                </div>
+            </div>
+
+            <!-- SIMULADOR EN VIVO PARA COTIZAR AL CLIENTE -->
+            <div class="simulador-vales-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <h4 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">🧮 Simulador y Cotizador Rápido de Vales</h4>
+                    <span style="background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">Atención al Cliente en Vivo</span>
+                </div>
+                <div class="simulador-grid">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: bold; opacity: 0.9;">Monto a Financiar ($ MXN):</label>
+                        <input type="number" id="simMonto" value="1600" min="100" step="50" oninput="calcularSimulador()" class="input-checkout-field" style="margin-top: 4px; font-size: 1.1rem; font-weight: bold; color: #002b55;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: bold; opacity: 0.9;">Plazo Quincenal:</label>
+                        <select id="simQuincenas" onchange="calcularSimulador()" class="input-checkout-field" style="margin-top: 4px; font-size: 1rem; font-weight: bold; color: #002b55;">
+                            <option value="2">2 Quincenas</option>
+                            <option value="4">4 Quincenas</option>
+                            <option value="6">6 Quincenas</option>
+                            <option value="8" selected>8 Quincenas ⭐ (Recomendado)</option>
+                            <option value="10">10 Quincenas</option>
+                            <option value="12">12 Quincenas</option>
+                        </select>
+                    </div>
+                    <div class="simulador-resultado-box">
+                        <div style="font-size: 0.8rem; opacity: 0.9; text-transform: uppercase; font-weight: bold;">Pago Quincenal Estimado:</div>
+                        <div class="simulador-resultado-monto" id="simPagoQuincenal">$200.00 MXN</div>
+                        <div style="font-size: 0.78rem; color: #e2e8f0;" id="simComisionInfo">Tu comisión estimada: $160.00 MXN</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 style="color: #002b55; margin: 1.5rem 0 1rem 0;">✍️ Registro de Nuevo Vale Digital</h3>
+            <form id="valeForm" onsubmit="generarFolio(event)">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="numPromotora">Promotora Autorizada:</label>
+                        <input type="text" id="numPromotora" readonly style="background-color: #e9ecef; font-weight: bold; color: #002b55;">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="sucursalVale">Óptica/Boutique de Atención:</label>
+                        <select id="sucursalVale" required>
+                            <option value="Óptica D'villa">Óptica D'villa</option>
+                            <option value="Óptica Ravali">Óptica Ravali</option>
+                            <option value="Marcel Boutique">Marcel Boutique</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="nombreCliente">Nombre Completo del Cliente:</label>
+                        <input type="text" id="nombreCliente" placeholder="Ej. María López Hernández" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="telefonoCliente">Teléfono WhatsApp del Cliente (10 dígitos):</label>
+                        <input type="tel" id="telefonoCliente" placeholder="Ej. 8331234567" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="direccionCliente">Dirección Completa del Cliente:</label>
+                        <input type="text" id="direccionCliente" placeholder="Calle, número, colonia y ciudad" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="montoVale">Monto Autorizado ($ MXN):</label>
+                        <input type="number" id="montoVale" placeholder="Ej. 1600" min="100" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="quincenasVale">Plazo de Pago:</label>
+                        <select id="quincenasVale" required>
+                            <option value="2 Quincenas">2 Quincenas</option>
+                            <option value="4 Quincenas">4 Quincenas</option>
+                            <option value="6 Quincenas">6 Quincenas</option>
+                            <option value="8 Quincenas" selected>8 Quincenas ⭐</option>
+                            <option value="10 Quincenas">10 Quincenas</option>
+                            <option value="12 Quincenas">12 Quincenas</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" id="btnGenerarVale" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 1rem; font-size: 1.1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1.5rem;">
+                    🎟️ Generar Folio, Ticket y Código QR
+                </button>
+            </form>
+
+            <div id="resultadoVale"></div>
+        </main>
+
+        <section class="cartera-container" style="max-width: 1000px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+                <h3 style="color: #002b55; margin: 0;">📂 Cartera de Clientes y Módulo de Cobranza</h3>
+                <button onclick="buscarCartera()" id="btnConsultarCartera" class="btn" style="background-color: #28a745; color: white; padding: 0.6rem 1.2rem; font-size: 0.9rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    🔄 Actualizar Cartera
+                </button>
+            </div>
+            
+            <input type="hidden" id="buscarPromotora">
+
+            <div id="tablaCarteraResultado" style="display: none; margin-top: 1rem; overflow-x: auto;">
+                <table class="tabla-cartera" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Cliente</th>
+                            <th>Monto</th>
+                            <th>Plazo / Cuota</th>
+                            <th>Sucursal</th>
+                            <th>Estatus</th>
+                            <th style="text-align: center;">Cobranza WhatsApp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaCartera"></tbody>
+                </table>
+                <button onclick="imprimirElemento('cartera')" style="width: 100%; background-color: #002b55; color: white; border: none; padding: 0.8rem; font-weight: bold; border-radius: 5px; margin-top: 1.5rem; cursor: pointer;">
+                    🖨️ Exportar Cartera en PDF
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <a href="https://wa.me/528332854129?text=Hola,%20soy%20promotora%20de%20Grupo%20MVR%20y%20requiero%20asistencia%20con%20un%20vale." target="_blank" class="btn-whatsapp-soporte">💬 Soporte Promotoras</a>
+
+    <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
+        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR (D'villa, Ravali & Marcel). Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- SCRIPT CENTRALIZADO Y LÓGICA DE PROMOTORAS -->
+    <script src="js/api.js"></script>
+    <script>
+        let temporizadorInactividad;
+        const TIEMPO_LIMITE_INACTIVIDAD = 10 * 60 * 1000; // 10 minutos en milisegundos
+
+        window.onload = function() {
+            const activa = localStorage.getItem('mvr_promotora_activa');
+            if (activa) {
+                activarPortal(activa);
+            }
+            calcularSimulador();
+        };
+
+        // --- SIMULADOR DE VALES EN VIVO ---
+        function calcularSimulador() {
+            const monto = parseFloat(document.getElementById('simMonto').value) || 0;
+            const q = parseInt(document.getElementById('simQuincenas').value) || 8;
+            const cuota = monto > 0 ? monto / q : 0;
+            const comision = monto * 0.10; // 10% de comisión
+
+            const cuotaFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cuota);
+            const comisionFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(comision);
+
+            const simPagoEl = document.getElementById('simPagoQuincenal');
+            const simComEl = document.getElementById('simComisionInfo');
+
+            if (simPagoEl) simPagoEl.innerText = `${cuotaFmt} MXN`;
+            if (simComEl) simComEl.innerText = `Tu comisión estimada: ${comisionFmt} MXN (${q} quincenas)`;
+        }
+
+        // --- SISTEMA DE INACTIVIDAD (10 MINUTOS) ---
+        function reiniciarTemporizadorInactividad() {
+            if (!localStorage.getItem('mvr_promotora_activa')) return;
+            clearTimeout(temporizadorInactividad);
+            temporizadorInactividad = setTimeout(() => {
+                alert("⏱️ Su sesión ha expirado por inactividad (10 minutos). Inicie sesión nuevamente.");
+                cerrarSesion();
+            }, TIEMPO_LIMITE_INACTIVIDAD);
+        }
+
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evento => {
+            window.addEventListener(evento, reiniciarTemporizadorInactividad);
+        });
+
+        function pedirAyudaPassword(event) {
+            event.preventDefault();
+            const numIngresado = document.getElementById('loginNum').value.trim().toUpperCase();
+            const mensaje = encodeURIComponent(`Hola, soy la promotora con ID *${numIngresado || "Desconocido"}* y olvidé mi contraseña. ¿Me ayudan a restablecerla?`);
+            window.open(`https://wa.me/528332854129?text=${mensaje}`, '_blank');
+        }
+
+        async function iniciarSesion(event) {
+            event.preventDefault();
+            const num = document.getElementById('loginNum').value.trim().toUpperCase();
+            const pass = document.getElementById('loginPass').value.trim();
+            
+            document.getElementById('btnAcceso').innerText = "Verificando...";
+            try {
+                let credenciales = await consumirAPI('obtenerPromotoras');
+
+                if (!credenciales || !credenciales[num]) {
+                    alert("ID de promotora no autorizado. Favor de solicitar su cuenta en administración.");
+                } else {
+                    const datosProm = credenciales[num];
+                    const passwordReal = typeof datosProm === 'object' ? datosProm.password : datosProm;
+                    const estadoReal = typeof datosProm === 'object' ? datosProm.estado : "Activa";
+
+                    if (estadoReal === "Bloqueada") {
+                        alert("⚠️ Acceso suspendido por adeudo en cartera vencida. Favor de comunicarse a administración.");
+                    } else if (passwordReal === pass) {
+                        localStorage.setItem('mvr_promotora_activa', num);
+                        activarPortal(num);
+                    } else {
+                        alert("Contraseña incorrecta.");
+                    }
+                }
+            } catch (error) {
+                alert("Hubo un error de conexión al iniciar sesión.");
+            }
+            document.getElementById('btnAcceso').innerText = "🔓 Ingresar al Portal de Vales";
+        }
+
+        function activarPortal(num) {
+            document.getElementById('panelLogin').style.display = 'none';
+            document.getElementById('panelProtegido').style.display = 'block';
+            document.getElementById('numPromotora').value = num;
+            document.getElementById('buscarPromotora').value = num;
+            const headerNom = document.getElementById('nombrePromotoraHeader');
+            if (headerNom) headerNom.innerText = num;
+            reiniciarTemporizadorInactividad(); 
+            buscarCartera(); // Carga automática de métricas y cartera
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('mvr_promotora_activa');
+            clearTimeout(temporizadorInactividad);
+            document.getElementById('panelProtegido').style.display = 'none';
+            document.getElementById('panelLogin').style.display = 'block';
+            document.getElementById('formLogin').reset();
+        }
+
+        async function generarFolio(event) {
+            event.preventDefault();
+            reiniciarTemporizadorInactividad();
+            const btn = document.getElementById('btnGenerarVale');
+            btn.innerText = "Sincronizando Vale...";
+            btn.disabled = true;
+
+            const folio = "MVR-" + Math.floor(10000 + Math.random() * 90000);
+            const promotora = document.getElementById('numPromotora').value.trim().toUpperCase();
+            const sucursal = document.getElementById('sucursalVale').value;
+            const cliente = document.getElementById('nombreCliente').value;
+            const telefono = document.getElementById('telefonoCliente').value.trim();
+            const direccion = document.getElementById('direccionCliente').value;
+            const montoRaw = parseFloat(document.getElementById('montoVale').value) || 0;
+            const quincenas = document.getElementById('quincenasVale').value;
+            const numQ = parseInt(quincenas) || 8;
+            const cuotaQuincenal = montoRaw > 0 ? (montoRaw / numQ) : 0;
+            const cuotaFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cuotaQuincenal);
+            const montoFormateado = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoRaw);
+
+            const nuevoVale = {
+                folio: folio, promotora: promotora, cliente: cliente, telefono: telefono,
+                direccion: direccion, monto: montoRaw, quincenas: quincenas,
+                sucursal: sucursal, fecha: new Date().toLocaleDateString('es-MX')
+            };
+
+            try {
+                await consumirAPI('guardarVale', { vale: nuevoVale });
+
+                const contenedor = document.getElementById('resultadoVale');
+                contenedor.className = "";
+                let logoImg = "dvilla.jpg", logoFallback = "dvilla.png";
+                if (sucursal === "Óptica Ravali") { contenedor.classList.add('tema-ravali'); logoImg = "ravali.jpg"; logoFallback = "ravali.png"; } 
+                else if (sucursal === "Marcel Boutique") { contenedor.classList.add('tema-marcel'); logoImg = "marcel.png"; logoFallback = "mvr.png"; } 
+                else { contenedor.classList.add('tema-dvilla'); }
+
+                const mensajeWsp = encodeURIComponent(`🌟 *HOLA ${cliente.toUpperCase()}, TU VALE DIGITAL HA SIDO AUTORIZADO* 🌟\n\n🏢 *Sucursal:* ${sucursal}\n🎟️ *Folio de Vale:* ${folio}\n💰 *Monto Autorizado:* ${montoFormateado} MXN\n📅 *Plazo:* ${quincenas}\n💳 *Pago Quincenal:* ${cuotaFmt} MXN\n👤 *Promotora Asignada:* ${promotora}\n📅 *Fecha de Emisión:* ${nuevoVale.fecha}\n\nPresenta este folio o código en sucursal para disfrutar de tus lentes, armazones o prendas favoritas. ¡Gracias por tu preferencia con Grupo MVR!`);
+                const urlWsp = `https://api.whatsapp.com/send?phone=52${telefono}&text=${mensajeWsp}`;
+                const urlQrNativo = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(`=== GRUPO MVR: VALE AUTORIZADO ===\nFolio: ${folio}\nSucursal: ${sucursal}\nCliente: ${cliente}\nTel: ${telefono}\nMonto: ${montoFormateado}\nPlazo: ${quincenas}\nPago Q.: ${cuotaFmt}\nPromotora: ${promotora}\nFecha: ${nuevoVale.fecha}`)}`;
+
+                contenedor.innerHTML = `
+                    <img src="${logoImg}" onerror="this.onerror=null; this.src='${logoFallback}';" class="logo-vale-head">
+                    <h2 class="titulo-vale" style="margin: 0; text-transform: uppercase;">${sucursal} - Vale Autorizado</h2>
+                    <div class="folio-box">${folio}</div>
+                    <div style="margin: 1rem auto; display: flex; flex-direction: column; align-items: center;">
+                        <img src="${urlQrNativo}" style="padding: 6px; background: white; border-radius: 6px; border: 2px dashed #002b55;">
+                    </div>
+                    <div style="font-size: 0.95rem; color: #333; line-height: 1.8; text-align: left; background: #fff; padding: 1.2rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 1rem;">
+                        <strong>Cliente:</strong> ${cliente}<br>
+                        <strong>Monto Autorizado:</strong> <span style="font-weight: bold; font-size: 1.1rem; color: #002b55;">${montoFormateado} MXN</span><br>
+                        <strong>Plazo:</strong> ${quincenas} (<strong>${cuotaFmt}</strong> por quincena)<br>
+                        <strong>Promotora:</strong> ${promotora}
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem;">
+                        <a href="${urlWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.8rem 1.2rem; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">💬 Enviar Vale al Cliente por WhatsApp</a>
+                        <button onclick="imprimirElemento('vale')" style="background-color: #002b55; color: white; border: none; padding: 0.8rem 1.4rem; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer;">🖨️ Guardar PDF / Imprimir</button>
+                    </div>`;
+                contenedor.style.display = 'block';
+                contenedor.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('valeForm').reset();
+                buscarCartera(); // Actualizar métricas
+            } catch (error) {
+                alert("Ocurrió un error al guardar el vale en la base de datos.");
+            }
+            btn.innerText = "🎟️ Generar Folio, Ticket y Código QR";
+            btn.disabled = false;
+        }
+
+        async function buscarCartera() {
+            reiniciarTemporizadorInactividad();
+            const btn = document.getElementById('btnConsultarCartera');
+            if (btn) btn.innerText = "Sincronizando...";
+            const busqueda = document.getElementById('buscarPromotora').value.trim().toUpperCase();
+            const cuerpo = document.getElementById('cuerpoTablaCartera');
+            if (cuerpo) cuerpo.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">Cargando registros...</td></tr>`;
+
+            try {
+                let valesGuardados = await consumirAPI('obtenerVales');
+                
+                if (valesGuardados) {
+                    const filtrados = valesGuardados.filter(v => String(v.promotora).toUpperCase().includes(busqueda));
+
+                    let totalVendido = 0;
+                    let clientesSet = new Set();
+
+                    if (filtrados.length === 0) {
+                        cuerpo.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No se encontraron vales registrados para tu ID.</td></tr>`;
+                    } else {
+                        cuerpo.innerHTML = "";
+                        filtrados.forEach(v => {
+                            const esRavali = v.sucursal === "Óptica Ravali";
+                            const esMarcel = v.sucursal === "Marcel Boutique";
+                            const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
+                            const montoNum = parseFloat(v.monto) || 0;
+                            totalVendido += montoNum;
+                            clientesSet.add(v.cliente);
+
+                            const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoNum);
+                            const numQ = parseInt(v.quincenas) || 8;
+                            const cuota = montoNum > 0 ? (montoNum / numQ) : 0;
+                            const cuotaFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cuota);
+
+                            const telLimpo = String(v.telefono || '').replace(/\D/g, '');
+                            
+                            // Lectura Dinámica del Estatus desde la Base de Datos
+                            const estatus = String(v.estatusPago || v.estadoPago || v.estatus || v.estado || 'Al Corriente').trim();
+                            const estatusCanje = String(v.estatusCanje || '').trim();
+                            const estatusLower = estatus.toLowerCase();
+
+                            let badgeStatusHtml = '';
+                            if (estatusLower.includes('vencid') || estatusLower.includes('atras') || estatusLower.includes('mora')) {
+                                badgeStatusHtml = `<span style="background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🔴 ${estatus}</span>`;
+                            } else if (estatusLower.includes('liquid') || estatusLower.includes('pagad')) {
+                                badgeStatusHtml = `<span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🔵 ${estatus}</span>`;
+                            } else if (estatusLower.includes('pendient')) {
+                                badgeStatusHtml = `<span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🟡 ${estatus}</span>`;
+                            } else {
+                                badgeStatusHtml = `<span class="badge-status-corriente">🟢 ${estatus}</span>`;
+                            }
+
+                            if (estatusCanje) {
+                                let colorCanje = estatusCanje.toLowerCase().includes('canjeado') ? '#0059b3' : '#64748b';
+                                badgeStatusHtml += `<br><small style="color: ${colorCanje}; font-weight: 700; font-size: 0.75rem;">🏷️ ${estatusCanje}</small>`;
+                            }
+
+                            let mensajeCobro = '';
+                            if (estatusLower.includes('vencid') || estatusLower.includes('atras') || estatusLower.includes('mora')) {
+                                mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe informamos cordialmente que tu cuenta correspondiente al vale *${v.folio}* presenta un estatus de *${estatus}* con un pago quincenal pendiente de *${cuotaFmt} MXN*.\n\nPor favor comunícate a la brevedad con tu promotora (${v.promotora}) para regularizar tu saldo y mantener tu crédito activo. ¡Muchas gracias!`);
+                            } else {
+                                mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe recordamos cordialmente que tu pago quincenal correspondiente al vale *${v.folio}* por un monto de *${cuotaFmt} MXN* vence en esta quincena.\n\n¡Agradecemos mucho tu puntualidad y preferencia! ✨`);
+                            }
+
+                            const linkCobroWsp = `https://api.whatsapp.com/send?phone=52${telLimpo}&text=${mensajeCobro}`;
+
+                            cuerpo.innerHTML += `
+                                <tr class="${esRavali ? 'row-ravali' : (esMarcel ? 'row-marcel' : 'row-dvilla')}">
+                                    <td><strong>${v.folio}</strong></td>
+                                    <td>${v.cliente}<br><small style="color: #666;">📞 ${v.telefono || 'Sin tel.'}</small></td>
+                                    <td style="font-weight: bold; color: #002b55;">${montoF}</td>
+                                    <td>${v.quincenas}<br><small style="color: #28a745; font-weight: bold;">${cuotaFmt} / Q</small></td>
+                                    <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
+                                    <td>${badgeStatusHtml}</td>
+                                    <td style="text-align: center;">
+                                        ${telLimpo.length >= 10 ? `
+                                            <a href="${linkCobroWsp}" target="_blank" class="btn-wsp-recordatorio" title="Enviar recordatorio cordial de pago">
+                                                🔔 Recordar Pago
+                                            </a>` : `<small style="color: #999;">Sin WhatsApp</small>`}
+                                    </td>
+                                </tr>`;
+                        });
+                    }
+
+                    // Actualizar KPIs
+                    const comisionEstimada = totalVendido * 0.10;
+                    document.getElementById('kpiMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(totalVendido);
+                    document.getElementById('kpiComisionEstimada').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(comisionEstimada);
+                    document.getElementById('kpiTotalVales').innerText = filtrados.length;
+                    document.getElementById('kpiClientesActivos').innerText = clientesSet.size;
+
+                    document.getElementById('tablaCarteraResultado').style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Error al cargar cartera", error);
+            }
+            if (btn) btn.innerText = "🔄 Actualizar Cartera";
+        }
+
+        function imprimirElemento(tipo) {
+            reiniciarTemporizadorInactividad();
+            document.body.classList.remove('imprimiendo-vale', 'imprimiendo-cartera');
+            if (tipo === 'vale') document.body.classList.add('imprimiendo-vale');
+            else if (tipo === 'cartera') document.body.classList.add('imprimiendo-cartera');
+            window.print();
+        }
+    </script>
+</body>
+</html>

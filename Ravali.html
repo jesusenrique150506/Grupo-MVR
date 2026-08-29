@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo MVR | Óptica Ravali</title>
+    <link rel="stylesheet" href="CSS/opticas-styles.css">
+</head>
+<body class="pagina-ravali">
+
+    <!-- ENCABEZADO EXCLUSIVO RAVALI (ROJO) -->
+    <header class="main-header" style="background-color: #a80f14;">
+        <div class="logo">
+            <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <img src="ravali.jpg" onerror="this.onerror=null; this.src='ravali.png';" alt="Logo Óptica Ravali" style="height: 45px; width: auto; object-fit: contain; border-radius: 4px; background: white; padding: 2px;">
+                <h1 style="margin: 0; font-size: 1.5rem; color: white;">Óptica Ravali</h1>
+            </a>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="D´villa.html">Óptica D'villa</a></li>
+                <li><a href="Ravali.html" class="active">Óptica Ravali</a></li>
+                <li><a href="Marcel.html">Marcel Boutique</a></li>
+                <li><a href="Promotoras.html">Promotoras / Vales</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- BANNER DE BIENVENIDA RAVALI CON LOGO DE FONDO -->
+    <section class="hero" style="background-color: #fff5f5; background-image: linear-gradient(rgba(255, 245, 245, 0.92), rgba(255, 245, 245, 0.92)), url('ravali.jpg'); background-size: cover; background-position: center; text-align: center; padding: 3rem 1rem; position: relative;">
+        <h2 style="color: #a80f14; font-size: 2rem; margin-bottom: 0.5rem; position: relative; z-index: 2;">Estilo y Vanguardia en Óptica Ravali</h2>
+        <p style="font-style: italic; color: #555; margin-bottom: 0.5rem; position: relative; z-index: 2;">"Moda, diseño y máxima protección visual para ti"</p>
+        <p style="color: #444; max-width: 600px; margin: 0 auto 1.5rem auto; position: relative; z-index: 2;">Encuentra las últimas tendencias en armazones de diseño exclusivo y tecnología óptica avanzada.</p>
+        <a href="https://maps.google.com/?q=Optica+Ravali" target="_blank" class="btn" style="background-color: #a80f14; color: white; padding: 0.8rem 1.4rem; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; position: relative; z-index: 2;">
+            📍 Cómo llegar a Sucursal Ravali
+        </a>
+    </section>
+
+    <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE -->
+    <div id="contenedorPromosCliente" style="max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;"></div>
+
+    <!-- BARRA DE BÚSQUEDA Y FILTROS -->
+    <div class="filtros-container">
+        <input type="text" id="inputBuscador" class="buscador-input" placeholder="🔍 Buscar por nombre o ID de producto..." oninput="filtrarProductos()">
+        <div class="filtro-btns">
+            <button class="btn-filtro activo" onclick="cambiarFiltro('todos', this)">Todos</button>
+            <button class="btn-filtro" onclick="cambiarFiltro('disponible', this)">Disponibles</button>
+        </div>
+    </div>
+
+    <!-- CATÁLOGO DINÁMICO DE PRODUCTOS RAVALI DESDE LA NUBE -->
+    <main>
+        <section id="contenedorCatalogoRavali" class="grid-productos">
+            <p style="grid-column: 1 / -1; text-align: center; color: #666; padding: 2rem;">Cargando catálogo desde la nube...</p>
+        </section>
+    </main>
+
+    <!-- VENTANA EMERGENTE (MODAL) DE PROMOCIONES Y PAGOS -->
+    <div id="modalPagos" class="modal-overlay">
+        <div class="modal-content">
+            <span class="cerrar-modal" onclick="cerrarModal()">&times;</span>
+            <h3 id="modalTitulo" style="color: #a80f14; margin-top: 0; font-size: 1.4rem;">Nombre del Producto</h3>
+            
+            <div class="promo-box">
+                <strong>🎁 Promoción del Mes:</strong><br>
+                En tu compra llévate estuche rígido, paño de microfibra premium y solución limpiadora ¡Totalmente Gratis!
+            </div>
+
+            <p style="color: #555; margin-bottom: 0.5rem; font-size: 0.95rem;">Selecciona el plazo de tu vale que mejor se adapte a ti:</p>
+            
+            <table class="tabla-quincenas">
+                <thead>
+                    <tr>
+                        <th>Plazo</th>
+                        <th>Pago por Quincena</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoQuincenas">
+                    <!-- Los pagos se calculan e insertan aquí por Javascript -->
+                </tbody>
+            </table>
+
+            <a href="Promotoras.html" class="btn" style="background-color: #a80f14; color: white; display: block; padding: 1rem; text-align: center; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                🎟️ Solicitar Vale con mi Promotora
+            </a>
+        </div>
+    </div>
+
+    <!-- BOTÓN Y MODAL FLOTANTE DEL CARRITO GLOBAL -->
+    <div id="btnFlotanteCarrito" class="btn-flotante-carrito" onclick="abrirCarritoGlobal()">
+        🛒 Carrito <span id="contadorCarrito" class="contador-carrito">0</span>
+    </div>
+
+    <div id="modalCarritoGlobal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="cerrar-modal" onclick="cerrarCarritoGlobal()">&times;</span>
+            <h3 style="color: var(--color-primary); margin-top: 0; font-size: 1.4rem;">🛍️ Tu Carrito Global MVR</h3>
+            
+            <div id="listaProductosCarrito" style="margin: 1rem 0; max-height: 250px; overflow-y: auto; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
+                <!-- Productos del carrito -->
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: var(--color-primary); margin-bottom: 1.5rem;">
+                <span>Total a Pagar:</span>
+                <span id="totalCarritoMxn" style="color: var(--color-primary);">$0.00 MXN</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-secondary" onclick="enviarPedidoWhatsApp()" style="font-size: 1rem; width: 100%;">
+                    💬 Enviar Pedido por WhatsApp
+                </button>
+                <button class="btn" onclick="vaciarCarrito()" style="background-color: #a80f14; color: white; font-size: 0.9rem; width: 100%;">
+                    🗑️ Vaciar Carrito
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA RAVALI -->
+    <footer style="background-color: #a80f14; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
+        <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Óptica Ravali (Grupo MVR). Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- SCRIPT CENTRALIZADO Y LÓGICA DE RAVALI -->
+    <script src="js/api.js"></script>
+    <script>
+        let listaGlobalProductos = [];
+        let filtroActual = 'todos';
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const contenedorCatalogo = document.getElementById('contenedorCatalogoRavali');
+            if (contenedorCatalogo) {
+                contenedorCatalogo.innerHTML = generarSkeletonCards(6);
+            }
+
+            // 1. CARGAR PROMOCIONES DINÁMICAS USANDO EL MÓDULO CENTRALIZADO
+            const contenedorPromos = document.getElementById('contenedorPromosCliente');
+            if (contenedorPromos) {
+                try {
+                    let promos = await consumirAPI('obtenerPromociones');
+                    if (promos) {
+                        let promosActivas = promos.filter(p => {
+                            if (p.estado !== "Activa") return false;
+                            let suc = String(p.sucursal).trim().toLowerCase();
+                            return suc.includes("ravali") || suc.includes("general") || suc.includes("todas");
+                        });
+                        if (promosActivas.length > 0) {
+                            let htmlPromos = "";
+                            promosActivas.forEach(p => {
+                                htmlPromos += `
+                                    <div style="background: linear-gradient(135deg, #a80f14, #d32f2f); color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); text-align: center;">
+                                        <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">¡Promoción Especial!</span>
+                                        <h3 style="margin: 8px 0 5px 0; font-size: 1.3rem; color: #ffffff;">${p.titulo}</h3>
+                                        <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
+                                    </div>`;
+                            });
+                            contenedorPromos.innerHTML = htmlPromos;
+                        }
+                    }
+                } catch (error) { console.error("Error al cargar promociones", error); }
+            }
+
+            // 2. CARGAR INVENTARIO DINÁMICO DESDE LA NUBE USANDO EL MÓDULO CENTRALIZADO
+            try {
+                let inventario = await consumirAPI('obtenerInventario');
+                if (inventario) {
+                    let ids = Object.keys(inventario);
+
+                    listaGlobalProductos = [];
+                    ids.forEach(id => {
+                        let p = inventario[id];
+                        let sucRemota = String(p.sucursal).trim().toLowerCase();
+                        if (sucRemota.includes("ravali")) {
+                            listaGlobalProductos.push({ id: id, ...p });
+                        }
+                    });
+
+                    renderizarCatalogo(listaGlobalProductos);
+                }
+            } catch (error) {
+                console.error("Error al cargar inventario", error);
+                if (contenedorCatalogo) {
+                    contenedorCatalogo.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #d32f2f; padding: 2rem;">Error al conectar con la nube. Por favor intenta recargar.</p>`;
+                }
+            }
+
+            actualizarContadorCarrito();
+        });
+
+        function renderizarCatalogo(productos) {
+            let contenedorCatalogo = document.getElementById('contenedorCatalogoRavali');
+            if (!contenedorCatalogo) return;
+
+            contenedorCatalogo.innerHTML = "";
+            if (productos.length === 0) {
+                contenedorCatalogo.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #777; padding: 2rem;">No se encontraron productos en Óptica Ravali.</p>`;
+                return;
+            }
+
+            // Ordenamiento Inteligente: Primero disponibles, agotados al final
+            let productosOrdenados = [...productos].sort((a, b) => {
+                let stockA = (parseInt(a.stock) || 0) > 0 ? 1 : 0;
+                let stockB = (parseInt(b.stock) || 0) > 0 ? 1 : 0;
+                return stockB - stockA;
+            });
+
+            productosOrdenados.forEach(p => {
+                let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.precio || 0);
+                let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'ravali.jpg';
+                let stock = parseInt(p.stock) || 0;
+                let botonHtml = '';
+                let badgeStockHtml = '';
+                let ribbonHtml = '';
+                let claseAgotado = '';
+
+                if (stock <= 0) {
+                    claseAgotado = 'producto-agotado';
+                    ribbonHtml = `<div class="ribbon-agotado">🏷️ Agotado · Próximo Resurtido</div>`;
+                    badgeStockHtml = `<span class="badge-stock-agotado">🔴 Agotado</span>`;
+                    botonHtml = `
+                        <button type="button" class="btn-solicitar-resurtido" onclick="solicitarResurtidoWhatsApp('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', 'Óptica Ravali')">
+                            📲 Solicitar Resurtido / Apartar
+                        </button>
+                    `;
+                } else {
+                    if (stock <= 2) {
+                        badgeStockHtml = `<span class="badge-stock-bajo">🟠 ¡Últimas ${stock} pzas!</span>`;
+                    } else {
+                        badgeStockHtml = `<span class="badge-stock-disponible">🟢 Disponible (${stock} pzas)</span>`;
+                    }
+
+                    botonHtml = `
+                        <button class="btn btn-secondary" onclick="abrirModalPagos('${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio})">💳 Ver Quincenas y Promos</button>
+                        <button class="btn btn-primary" onclick="agregarAlCarrito('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Óptica Ravali', '${imgSrc}')">🛒 Agregar al Carrito</button>
+                    `;
+                }
+
+                contenedorCatalogo.innerHTML += `
+                    <div class="card-producto ${claseAgotado}">
+                        <div>
+                            <div class="img-container">
+                                ${ribbonHtml}
+                                <img src="${imgSrc}" alt="${p.nombre}" onerror="this.src='ravali.jpg';">
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <span style="font-size: 0.8rem; color: #888; font-weight: 700;">ID: ${p.id}</span>
+                                ${badgeStockHtml}
+                            </div>
+                            <h3>${p.nombre}</h3>
+                            <p>Línea de moda, armazones juveniles y vanguardia visual en Óptica Ravali.</p>
+                        </div>
+                        <div>
+                            <div class="precio">${precioFmt}</div>
+                            <div class="botones-card">${botonHtml}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function filtrarProductos() {
+            let texto = document.getElementById('inputBuscador').value.toLowerCase().trim();
+            
+            let filtrados = listaGlobalProductos.filter(p => {
+                let coincideTexto = p.nombre.toLowerCase().includes(texto) || p.id.toLowerCase().includes(texto);
+                let coincideFiltro = true;
+                if (filtroActual === 'disponible') {
+                    coincideFiltro = (parseInt(p.stock) || 0) > 0;
+                }
+                return coincideTexto && coincideFiltro;
+            });
+
+            renderizarCatalogo(filtrados);
+        }
+
+        function cambiarFiltro(tipo, btn) {
+            filtroActual = tipo;
+            document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('activo'));
+            btn.classList.add('activo');
+            filtrarProductos();
+        }
+
+        // --- LÓGICA DEL MODAL DE PAGOS ---
+        function abrirModalPagos(nombreProducto, precioTotal) {
+            document.getElementById('modalTitulo').innerText = nombreProducto;
+            const quincenas = [2, 4, 6, 8, 10, 12];
+            const cuerpoTabla = document.getElementById('cuerpoQuincenas');
+            cuerpoTabla.innerHTML = ''; 
+
+            quincenas.forEach(q => {
+                const pagoCalculado = (precioTotal / q).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+                const claseFila = (q === 8) ? 'fila-destacada' : '';
+                const textoPlazo = (q === 8) ? `${q} Quincenas ⭐` : `${q} Quincenas`;
+                cuerpoTabla.innerHTML += `<tr class="${claseFila}"><td>${textoPlazo}</td><td style="font-weight: bold;">${pagoCalculado}</td></tr>`;
+            });
+            document.getElementById('modalPagos').style.display = 'flex';
+        }
+
+        function cerrarModal() { 
+            document.getElementById('modalPagos').style.display = 'none'; 
+        }
+
+        window.onclick = function(event) {
+            const modalPagos = document.getElementById('modalPagos');
+            const modalCarrito = document.getElementById('modalCarritoGlobal');
+            if (event.target === modalPagos) modalPagos.style.display = 'none';
+            if (event.target === modalCarrito) modalCarrito.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
