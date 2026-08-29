@@ -417,7 +417,232 @@ function solicitarResurtidoWhatsApp(id, nombre, sucursal, talla = null) {
     window.open(`https://wa.me/528332854129?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 
-// Inicializar el contador al cargar la página si existe
+/* --------------------------------------------------------------------------
+   6. MODO OSCURO / DARK MODE LUXURY
+   -------------------------------------------------------------------------- */
+function inicializarTema() {
+    const temaGuardado = localStorage.getItem('mvr_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', temaGuardado);
+    actualizarBotonesTema(temaGuardado);
+}
+
+function toggleModoOscuro() {
+    const temaActual = document.documentElement.getAttribute('data-theme') || 'light';
+    const nuevoTema = temaActual === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nuevoTema);
+    localStorage.setItem('mvr_theme', nuevoTema);
+    actualizarBotonesTema(nuevoTema);
+    mostrarToast(
+        nuevoTema === 'dark' ? 'Modo Oscuro Activado 🌙' : 'Modo Claro Activado ☀️',
+        'Tu preferencia de visualización ha sido guardada.',
+        '',
+        'Entendido'
+    );
+}
+
+function actualizarBotonesTema(tema) {
+    document.querySelectorAll('.btn-theme-toggle').forEach(btn => {
+        btn.innerHTML = tema === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+    });
+}
+
+/* --------------------------------------------------------------------------
+   7. SPEED DIAL FLOTANTE MULTICANAL DE WHATSAPP
+   -------------------------------------------------------------------------- */
+function toggleSpeedDial() {
+    const menu = document.getElementById('mvrSpeedDialMenu');
+    const mainBtn = document.getElementById('mvrSpeedDialBtn');
+    if (!menu) return;
+    const estaAbierto = menu.classList.toggle('abierto');
+    if (mainBtn) {
+        mainBtn.innerHTML = estaAbierto ? '✕' : '💬';
+        mainBtn.style.transform = estaAbierto ? 'rotate(90deg)' : 'rotate(0deg)';
+    }
+}
+
+/* --------------------------------------------------------------------------
+   8. MODAL DE VISTA RÁPIDA / ZOOM DE PRODUCTO (QUICK VIEW)
+   -------------------------------------------------------------------------- */
+function abrirVistaRapidaProducto(id, nombre, precio, sucursal, imagen, stock = 1, tallas = null) {
+    let modal = document.getElementById('modalQuickViewMVR');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modalQuickViewMVR';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+
+    const precioNum = parseFloat(precio) || 0;
+    const precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(precioNum);
+    const quincena8 = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(precioNum / 8);
+    const agotado = parseInt(stock) <= 0;
+
+    let tallasArray = [];
+    if (tallas) {
+        tallasArray = typeof tallas === 'string' ? tallas.split(',').map(t => t.trim()).filter(Boolean) : (Array.isArray(tallas) ? tallas : []);
+    }
+
+    let tallasHtml = '';
+    if (tallasArray.length > 0) {
+        tallasHtml = `
+            <div style="margin: 1rem 0;">
+                <label style="font-weight: 700; font-size: 0.88rem; display: block; margin-bottom: 6px;">Selecciona tu Talla:</label>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="quickViewTallasGroup">
+                    ${tallasArray.map((t, idx) => `
+                        <button type="button" class="btn-talla ${idx === 0 ? 'activo' : ''}" onclick="seleccionarTallaQuickView('${t}', this)">${t}</button>
+                    `).join('')}
+                </div>
+            </div>`;
+    }
+
+    modal.innerHTML = `
+        <div class="modal-content modal-quick-view-card">
+            <button class="close-btn" onclick="cerrarVistaRapida()">×</button>
+            <div class="quick-view-img-box">
+                <img src="${imagen}" onerror="this.onerror=null; this.src='mvr.png';" alt="${nombre}">
+                ${agotado ? '<div class="ribbon-agotado">🏷️ AGOTADO</div>' : ''}
+            </div>
+            <div>
+                <span class="badge-optica ${sucursal.includes('Ravali') ? 'badge-ravali' : (sucursal.includes('Marcel') ? 'badge-marcel' : 'badge-dvilla')}">${sucursal}</span>
+                <h2 style="color: var(--color-primary); margin: 0.5rem 0; font-size: 1.45rem;">${nombre}</h2>
+                <div style="font-size: 1.6rem; font-weight: 900; color: var(--color-primary); margin-bottom: 0.4rem;">${precioFmt} MXN</div>
+                
+                <div style="background: var(--color-primary-light); color: var(--color-primary); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 700; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 6px;">
+                    💳 8 quincenas de ${quincena8} con Vale
+                </div>
+
+                <p style="color: var(--color-text-muted); font-size: 0.9rem; line-height: 1.5; margin: 0.5rem 0;">
+                    Calidad garantizada, diseño exclusivo y la mejor comodidad para tu visión y estilo en Grupo MVR.
+                </p>
+
+                ${tallasHtml}
+
+                <div style="margin-top: 1.5rem; display: flex; gap: 10px; flex-wrap: wrap;">
+                    ${agotado ? `
+                        <button onclick="cerrarVistaRapida(); solicitarResurtidoWhatsApp('${id}', '${String(nombre).replace(/'/g, "")}', '${sucursal}', window.quickViewTallaSeleccionada || '${tallasArray[0] || ''}')" class="btn-solicitar-resurtido" style="flex: 1;">
+                            📲 Solicitar Resurtido / Apartar
+                        </button>
+                    ` : `
+                        <button onclick="cerrarVistaRapida(); agregarAlCarritoGlobal('${id}', '${String(nombre).replace(/'/g, "")}', ${precioNum}, '${sucursal}', '${imagen}', window.quickViewTallaSeleccionada || '${tallasArray[0] || ''}')" class="btn btn-shimmer-shine" style="flex: 1; padding: 0.85rem; font-weight: 800; border-radius: var(--radius-sm);">
+                            🛍️ Agregar al Carrito
+                        </button>
+                    `}
+                </div>
+            </div>
+        </div>`;
+
+    window.quickViewTallaSeleccionada = tallasArray[0] || null;
+    modal.classList.add('mostrar');
+}
+
+function seleccionarTallaQuickView(talla, btn) {
+    window.quickViewTallaSeleccionada = talla;
+    const grupo = document.getElementById('quickViewTallasGroup');
+    if (grupo) {
+        grupo.querySelectorAll('.btn-talla').forEach(b => b.classList.remove('activo'));
+    }
+    btn.classList.add('activo');
+}
+
+function cerrarVistaRapida() {
+    const modal = document.getElementById('modalQuickViewMVR');
+    if (modal) modal.classList.remove('mostrar');
+}
+
+/* --------------------------------------------------------------------------
+   9. INYECCIÓN AUTOMÁTICA DE COMPONENTES MODERNOS
+   -------------------------------------------------------------------------- */
+function inyectarComponentesModernos() {
+    // 1. Marquesina Infinita Superior (Ticker Tape)
+    if (!document.getElementById('mvrTickerTape')) {
+        const ticker = document.createElement('div');
+        ticker.id = 'mvrTickerTape';
+        ticker.className = 'ticker-tape-wrapper';
+        ticker.innerHTML = `
+            <div class="ticker-tape-track">
+                <span class="ticker-item"><span class="ticker-bullet">✦</span> Paga hasta en 12 quincenas con tus Vales de Promotora</span>
+                <span class="ticker-item"><span class="ticker-bullet">✦</span> 🚚 Entregas a Domicilio y en Sucursales</span>
+                <span class="ticker-item"><span class="ticker-bullet">✦</span> 👓 Examen de la vista gratis en Ópticas D'villa y Ravali</span>
+                <span class="ticker-item"><span class="ticker-bullet">✦</span> 👗 Moda y Calzado Exclusivo en Marcel Boutique</span>
+                <span class="ticker-item"><span class="ticker-bullet">✦</span> 💳 Aceptamos Vales, Efectivo y Transferencias</span>
+                <span class="ticker-item"><span class="ticker-bullet">✦</span> Paga hasta en 12 quincenas con tus Vales de Promotora</span>
+                <span class="ticker-item"><span class="ticker-bullet">✦</span> 🚚 Entregas a Domicilio y en Sucursales</span>
+                <span class="ticker-item"><span class="ticker-bullet">✦</span> 👓 Examen de la vista gratis en Ópticas D'villa y Ravali</span>
+                <span class="ticker-item"><span class="ticker-bullet">✦</span> 👗 Moda y Calzado Exclusivo en Marcel Boutique</span>
+                <span class="ticker-item"><span class="ticker-bullet">✦</span> 💳 Aceptamos Vales, Efectivo y Transferencias</span>
+            </div>`;
+        document.body.insertAdjacentElement('afterbegin', ticker);
+    }
+
+    // 2. Speed Dial Multicanal de WhatsApp
+    if (!document.getElementById('mvrSpeedDial')) {
+        const speedDial = document.createElement('div');
+        speedDial.id = 'mvrSpeedDial';
+        speedDial.className = 'speed-dial-container';
+        speedDial.innerHTML = `
+            <div class="speed-dial-menu" id="mvrSpeedDialMenu">
+                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Óptica D'villa, me gustaría recibir atención y cotización personalizada.")}" target="_blank" class="speed-dial-item">
+                    <span class="speed-dial-dot" style="background: #0059b3;"></span> Óptica D'villa 👓
+                </a>
+                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Óptica Ravali, me gustaría recibir informes sobre armazones y micas.")}" target="_blank" class="speed-dial-item">
+                    <span class="speed-dial-dot" style="background: #a80f14;"></span> Óptica Ravali 🕶️
+                </a>
+                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Marcel Boutique, me gustaría información sobre prendas y tallas disponibles.")}" target="_blank" class="speed-dial-item">
+                    <span class="speed-dial-dot" style="background: #880e4f;"></span> Marcel Boutique 👗
+                </a>
+                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Grupo MVR, solicito información sobre Vales y Crédito para Promotoras.")}" target="_blank" class="speed-dial-item">
+                    <span class="speed-dial-dot" style="background: #ff8c00;"></span> Vales y Promotoras 🎟️
+                </a>
+            </div>
+            <button class="speed-dial-main-btn" id="mvrSpeedDialBtn" onclick="toggleSpeedDial()" title="Atención por WhatsApp">
+                💬
+            </button>`;
+        document.body.appendChild(speedDial);
+    }
+
+    // 3. Barra Móvil Inferior (Sticky Bottom Nav Bar)
+    if (!document.getElementById('mvrMobileBottomNav')) {
+        const pathname = window.location.pathname.toLowerCase();
+        const esIndex = pathname.includes('index') || pathname.endsWith('/') || pathname.endsWith('grupomvr');
+        const esDvilla = pathname.includes('d%c2%b4villa') || pathname.includes('dvilla');
+        const esRavali = pathname.includes('ravali');
+        const esMarcel = pathname.includes('marcel');
+
+        const nav = document.createElement('nav');
+        nav.id = 'mvrMobileBottomNav';
+        nav.className = 'mobile-bottom-nav';
+        nav.innerHTML = `
+            <a href="index.html" class="bottom-nav-item ${esIndex ? 'activo' : ''}">
+                <span class="bottom-nav-icon">🏠</span> Inicio
+            </a>
+            <a href="D´villa.html" class="bottom-nav-item ${esDvilla ? 'activo' : ''}">
+                <span class="bottom-nav-icon">👓</span> D'villa
+            </a>
+            <a href="Ravali.html" class="bottom-nav-item ${esRavali ? 'activo' : ''}">
+                <span class="bottom-nav-icon">🕶️</span> Ravali
+            </a>
+            <a href="Marcel.html" class="bottom-nav-item ${esMarcel ? 'activo' : ''}">
+                <span class="bottom-nav-icon">👗</span> Marcel
+            </a>
+            <a href="javascript:void(0)" onclick="abrirCarritoGlobal()" class="bottom-nav-item">
+                <span class="bottom-nav-icon">🛍️</span> Carrito
+            </a>`;
+        document.body.appendChild(nav);
+    }
+
+    // 4. Agregar Botón de Modo Oscuro al Header si existe
+    const navUl = document.querySelector('.main-nav ul');
+    if (navUl && !document.getElementById('navThemeToggle')) {
+        const li = document.createElement('li');
+        li.id = 'navThemeToggle';
+        li.innerHTML = `<button onclick="toggleModoOscuro()" class="btn-theme-toggle" title="Cambiar tema claro/oscuro">🌙 Modo Oscuro</button>`;
+        navUl.appendChild(li);
+    }
+}
+
+// Inicializar el contador y tema al cargar la página
 window.addEventListener('DOMContentLoaded', () => {
+    inicializarTema();
+    inyectarComponentesModernos();
     actualizarContadorCarrito();
 });

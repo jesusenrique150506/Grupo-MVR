@@ -94,6 +94,79 @@
 }
 
 /* --------------------------------------------------------------------------
+   MODO OSCURO / DARK MODE LUXURY
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] {
+    --color-bg-app: #080e1e;
+    --color-bg-card: #0f1935;
+    --color-bg-subtle: #0b1329;
+    --color-text-main: #f8fafc;
+    --color-text-muted: #94a3b8;
+    --color-text-light: #64748b;
+    --color-border: #1e294b;
+    --color-border-subtle: #172342;
+    --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] body {
+    background-color: var(--color-bg-app);
+    color: var(--color-text-main);
+}
+
+[data-theme="dark"] .main-header {
+    background-color: #050a17 !important;
+    border-bottom: 1px solid #1e294b;
+}
+
+[data-theme="dark"] .hero {
+    background-color: #0b1329 !important;
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .card-producto, 
+[data-theme="dark"] .card-sucursal,
+[data-theme="dark"] .form-container,
+[data-theme="dark"] .cartera-container,
+[data-theme="dark"] .card-resumen,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .kpi-card-promotora,
+[data-theme="dark"] .search-toolbar-box {
+    background-color: var(--color-bg-card) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-text-main) !important;
+}
+
+[data-theme="dark"] .tabla-admin,
+[data-theme="dark"] .tabla-cartera,
+[data-theme="dark"] .tabla-quincenas {
+    background-color: var(--color-bg-card) !important;
+    color: var(--color-text-main) !important;
+}
+
+[data-theme="dark"] .tabla-admin th,
+[data-theme="dark"] .tabla-cartera th,
+[data-theme="dark"] .tabla-quincenas th {
+    background-color: #050a17 !important;
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .tabla-admin td,
+[data-theme="dark"] .tabla-cartera td,
+[data-theme="dark"] .tabla-quincenas td {
+    border-color: #1e294b !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background-color: #0b1329 !important;
+    color: #f8fafc !important;
+    border-color: #1e294b !important;
+}
+
+/* --------------------------------------------------------------------------
    2. TEMATIZACIÓN MODULAR POR SUCURSAL
    -------------------------------------------------------------------------- */
 /* Óptica D'villa */
@@ -1850,6 +1923,717 @@ footer p {
     background: #1eb956;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(37, 211, 102, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   21. PANELES DE LOGIN MODERNOS CON GLASSMORPHISM Y ANIMACIONES
+   -------------------------------------------------------------------------- */
+@keyframes ambientFloat {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(3deg); }
+}
+
+@keyframes loginCardEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.96);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+@keyframes spinnerRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.login-modern-wrapper {
+    min-height: calc(100vh - 220px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Luces ambientales de fondo */
+.login-ambient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.28;
+    z-index: 0;
+    pointer-events: none;
+    animation: ambientFloat 8s infinite ease-in-out;
+}
+
+.orb-promotora-1 {
+    width: 320px;
+    height: 320px;
+    background: #0059b3;
+    top: 10%;
+    left: 15%;
+}
+
+.orb-promotora-2 {
+    width: 280px;
+    height: 280px;
+    background: #002b55;
+    bottom: 10%;
+    right: 15%;
+    animation-delay: -4s;
+}
+
+.orb-admin-1 {
+    width: 340px;
+    height: 340px;
+    background: #ff8c00;
+    top: 8%;
+    right: 12%;
+}
+
+.orb-admin-2 {
+    width: 300px;
+    height: 300px;
+    background: #002b55;
+    bottom: 8%;
+    left: 12%;
+    animation-delay: -3.5s;
+}
+
+/* Tarjeta Glassmorphism */
+.login-glass-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 43, 85, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04);
+    animation: loginCardEntrance 0.6s var(--ease-spring);
+    transition: transform var(--duration-normal) var(--ease-spring), box-shadow var(--duration-normal);
+}
+
+.login-glass-card.shake-card {
+    animation: errorShake 0.45s ease-in-out;
+}
+
+.badge-login-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eff6ff;
+    color: #0059b3;
+    border: 1px solid #bfdbfe;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.8rem;
+}
+
+.badge-login-header.badge-admin {
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: #fed7aa;
+}
+
+.login-avatar-icon {
+    width: 58px;
+    height: 58px;
+    background: linear-gradient(135deg, #002b55, #0059b3);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 1rem auto;
+    box-shadow: 0 8px 18px rgba(0, 89, 179, 0.3);
+}
+
+.login-avatar-icon.avatar-admin {
+    background: linear-gradient(135deg, #002b55, #ff8c00);
+    box-shadow: 0 8px 18px rgba(255, 140, 0, 0.3);
+}
+
+/* Inputs con Iconos y Botón Mostrar Contraseña */
+.input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top: 0.35rem;
+}
+
+.input-lead-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 1.1rem;
+    color: #64748b;
+    pointer-events: none;
+    transition: color var(--duration-fast);
+}
+
+.input-modern {
+    width: 100%;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    background: #ffffff;
+    box-sizing: border-box;
+    transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.input-modern.input-pass {
+    padding-right: 3rem;
+}
+
+.input-modern:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(0, 89, 179, 0.12);
+    outline: none;
+}
+
+.input-modern:focus + .input-lead-icon,
+.input-icon-wrapper:focus-within .input-lead-icon {
+    color: var(--color-primary);
+}
+
+.btn-toggle-eye {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.15rem;
+    color: #64748b;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: transform var(--duration-fast) var(--ease-spring), color var(--duration-fast);
+}
+
+.btn-toggle-eye:hover {
+    color: var(--color-primary);
+    transform: scale(1.15);
+}
+
+/* Botón Moderno de Login */
+.btn-login-submit {
+    width: 100%;
+    background: linear-gradient(135deg, #002b55, #0059b3);
+    color: #ffffff;
+    border: none;
+    padding: 0.95rem;
+    font-size: 1.05rem;
+    font-weight: 800;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-top: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(0, 89, 179, 0.35);
+    transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.btn-login-submit.btn-admin {
+    background: linear-gradient(135deg, #002b55, #ff8c00);
+    box-shadow: 0 4px 14px rgba(255, 140, 0, 0.35);
+}
+
+.btn-login-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 89, 179, 0.45);
+}
+
+.btn-login-submit:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.spinner-icon {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spinnerRotate 0.75s linear infinite;
+    display: inline-block;
+}
+
+/* Alerta de Error dentro de la Tarjeta */
+.login-error-alert {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    animation: pageFadeIn 0.3s ease;
+}
+
+.login-footer-links {
+    margin-top: 1.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.login-footer-links a {
+    color: #0059b3;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color var(--duration-fast);
+}
+
+.login-footer-links a:hover {
+    text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   22. MARQUESINA INFINITA DE ANUNCIOS (TICKER TAPE)
+   -------------------------------------------------------------------------- */
+.ticker-tape-wrapper {
+    background: linear-gradient(90deg, #001a35, #002b55, #0059b3, #001a35);
+    background-size: 200% 100%;
+    color: #ffffff;
+    padding: 7px 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ticker-tape-track {
+    display: inline-flex;
+    gap: 2rem;
+    animation: tickerSlide 40s linear infinite;
+}
+
+.ticker-tape-track:hover {
+    animation-play-state: paused;
+}
+
+@keyframes tickerSlide {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ticker-bullet {
+    color: #ff8c00;
+    font-size: 0.9rem;
+}
+
+/* --------------------------------------------------------------------------
+   23. HERO INMERSIVO Y BOTONES CON SHIMMER SHINE
+   -------------------------------------------------------------------------- */
+.hero-luxury-wrapper {
+    background: linear-gradient(135deg, rgba(0, 43, 85, 0.92), rgba(0, 89, 179, 0.82)), url('mvr.jpg') center/cover no-repeat;
+    color: #ffffff;
+    padding: clamp(3rem, 6vw, 5.5rem) 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 43, 85, 0.15);
+}
+
+.badge-hero-pulsing {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: pageFadeIn 0.5s ease;
+}
+
+.btn-shimmer-shine {
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--duration-fast) var(--ease-spring), box-shadow var(--duration-fast);
+}
+
+.btn-shimmer-shine::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 40%;
+    height: 200%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.35) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    transition: none;
+}
+
+.btn-shimmer-shine:hover::after {
+    left: 130%;
+    transition: all 0.75s ease-in-out;
+}
+
+/* --------------------------------------------------------------------------
+   24. SEARCH TOOLBAR CON CHIPS Y CONTADOR EN VIVO
+   -------------------------------------------------------------------------- */
+.search-toolbar-box {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+    transition: all var(--duration-normal);
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.search-input-icon {
+    position: absolute;
+    left: 16px;
+    font-size: 1.2rem;
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.search-input-modern {
+    width: 100%;
+    padding: 0.9rem 2.8rem 0.9rem 3.2rem;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    background: var(--color-bg-subtle);
+    color: var(--color-text-main);
+    box-sizing: border-box;
+    transition: all var(--duration-fast);
+}
+
+.search-input-modern:focus {
+    border-color: var(--color-primary);
+    background: var(--color-bg-card);
+    box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.12);
+    outline: none;
+}
+
+.btn-clear-search {
+    position: absolute;
+    right: 14px;
+    background: #e2e8f0;
+    color: #64748b;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all var(--duration-fast);
+}
+
+.btn-clear-search:hover {
+    background: #cbd5e1;
+    color: #1e293b;
+}
+
+.chips-filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chips-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.chip-btn {
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-main);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-spring);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.chip-btn:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+}
+
+.chip-btn.activo {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(var(--color-primary-rgb), 0.25);
+}
+
+.search-results-counter {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   25. QUICK VIEW LIGHTBOX MODAL
+   -------------------------------------------------------------------------- */
+.modal-quick-view-card {
+    display: grid;
+    grid-template-columns: 1.1fr 1.3fr;
+    gap: 2rem;
+    align-items: center;
+    max-width: 820px !important;
+}
+
+.quick-view-img-box {
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: #f8fafc;
+    border: 1px solid var(--color-border);
+}
+
+.quick-view-img-box img {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.quick-view-img-box:hover img {
+    transform: scale(1.08);
+}
+
+/* --------------------------------------------------------------------------
+   26. SPEED DIAL FLOTANTE MULTICANAL DE WHATSAPP
+   -------------------------------------------------------------------------- */
+.speed-dial-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 990;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.speed-dial-main-btn {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45);
+    transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.speed-dial-main-btn:hover {
+    transform: scale(1.1) rotate(8deg);
+}
+
+.speed-dial-menu {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+    animation: pageFadeIn 0.25s ease;
+}
+
+.speed-dial-menu.abierto {
+    display: flex;
+}
+
+.speed-dial-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    color: #1e293b;
+    padding: 8px 14px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--color-border);
+    transition: all var(--duration-fast) var(--ease-spring);
+}
+
+[data-theme="dark"] .speed-dial-item {
+    background: #131e3d;
+    color: #f8fafc;
+    border-color: #1e294b;
+}
+
+.speed-dial-item:hover {
+    transform: translateX(-4px) scale(1.03);
+    background: #f8fafc;
+}
+
+.speed-dial-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* --------------------------------------------------------------------------
+   27. BOTTOM NAV BAR MÓVIL & DARK MODE TOGGLE
+   -------------------------------------------------------------------------- */
+.btn-theme-toggle {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all var(--duration-fast);
+}
+
+.btn-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.05);
+}
+
+.mobile-bottom-nav {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-top: 1px solid var(--color-border);
+        z-index: 900;
+        justify-content: space-around;
+        align-items: center;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    [data-theme="dark"] .mobile-bottom-nav {
+        background: rgba(11, 19, 41, 0.92);
+        border-top-color: #1e294b;
+    }
+
+    .bottom-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        text-decoration: none;
+        color: var(--color-text-muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        transition: color var(--duration-fast);
+    }
+
+    .bottom-nav-item.activo,
+    .bottom-nav-item:hover {
+        color: var(--color-primary);
+    }
+
+    .bottom-nav-icon {
+        font-size: 1.25rem;
+    }
+
+    /* Ajustar botón de carrito y WhatsApp en móviles */
+    .btn-flotante-carrito, #btnFlotanteCarrito {
+        bottom: 75px !important;
+        right: 15px !important;
+    }
+
+    .speed-dial-container {
+        bottom: 135px !important;
+        right: 15px !important;
+    }
+
+    .modal-quick-view-card {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
 }
 
 /* --------------------------------------------------------------------------

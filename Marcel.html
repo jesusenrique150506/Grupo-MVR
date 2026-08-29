@@ -43,12 +43,23 @@
     <!-- CONTENEDOR DINÁMICO DE PROMOCIONES DESDE LA NUBE -->
     <div id="contenedorPromosCliente" style="max-width: 800px; margin: 1.5rem auto; padding: 0 1rem;"></div>
 
-    <!-- BARRA DE BÚSQUEDA Y FILTROS -->
-    <div class="filtros-container">
-        <input type="text" id="inputBuscador" class="buscador-input" placeholder="🔍 Buscar por nombre o ID de producto..." oninput="filtrarProductos()">
-        <div class="filtro-btns">
-            <button class="btn-filtro activo" onclick="cambiarFiltro('todos', this)">Todos</button>
-            <button class="btn-filtro" onclick="cambiarFiltro('disponible', this)">Disponibles</button>
+    <!-- BARRA DE BÚSQUEDA FLOTANTE CON CHIPS Y CONTADOR EN VIVO -->
+    <div style="max-width: 1200px; margin: 1.5rem auto 0 auto; padding: 0 1rem;">
+        <div class="search-toolbar-box">
+            <div class="search-input-wrapper">
+                <span class="search-input-icon">🔍</span>
+                <input type="text" id="inputBuscador" class="search-input-modern" placeholder="Buscar por prenda, vestido, calzado o ID en Marcel..." oninput="manejarInputBusqueda()">
+                <button type="button" id="btnClearSearch" class="btn-clear-search" onclick="limpiarBusquedaInput()" title="Limpiar búsqueda">✕</button>
+            </div>
+            <div class="chips-filter-row">
+                <div class="chips-group">
+                    <button class="chip-btn activo" onclick="cambiarFiltro('todos', this)">✨ Todos</button>
+                    <button class="chip-btn" onclick="cambiarFiltro('disponible', this)">🟢 En Stock</button>
+                    <button class="chip-btn" onclick="cambiarFiltro('economico', this)">💳 Menos de $1,000</button>
+                    <button class="chip-btn" onclick="cambiarFiltro('premium', this)">💎 Premium (+$1,500)</button>
+                </div>
+                <div class="search-results-counter" id="contadorResultados">Cargando...</div>
+            </div>
         </div>
     </div>
 
@@ -283,7 +294,7 @@
                 contenedorCatalogo.innerHTML += `
                     <div class="card-producto ${claseAgotado}">
                         <div>
-                            <div class="img-container">
+                            <div class="img-container" onclick="abrirVistaRapidaProducto('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Marcel Boutique', '${imgSrc}', ${stock}, '${listaTallas.join(',')}')" style="cursor: pointer;" title="🔍 Clic para Vista Rápida y Zoom">
                                 ${ribbonHtml}
                                 <img src="${imgSrc}" alt="${p.nombre}" onerror="this.src='marcel.png';">
                             </div>
@@ -291,7 +302,7 @@
                                 <span style="font-size: 0.8rem; color: #888; font-weight: 700;">ID: ${p.id}</span>
                                 ${badgeStockHtml}
                             </div>
-                            <h3>${p.nombre}</h3>
+                            <h3 onclick="abrirVistaRapidaProducto('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Marcel Boutique', '${imgSrc}', ${stock}, '${listaTallas.join(',')}')" style="cursor: pointer;">${p.nombre}</h3>
                             <p>Colección exclusiva de moda, boutique y elegancia en Marcel Boutique.</p>
                             ${tallasHtml}
                         </div>
@@ -301,6 +312,12 @@
                         </div>
                     </div>`;
             });
+
+            // Actualizar contador en vivo
+            const contadorEl = document.getElementById('contadorResultados');
+            if (contadorEl) {
+                contadorEl.innerText = `Mostrando ${productos.length} de ${listaGlobalProductos.length} prendas y calzado`;
+            }
         }
 
         function agregarProductoMarcel(id, nombre, precio, imagen) {
@@ -313,14 +330,38 @@
             solicitarResurtidoWhatsApp(id, nombre, 'Marcel Boutique', talla);
         }
 
+        function manejarInputBusqueda() {
+            const input = document.getElementById('inputBuscador');
+            const btnClear = document.getElementById('btnClearSearch');
+            if (btnClear) {
+                btnClear.style.display = input.value.trim().length > 0 ? 'flex' : 'none';
+            }
+            filtrarProductos();
+        }
+
+        function limpiarBusquedaInput() {
+            const input = document.getElementById('inputBuscador');
+            const btnClear = document.getElementById('btnClearSearch');
+            if (input) input.value = '';
+            if (btnClear) btnClear.style.display = 'none';
+            filtrarProductos();
+        }
+
         function filtrarProductos() {
             let texto = document.getElementById('inputBuscador').value.toLowerCase().trim();
             
             let filtrados = listaGlobalProductos.filter(p => {
                 let coincideTexto = p.nombre.toLowerCase().includes(texto) || p.id.toLowerCase().includes(texto);
+                let precio = parseFloat(p.precio) || 0;
+                let stock = parseInt(p.stock) || 0;
+
                 let coincideFiltro = true;
                 if (filtroActual === 'disponible') {
-                    coincideFiltro = (parseInt(p.stock) || 0) > 0;
+                    coincideFiltro = stock > 0;
+                } else if (filtroActual === 'economico') {
+                    coincideFiltro = precio < 1000;
+                } else if (filtroActual === 'premium') {
+                    coincideFiltro = precio >= 1500;
                 }
                 return coincideTexto && coincideFiltro;
             });
@@ -330,7 +371,7 @@
 
         function cambiarFiltro(tipo, btn) {
             filtroActual = tipo;
-            document.querySelectorAll('.btn-filtro').forEach(b => b.classList.remove('activo'));
+            document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('activo'));
             btn.classList.add('activo');
             filtrarProductos();
         }

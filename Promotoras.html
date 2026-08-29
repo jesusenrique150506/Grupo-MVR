@@ -40,26 +40,57 @@
     </section>
 
     <!-- ACCESO EXCLUSIVO DE PROMOTORAS -->
-    <main id="panelLogin" class="login-promotora-container">
-        <form id="formLogin" onsubmit="iniciarSesion(event)">
-            <h3 style="color: #002b55; margin-bottom: 1rem; text-align: center;">🔐 Acceso Exclusivo para Promotoras</h3>
-            <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 1.5rem;">Ingresa con el ID y contraseña proporcionados por administración.</p>
-            
-            <div class="form-group">
-                <label for="loginNum">N° o ID de Promotora:</label>
-                <input type="text" id="loginNum" placeholder="Ej. P-4502" required>
+    <main id="panelLogin" class="login-modern-wrapper">
+        <div class="login-ambient-orb orb-promotora-1"></div>
+        <div class="login-ambient-orb orb-promotora-2"></div>
+
+        <div class="login-glass-card" id="loginCardProm">
+            <div style="text-align: center;">
+                <div class="login-avatar-icon">💎</div>
+                <div class="badge-login-header">Portal Oficial de Vales</div>
+                <h2 style="color: #002b55; margin: 0 0 6px 0; font-size: 1.5rem;">Acceso para Promotoras</h2>
+                <p style="color: #64748b; font-size: 0.88rem; margin: 0 0 1.5rem 0;">Ingresa tu ID y contraseña para gestionar vales y cartera.</p>
             </div>
-            <div class="form-group">
-                <label for="loginPass">Contraseña:</label>
-                <input type="password" id="loginPass" placeholder="Tu contraseña personal" required>
+
+            <!-- Alerta de Error Dinámica dentro de la tarjeta -->
+            <div id="loginErrorProm" class="login-error-alert">
+                <span>⚠️</span> <span id="loginErrorTxtProm">Credenciales incorrectas</span>
             </div>
-            <div style="text-align: right; margin-bottom: 1.2rem;">
-                <a href="#" onclick="pedirAyudaPassword(event)" style="font-size: 0.85rem; color: #0059b3; text-decoration: none; font-weight: bold;">¿Olvidaste tu contraseña?</a>
-            </div>
-            <button type="submit" id="btnAcceso" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 0.9rem; font-size: 1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
-                🔓 Ingresar al Portal de Vales
-            </button>
-        </form>
+
+            <form id="formLogin" onsubmit="iniciarSesion(event)">
+                <div class="form-group">
+                    <label for="loginNum" style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">ID de Promotora:</label>
+                    <div class="input-icon-wrapper">
+                        <span class="input-lead-icon">👤</span>
+                        <input type="text" id="loginNum" class="input-modern" placeholder="Ej. P-4502" required autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="loginPass" style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">Contraseña de Seguridad:</label>
+                    <div class="input-icon-wrapper">
+                        <span class="input-lead-icon">🔒</span>
+                        <input type="password" id="loginPass" class="input-modern input-pass" placeholder="Ingresa tu contraseña" required autocomplete="current-password">
+                        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('loginPass', this)" title="Mostrar u ocultar contraseña">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <div style="text-align: right; margin-top: 0.75rem;">
+                    <a href="#" onclick="pedirAyudaPassword(event)" style="font-size: 0.82rem; color: #0059b3; text-decoration: none; font-weight: 700;">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" id="btnAcceso" class="btn-login-submit">
+                    <span>🔓</span> <span id="btnAccesoTxt">Ingresar al Portal de Vales</span>
+                </button>
+
+                <div class="login-footer-links">
+                    <span>¿Eres Administrador?</span>
+                    <a href="Admin.html">Panel Maestro &rarr;</a>
+                </div>
+            </form>
+        </div>
     </main>
 
     <div id="panelProtegido">
@@ -260,35 +291,70 @@
             window.open(`https://wa.me/528332854129?text=${mensaje}`, '_blank');
         }
 
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.innerText = '🙈';
+            } else {
+                input.type = 'password';
+                btn.innerText = '👁️';
+            }
+        }
+
+        function mostrarErrorLoginProm(mensaje) {
+            const card = document.getElementById('loginCardProm');
+            const alertBox = document.getElementById('loginErrorProm');
+            const txtBox = document.getElementById('loginErrorTxtProm');
+
+            if (txtBox) txtBox.innerText = mensaje;
+            if (alertBox) alertBox.style.display = 'flex';
+
+            if (card) {
+                card.classList.remove('shake-card');
+                void card.offsetWidth; // Trigger reflow
+                card.classList.add('shake-card');
+            }
+        }
+
         async function iniciarSesion(event) {
             event.preventDefault();
             const num = document.getElementById('loginNum').value.trim().toUpperCase();
             const pass = document.getElementById('loginPass').value.trim();
-            
-            document.getElementById('btnAcceso').innerText = "Verificando...";
+            const btn = document.getElementById('btnAcceso');
+            const btnTxt = document.getElementById('btnAccesoTxt');
+            const alertBox = document.getElementById('loginErrorProm');
+            if (alertBox) alertBox.style.display = 'none';
+
+            btn.disabled = true;
+            if (btnTxt) btnTxt.innerHTML = `<span class="spinner-icon"></span> Validando en la nube...`;
+
             try {
                 let credenciales = await consumirAPI('obtenerPromotoras');
 
                 if (!credenciales || !credenciales[num]) {
-                    alert("ID de promotora no autorizado. Favor de solicitar su cuenta en administración.");
+                    mostrarErrorLoginProm("ID de promotora no registrado. Consulta a administración.");
                 } else {
                     const datosProm = credenciales[num];
                     const passwordReal = typeof datosProm === 'object' ? datosProm.password : datosProm;
                     const estadoReal = typeof datosProm === 'object' ? datosProm.estado : "Activa";
 
                     if (estadoReal === "Bloqueada") {
-                        alert("⚠️ Acceso suspendido por adeudo en cartera vencida. Favor de comunicarse a administración.");
-                    } else if (passwordReal === pass) {
+                        mostrarErrorLoginProm("Acceso suspendido temporalmente por cartera vencida.");
+                    } else if (String(passwordReal).trim() === pass) {
                         localStorage.setItem('mvr_promotora_activa', num);
                         activarPortal(num);
                     } else {
-                        alert("Contraseña incorrecta.");
+                        mostrarErrorLoginProm("Contraseña incorrecta. Por favor verifica tus datos.");
                     }
                 }
             } catch (error) {
-                alert("Hubo un error de conexión al iniciar sesión.");
+                mostrarErrorLoginProm("Error de conexión con el servidor. Intenta de nuevo.");
             }
-            document.getElementById('btnAcceso').innerText = "🔓 Ingresar al Portal de Vales";
+
+            btn.disabled = false;
+            if (btnTxt) btnTxt.innerText = "Ingresar al Portal de Vales";
         }
 
         function activarPortal(num) {
