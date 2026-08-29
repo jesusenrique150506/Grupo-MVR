@@ -46,7 +46,7 @@
 
         <div class="login-glass-card" id="loginCardProm">
             <div style="text-align: center;">
-                <div class="login-avatar-icon">💎</div>
+                <div class="login-avatar-icon" id="loginAvatarProm">🔒</div>
                 <div class="badge-login-header">Portal Oficial de Vales</div>
                 <h2 style="color: #002b55; margin: 0 0 6px 0; font-size: 1.5rem;">Acceso para Promotoras</h2>
                 <p style="color: #64748b; font-size: 0.88rem; margin: 0 0 1.5rem 0;">Ingresa tu ID y contraseña para gestionar vales y cartera.</p>
@@ -69,7 +69,7 @@
                 <div class="form-group" style="margin-top: 1rem;">
                     <label for="loginPass" style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">Contraseña de Seguridad:</label>
                     <div class="input-icon-wrapper">
-                        <span class="input-lead-icon">🔒</span>
+                        <span class="input-lead-icon" id="iconCandadoProm">🔒</span>
                         <input type="password" id="loginPass" class="input-modern input-pass" placeholder="Ingresa tu contraseña" required autocomplete="current-password">
                         <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('loginPass', this)" title="Mostrar u ocultar contraseña">
                             👁️
@@ -358,8 +358,34 @@
                     if (estadoReal === "Bloqueada") {
                         mostrarErrorLoginProm("Acceso suspendido temporalmente por cartera vencida.");
                     } else if (String(passwordReal).trim() === pass) {
+                        const avatar = document.getElementById('loginAvatarProm');
+                        const iconPass = document.getElementById('iconCandadoProm');
+                        const card = document.getElementById('loginCardProm');
+
+                        if (avatar) {
+                            avatar.innerHTML = '🔓';
+                            avatar.classList.add('avatar-desbloqueado');
+                        }
+                        if (iconPass) {
+                            iconPass.innerHTML = '🔓';
+                            iconPass.classList.add('lock-animating');
+                        }
+                        if (btn) {
+                            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                        }
+                        if (btnTxt) {
+                            btnTxt.innerText = "¡Acceso Concedido! Bienvenida...";
+                        }
+
                         localStorage.setItem('mvr_promotora_activa', idPromReal);
-                        activarPortal(idPromReal);
+
+                        setTimeout(() => {
+                            if (card) card.style.animation = 'cardSuccessExit 0.4s var(--ease-smooth) forwards';
+                            setTimeout(() => {
+                                activarPortal(idPromReal);
+                            }, 350);
+                        }, 550);
+                        return;
                     } else {
                         mostrarErrorLoginProm("Contraseña incorrecta. Por favor verifica tus datos.");
                     }

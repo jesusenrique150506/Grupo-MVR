@@ -43,7 +43,7 @@
 
         <div class="login-glass-card" id="loginCardAdmin">
             <div style="text-align: center;">
-                <div class="login-avatar-icon avatar-admin">🛡️</div>
+                <div class="login-avatar-icon avatar-admin" id="loginAvatarAdmin">🔒</div>
                 <div class="badge-login-header badge-admin">Centro de Control MVR</div>
                 <h2 style="color: #002b55; margin: 0 0 6px 0; font-size: 1.5rem;">Acceso Administrativo</h2>
                 <p style="color: #64748b; font-size: 0.88rem; margin: 0 0 1.5rem 0;">Panel restringido para supervisión, inventario y promotoras.</p>
@@ -66,7 +66,7 @@
                 <div class="form-group" style="margin-top: 1rem;">
                     <label for="loginPassAdmin" style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">Contraseña Maestra:</label>
                     <div class="input-icon-wrapper">
-                        <span class="input-lead-icon">🔒</span>
+                        <span class="input-lead-icon" id="iconCandadoAdmin">🔒</span>
                         <input type="password" id="loginPassAdmin" class="input-modern input-pass" placeholder="Ingresa tu contraseña" required autocomplete="current-password">
                         <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('loginPassAdmin', this)" title="Mostrar u ocultar contraseña">
                             👁️
@@ -356,8 +356,34 @@
                 }
 
                 if (accesoConcedido) {
+                    const avatar = document.getElementById('loginAvatarAdmin');
+                    const iconPass = document.getElementById('iconCandadoAdmin');
+                    const card = document.getElementById('loginCardAdmin');
+
+                    if (avatar) {
+                        avatar.innerHTML = '🔓';
+                        avatar.classList.add('avatar-desbloqueado');
+                    }
+                    if (iconPass) {
+                        iconPass.innerHTML = '🔓';
+                        iconPass.classList.add('lock-animating');
+                    }
+                    if (btn) {
+                        btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    }
+                    if (btnTxt) {
+                        btnTxt.innerText = "¡Acceso Concedido! Bienvenido...";
+                    }
+
                     localStorage.setItem('mvr_admin_activo', usuarioAutenticado);
-                    activarPanelAdmin(usuarioAutenticado);
+
+                    setTimeout(() => {
+                        if (card) card.style.animation = 'cardSuccessExit 0.4s var(--ease-smooth) forwards';
+                        setTimeout(() => {
+                            activarPanelAdmin(usuarioAutenticado);
+                        }, 350);
+                    }, 550);
+                    return;
                 } else {
                     mostrarErrorLoginAdmin("Acceso denegado. Usuario o contraseña incorrectos.");
                 }
