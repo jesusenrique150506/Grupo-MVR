@@ -7,52 +7,10 @@
     <link rel="stylesheet" href="CSS/opticas-styles.css">
 
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .admin-container { max-width: 1250px; margin: 2rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-        .login-admin-container { max-width: 450px; margin: 4rem auto; background: #ffffff; padding: 2.5rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-        .form-group { text-align: left; margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.4rem; font-weight: bold; color: #002b55; font-size: 0.95rem; }
-        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 1px solid #ccd1d9; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem; }
         #panelProtegidoAdmin { display: none; }
-        
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .card-resumen { background: #f8f9fa; border-left: 5px solid #002b55; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .card-resumen h4 { margin: 0 0 0.5rem 0; color: #555; font-size: 0.85rem; text-transform: uppercase; }
-        .card-resumen .valor { font-size: 1.8rem; font-weight: bold; color: #002b55; margin: 0; }
-        
-        .tabla-admin { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
-        .tabla-admin th { background-color: #002b55; color: white; padding: 0.8rem; text-align: left; }
-        .tabla-admin td { padding: 0.8rem; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
-        .tabla-admin tr:hover { background-color: #f8fafc; }
-
-        .btn-acordeon {
-            width: 100%; background: #ffffff; color: #002b55; border: 2px solid #002b55;
-            padding: 1rem 1.2rem; font-size: 1.05rem; font-weight: bold; border-radius: 8px;
-            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-            margin-top: 1.5rem; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-        }
-        .btn-acordeon:hover { background-color: #002b55; color: #ffffff; }
-        .btn-acordeon .icono-flecha { transition: transform 0.3s ease; }
-        .btn-acordeon.activo .icono-flecha { transform: rotate(180deg); }
-
-        .contenido-desplegable {
-            max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.3s ease;
-            background: #ffffff; border-radius: 0 0 8px 8px;
-        }
-        .contenido-desplegable.abierto {
-            max-height: 2500px; transition: max-height 0.6s ease-in;
-            padding: 1.5rem 1rem; border: 1px solid #e2e8f0; border-top: none; margin-bottom: 1rem;
-        }
-
-        .badge-optica { display: inline-flex; align-items: center; gap: 6px; font-weight: bold; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; }
-        .badge-dvilla { color: #0059b3; background: #eef6ff; }
-        .badge-ravali { color: #a80f14; background: #fff0f0; }
-        .badge-marcel { color: #880e4f; background: #fff0f5; }
-        .pass-badge { background: #e9ecef; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 1rem; color: #d32f2f; font-weight: bold; }
-        .alerta-stock-bajo { background-color: #fff5f5 !important; border: 2px solid #d32f2f; color: #d32f2f; font-weight: bold; padding: 4px 8px; border-radius: 4px; display: inline-block; }
     </style>
 </head>
-<body>
+<body class="pagina-admin">
 
     <header class="main-header" style="background-color: #002b55;">
         <div class="logo">
@@ -136,7 +94,8 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
                         <div class="form-group"><label>ID / Código:</label><input type="text" id="nuevoId" placeholder="Ej. DV-001" required></div>
                         <div class="form-group"><label>Sucursal:</label><select id="nuevaSucursal" required><option value="Óptica D'villa">Óptica D'villa</option><option value="Óptica Ravali">Óptica Ravali</option><option value="Marcel Boutique">Marcel Boutique</option></select></div>
-                        <div class="form-group"><label>Nombre:</label><input type="text" id="nuevoNombre" placeholder="Lentes" required></div>
+                        <div class="form-group"><label>Nombre:</label><input type="text" id="nuevoNombre" placeholder="Lentes / Vestido" required></div>
+                        <div class="form-group"><label>Tallas (Marcel/Moda):</label><input type="text" id="nuevoTallas" placeholder="Ej. CH, M, G, XG, Unitalla"></div>
                         <div class="form-group"><label>Stock:</label><input type="number" id="nuevoStock" min="0" required></div>
                         <div class="form-group"><label>Precio ($):</label><input type="number" id="nuevoPrecio" step="0.01" min="0" required></div>
                         <div class="form-group" style="grid-column: 1 / -1; background: #f8f9fa; padding: 1rem; border: 1px dashed #0059b3; border-radius: 6px;">
@@ -392,6 +351,7 @@
             const id = document.getElementById('nuevoId').value.trim().toUpperCase();
             const sucursal = document.getElementById('nuevaSucursal').value;
             const nombre = document.getElementById('nuevoNombre').value.trim();
+            const tallas = document.getElementById('nuevoTallas').value.trim();
             const stock = parseInt(document.getElementById('nuevoStock').value) || 0;
             const precio = parseFloat(document.getElementById('nuevoPrecio').value) || 0;
             const inputFile = document.getElementById('nuevoImagenFile').files[0];
@@ -403,9 +363,9 @@
                 try {
                     await fetch(API_URL, {
                         method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ accion: "actualizarStock", inventario: { id: id, sucursal: sucursal, nombre: nombre, stock: stock, precio: precio, imagen: uploadEvent.target.result } })
+                        body: JSON.stringify({ accion: "actualizarStock", inventario: { id: id, sucursal: sucursal, nombre: nombre, tallas: tallas, stock: stock, precio: precio, imagen: uploadEvent.target.result } })
                     });
-                    alert("✅ ¡Producto registrado!");
+                    alert("✅ ¡Producto registrado exitosamente!");
                     document.getElementById('formNuevoProducto').reset();
                     cargarTodoDesdeLaNube();
                 } catch (e) {}
@@ -466,7 +426,7 @@
                         cuerpoInv.innerHTML += `
                             <tr>
                                 <td><img src="${imgSrc}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;" onerror="this.src='mvr.jpg';"></td>
-                                <td><strong>${id}</strong></td><td>${prod.sucursal}</td><td>${prod.nombre}</td><td>${precioFmt}</td>
+                                <td><strong>${id}</strong></td><td>${prod.sucursal}</td><td><strong>${prod.nombre}</strong>${prod.tallas ? `<br><small style="color: #880e4f; font-weight: bold;">📏 Tallas: ${prod.tallas}</small>` : ''}</td><td>${precioFmt}</td>
                                 <td>
                                     <input type="number" id="stock-${id}" value="${stockNum}" min="0" style="width: 70px; text-align: center; font-weight: bold;">
                                     ${alertaHtml}

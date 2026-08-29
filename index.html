@@ -5,45 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupo MVR | Inicio</title>
     <link rel="stylesheet" href="CSS/opticas-styles.css">
-    <style>
-        .grid-sucursales {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            padding: 2rem 1rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .card-sucursal {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .card-sucursal img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-        }
-        .card-sucursal h3 {
-            margin: 0.5rem 0;
-            color: #002b55;
-            font-size: 1.3rem;
-        }
-        .card-sucursal p {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            margin-bottom: 1.5rem;
-        }
-    </style>
 </head>
 <body>
 
@@ -124,53 +85,85 @@
         </section>
     </main>
 
+    <!-- BOTÓN Y MODAL FLOTANTE DEL CARRITO GLOBAL -->
+    <div id="btnFlotanteCarrito" class="btn-flotante-carrito" onclick="abrirCarritoGlobal()">
+        🛒 Carrito <span id="contadorCarrito" class="contador-carrito">0</span>
+    </div>
+
+    <div id="modalCarritoGlobal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="cerrar-modal" onclick="cerrarCarritoGlobal()">&times;</span>
+            <h3 style="color: var(--color-primary); margin-top: 0; font-size: 1.4rem;">🛍️ Tu Carrito Global MVR</h3>
+            
+            <div id="listaProductosCarrito" style="margin: 1rem 0; max-height: 250px; overflow-y: auto; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
+                <!-- Productos del carrito -->
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: var(--color-primary); margin-bottom: 1.5rem;">
+                <span>Total a Pagar:</span>
+                <span id="totalCarritoMxn" style="color: var(--color-primary);">$0.00 MXN</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-secondary" onclick="enviarPedidoWhatsApp()" style="font-size: 1rem; width: 100%;">
+                    💬 Enviar Pedido por WhatsApp
+                </button>
+                <button class="btn" onclick="vaciarCarrito()" style="background-color: #a80f14; color: white; font-size: 0.9rem; width: 100%;">
+                    🗑️ Vaciar Carrito
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- PIE DE PÁGINA -->
     <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 3rem;">
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
     </footer>
 
-    <!-- SCRIPT PARA CARGAR TODAS LAS PROMOS ACTIVAS EN EL INICIO -->
+    <!-- SCRIPT CENTRALIZADO Y CARGA DE PROMOS EN EL INICIO -->
+    <script src="js/api.js"></script>
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxKALUYq0h--u8J121LOA7utUZLzrxWIbuxvGskE7_lC52ppFjJ7zCeUio5Bd62VIJw1Q/exec";
-
         window.addEventListener('DOMContentLoaded', async () => {
             const contenedor = document.getElementById('contenedorPromosInicio');
             if (!contenedor) return;
 
             try {
-                let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
-                let promos = await res.json();
+                let promos = await consumirAPI('obtenerPromociones');
+                if (promos) {
+                    let promosActivas = promos.filter(p => p.estado === "Activa");
 
-                // Filtramos todas las que estén Activas (sin importar la sucursal para mostrarlas en el inicio)
-                let promosActivas = promos.filter(p => p.estado === "Activa");
+                    if (promosActivas.length > 0) {
+                        let htmlPromos = "";
+                        promosActivas.forEach(p => {
+                            let colorFondo = "#002b55";
+                            if (p.sucursal === "Óptica Ravali") colorFondo = "#a80f14";
+                            else if (p.sucursal === "Marcel Boutique") colorFondo = "#880e4f";
+                            else if (p.sucursal === "Óptica D'villa") colorFondo = "#0059b3";
 
-                if (promosActivas.length > 0) {
-                    let htmlPromos = "";
-                    promosActivas.forEach(p => {
-                        // Color dinámico según la sucursal
-                        let colorFondo = "#002b55";
-                        if (p.sucursal === "Óptica Ravali") colorFondo = "#a80f14";
-                        else if (p.sucursal === "Marcel Boutique") colorFondo = "#880e4f";
-                        else if (p.sucursal === "Óptica D'villa") colorFondo = "#0059b3";
-
-                        htmlPromos += `
-                            <div style="background: ${colorFondo}; color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                <div>
-                                    <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">${p.sucursal}</span>
-                                    <h4 style="margin: 6px 0 3px 0; font-size: 1.2rem; color: #ffffff;">${p.titulo}</h4>
-                                    <p style="margin: 0; font-size: 0.9rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
-                                </div>
-                                <a href="${p.sucursal === 'Óptica Ravali' ? 'Ravali.html' : (p.sucursal === 'Marcel Boutique' ? 'Marcel.html' : 'D´villa.html')}" style="background: white; color: ${colorFondo}; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 0.85rem;">Ver Sucursal &rarr;</a>
-                            </div>`;
-                    });
-                    contenedor.innerHTML = htmlPromos;
-                } else {
-                    contenedor.innerHTML = `<p style="text-align: center; color: #777; font-size: 0.95rem;">No hay promociones activas por el momento. ¡Consulta más tarde!</p>`;
+                            htmlPromos += `
+                                <div style="background: ${colorFondo}; color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                    <div>
+                                        <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">${p.sucursal}</span>
+                                        <h4 style="margin: 6px 0 3px 0; font-size: 1.2rem; color: #ffffff;">${p.titulo}</h4>
+                                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
+                                    </div>
+                                    <a href="${p.sucursal === 'Óptica Ravali' ? 'Ravali.html' : (p.sucursal === 'Marcel Boutique' ? 'Marcel.html' : 'D´villa.html')}" style="background: white; color: ${colorFondo}; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 0.85rem;">Ver Sucursal &rarr;</a>
+                                </div>`;
+                        });
+                        contenedor.innerHTML = htmlPromos;
+                    } else {
+                        contenedor.innerHTML = `<p style="text-align: center; color: #777; font-size: 0.95rem;">No hay promociones activas por el momento. ¡Consulta más tarde!</p>`;
+                    }
                 }
             } catch (error) {
                 console.error("Error al cargar promociones en inicio", error);
             }
         });
+
+        window.onclick = function(event) {
+            const modalCarrito = document.getElementById('modalCarritoGlobal');
+            if (event.target === modalCarrito) modalCarrito.style.display = 'none';
+        };
     </script>
 
 </body>

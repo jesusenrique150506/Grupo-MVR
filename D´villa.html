@@ -5,182 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupo MVR | Óptica D'villa</title>
     <link rel="stylesheet" href="CSS/opticas-styles.css">
-    <style>
-        .grid-productos {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            padding: 2rem 1rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .card-producto {
-            background: #ffffff;
-            border: 1px solid #e0e0e0;
-            border-top: 4px solid #0059b3;
-            border-radius: 8px;
-            padding: 1.2rem;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .card-producto:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-        }
-        .img-container {
-            width: 100%;
-            height: 220px;
-            overflow: hidden;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            background-color: #f9f9f9;
-        }
-        .card-producto img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        .card-producto:hover img {
-            transform: scale(1.06);
-        }
-        .card-producto h3 {
-            margin: 0.5rem 0;
-            color: #222;
-            font-size: 1.15rem;
-        }
-        .card-producto p {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-        }
-        .precio {
-            font-size: 1.3rem;
-            color: #0059b3;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-        .botones-card {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .btn-secundario {
-            background-color: #f0f7ff;
-            color: #0059b3;
-            border: 2px solid #0059b3;
-            padding: 0.7rem;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .btn-secundario:hover {
-            background-color: #0059b3;
-            color: #ffffff;
-        }
-
-        /* --- BARRA DE BÚSQUEDA Y FILTROS --- */
-        .filtros-container {
-            max-width: 800px;
-            margin: 2rem auto 0 auto;
-            padding: 0 1rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .buscador-input {
-            flex: 1;
-            min-width: 250px;
-            padding: 0.8rem 1rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            box-sizing: border-box;
-        }
-        .filtro-btns {
-            display: flex;
-            gap: 8px;
-        }
-        .btn-filtro {
-            background: #e9ecef;
-            border: none;
-            padding: 0.6rem 1rem;
-            border-radius: 6px;
-            font-weight: bold;
-            color: #333;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-filtro.activo, .btn-filtro:hover {
-            background: #0059b3;
-            color: white;
-        }
-
-        /* --- MODAL --- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 10px;
-            max-width: 450px;
-            width: 90%;
-            position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            border-top: 5px solid #002b55;
-        }
-        .cerrar-modal {
-            position: absolute;
-            top: 15px; right: 20px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #555;
-            cursor: pointer;
-        }
-        .cerrar-modal:hover { color: #0059b3; }
-        .promo-box {
-            background-color: #fff6e5;
-            border-left: 4px solid #ffa500;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 4px;
-            font-size: 0.95rem;
-            color: #a66a00;
-        }
-        .tabla-quincenas {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1.5rem;
-        }
-        .tabla-quincenas th, .tabla-quincenas td {
-            padding: 0.8rem;
-            border-bottom: 1px solid #eee;
-            text-align: left;
-        }
-        .tabla-quincenas th { 
-            color: #002b55; 
-            border-bottom: 2px solid #002b55;
-        }
-        .fila-destacada { background-color: #f0f7ff; font-weight: bold; }
-    </style>
 </head>
-<body>
+<body class="pagina-dvilla">
 
     <header class="main-header" style="background-color: #002b55;">
         <div class="logo">
@@ -249,22 +75,22 @@
     </div>
 
     <!-- CARRITO GLOBAL -->
-    <div id="btnFlotanteCarrito" onclick="abrirCarritoGlobal()" style="position: fixed; bottom: 95px; right: 25px; background-color: #002b55; color: white; border-radius: 50px; padding: 12px 20px; font-size: 1rem; font-weight: bold; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; z-index: 1000; cursor: pointer; transition: transform 0.3s ease;">
-        🛒 Carrito <span id="contadorCarrito" style="background: #ff8c00; color: white; padding: 2px 8px; border-radius: 50px; font-size: 0.85rem;">0</span>
+    <div id="btnFlotanteCarrito" class="btn-flotante-carrito" onclick="abrirCarritoGlobal()">
+        🛒 Carrito <span id="contadorCarrito" class="contador-carrito">0</span>
     </div>
 
-    <div id="modalCarritoGlobal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 3000; justify-content: center; align-items: center;">
-        <div style="background-color: #fff; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-top: 5px solid #002b55; max-height: 85vh; overflow-y: auto;">
-            <span onclick="cerrarCarritoGlobal()" style="position: absolute; top: 15px; right: 20px; font-size: 1.5rem; font-weight: bold; color: #555; cursor: pointer;">&times;</span>
-            <h3 style="color: #002b55; margin-top: 0; font-size: 1.4rem;">🛍️ Tu Carrito Global MVR</h3>
-            <div id="listaProductosCarrito" style="margin: 1rem 0; max-height: 250px; overflow-y: auto; border-bottom: 1px solid #eee; padding-bottom: 1rem;"></div>
-            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: #002b55; margin-bottom: 1.5rem;">
+    <div id="modalCarritoGlobal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="cerrar-modal" onclick="cerrarCarritoGlobal()">&times;</span>
+            <h3 style="color: var(--color-primary); margin-top: 0; font-size: 1.4rem;">🛍️ Tu Carrito Global MVR</h3>
+            <div id="listaProductosCarrito" style="margin: 1rem 0; max-height: 250px; overflow-y: auto; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;"></div>
+            <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: var(--color-primary); margin-bottom: 1.5rem;">
                 <span>Total a Pagar:</span>
-                <span id="totalCarritoMxn">$0.00 MXN</span>
+                <span id="totalCarritoMxn" style="color: var(--color-primary);">$0.00 MXN</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button onclick="enviarPedidoWhatsApp()" style="background-color: #25d366; color: white; border: none; padding: 0.9rem; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 1rem;">💬 Enviar Pedido por WhatsApp</button>
-                <button onclick="vaciarCarrito()" style="background-color: #a80f14; color: white; border: none; padding: 0.6rem; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">🗑️ Vaciar Carrito</button>
+                <button class="btn btn-secondary" onclick="enviarPedidoWhatsApp()" style="font-size: 1rem; width: 100%;">💬 Enviar Pedido por WhatsApp</button>
+                <button class="btn" onclick="vaciarCarrito()" style="background-color: #a80f14; color: white; font-size: 0.9rem; width: 100%;">🗑️ Vaciar Carrito</button>
             </div>
         </div>
     </div>
@@ -273,56 +99,67 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Óptica D'villa (Grupo MVR). Todos los derechos reservados.</p>
     </footer>
 
+    <!-- SCRIPT CENTRALIZADO Y LÓGICA DE D'VILLA -->
+    <script src="js/api.js"></script>
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxKALUYq0h--u8J121LOA7utUZLzrxWIbuxvGskE7_lC52ppFjJ7zCeUio5Bd62VIJw1Q/exec";
         let listaGlobalProductos = [];
         let filtroActual = 'todos';
 
         window.addEventListener('DOMContentLoaded', async () => {
-            // 1. CARGAR PROMOCIONES
+            const contenedorCatalogo = document.getElementById('contenedorCatalogoDvilla');
+            if (contenedorCatalogo) {
+                contenedorCatalogo.innerHTML = generarSkeletonCards(6);
+            }
+
+            // 1. CARGAR PROMOCIONES USANDO LA API CENTRALIZADA
             const contenedorPromos = document.getElementById('contenedorPromosCliente');
             if (contenedorPromos) {
                 try {
-                    let res = await fetch(`${API_URL}?accion=obtenerPromociones&nocache=${new Date().getTime()}`);
-                    let promos = await res.json();
-                    let promosActivas = promos.filter(p => {
-                        if (p.estado !== "Activa") return false;
-                        let suc = String(p.sucursal).trim().toLowerCase();
-                        return suc.includes("d'villa") || suc.includes("dvilla") || suc.includes("general") || suc.includes("todas");
-                    });
-                    if (promosActivas.length > 0) {
-                        let htmlPromos = "";
-                        promosActivas.forEach(p => {
-                            htmlPromos += `
-                                <div style="background: linear-gradient(135deg, #002b55, #0059b3); color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); text-align: center;">
-                                    <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">¡Promoción Especial!</span>
-                                    <h3 style="margin: 8px 0 5px 0; font-size: 1.3rem; color: #ffffff;">${p.titulo}</h3>
-                                    <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
-                                </div>`;
+                    let promos = await consumirAPI('obtenerPromociones');
+                    if (promos) {
+                        let promosActivas = promos.filter(p => {
+                            if (p.estado !== "Activa") return false;
+                            let suc = String(p.sucursal).trim().toLowerCase();
+                            return suc.includes("d'villa") || suc.includes("dvilla") || suc.includes("general") || suc.includes("todas");
                         });
-                        contenedorPromos.innerHTML = htmlPromos;
+                        if (promosActivas.length > 0) {
+                            let htmlPromos = "";
+                            promosActivas.forEach(p => {
+                                htmlPromos += `
+                                    <div style="background: linear-gradient(135deg, #002b55, #0059b3); color: white; padding: 1.2rem; border-radius: 8px; margin-bottom: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); text-align: center;">
+                                        <span style="background: #ff8c00; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">¡Promoción Especial!</span>
+                                        <h3 style="margin: 8px 0 5px 0; font-size: 1.3rem; color: #ffffff;">${p.titulo}</h3>
+                                        <p style="margin: 0; font-size: 0.95rem; opacity: 0.9; color: #ffffff;">${p.descripcion}</p>
+                                    </div>`;
+                            });
+                            contenedorPromos.innerHTML = htmlPromos;
+                        }
                     }
                 } catch (error) { console.error("Error al cargar promos", error); }
             }
 
-            // 2. CARGAR INVENTARIO
+            // 2. CARGAR INVENTARIO USANDO LA API CENTRALIZADA
             try {
-                let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
-                let inventario = await resInv.json();
-                let ids = Object.keys(inventario);
-                
-                listaGlobalProductos = [];
-                ids.forEach(id => {
-                    let p = inventario[id];
-                    let sucRemota = String(p.sucursal).trim().toLowerCase();
-                    if (sucRemota.includes("d'villa") || sucRemota.includes("dvilla")) {
-                        listaGlobalProductos.push({ id: id, ...p });
-                    }
-                });
+                let inventario = await consumirAPI('obtenerInventario');
+                if (inventario) {
+                    let ids = Object.keys(inventario);
+                    
+                    listaGlobalProductos = [];
+                    ids.forEach(id => {
+                        let p = inventario[id];
+                        let sucRemota = String(p.sucursal).trim().toLowerCase();
+                        if (sucRemota.includes("d'villa") || sucRemota.includes("dvilla")) {
+                            listaGlobalProductos.push({ id: id, ...p });
+                        }
+                    });
 
-                renderizarCatalogo(listaGlobalProductos);
+                    renderizarCatalogo(listaGlobalProductos);
+                }
             } catch (error) {
                 console.error("Error al cargar inventario", error);
+                if (contenedorCatalogo) {
+                    contenedorCatalogo.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #d32f2f; padding: 2rem;">Error al conectar con la nube. Por favor intenta recargar.</p>`;
+                }
             }
 
             actualizarContadorCarrito();
@@ -334,42 +171,64 @@
 
             contenedorCatalogo.innerHTML = "";
             if (productos.length === 0) {
-                contenedorCatalogo.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #777; padding: 2rem;">No se encontraron productos.</p>`;
+                contenedorCatalogo.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #777; padding: 2rem;">No se encontraron productos en Óptica D'villa.</p>`;
                 return;
             }
 
-            productos.forEach(p => {
+            // Ordenamiento Inteligente: Primero disponibles, agotados al final
+            let productosOrdenados = [...productos].sort((a, b) => {
+                let stockA = (parseInt(a.stock) || 0) > 0 ? 1 : 0;
+                let stockB = (parseInt(b.stock) || 0) > 0 ? 1 : 0;
+                return stockB - stockA;
+            });
+
+            productosOrdenados.forEach(p => {
                 let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.precio || 0);
-                
-                // --- CORRECCIÓN CLAVE DE IMAGEN ---
                 let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'dvilla.jpg';
-                
                 let stock = parseInt(p.stock) || 0;
                 let botonHtml = '';
-                let estadoTexto = '';
+                let badgeStockHtml = '';
+                let ribbonHtml = '';
+                let claseAgotado = '';
 
                 if (stock <= 0) {
-                    estadoTexto = `<span style="background: #d32f2f; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold;">🔴 PRODUCTO AGOTADO</span>`;
-                    botonHtml = `<button disabled style="background: #ccc; color: white; border: none; padding: 0.8rem; border-radius: 5px; font-weight: bold; cursor: not-allowed;">No disponible</button>`;
-                } else {
-                    estadoTexto = `${precioFmt} <small style="color:#666; font-size:0.8rem;">(Stock: ${stock})</small>`;
+                    claseAgotado = 'producto-agotado';
+                    ribbonHtml = `<div class="ribbon-agotado">🏷️ Agotado · Próximo Resurtido</div>`;
+                    badgeStockHtml = `<span class="badge-stock-agotado">🔴 Agotado</span>`;
                     botonHtml = `
-                        <button class="btn-secundario" onclick="abrirModalPagos('${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio})">💳 Ver Quincenas y Promos</button>
-                        <button onclick="agregarAlCarrito('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Óptica D\\'villa')" style="background-color: #0059b3; color: white; border: none; padding: 0.8rem; border-radius: 5px; font-weight: bold; cursor: pointer;">🛒 Agregar al Carrito</button>
+                        <button type="button" class="btn-solicitar-resurtido" onclick="solicitarResurtidoWhatsApp('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', 'Óptica D\\'villa')">
+                            📲 Solicitar Resurtido / Apartar
+                        </button>
+                    `;
+                } else {
+                    if (stock <= 2) {
+                        badgeStockHtml = `<span class="badge-stock-bajo">🟠 ¡Últimas ${stock} pzas!</span>`;
+                    } else {
+                        badgeStockHtml = `<span class="badge-stock-disponible">🟢 Disponible (${stock} pzas)</span>`;
+                    }
+
+                    botonHtml = `
+                        <button class="btn btn-secondary" onclick="abrirModalPagos('${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio})">💳 Ver Quincenas y Promos</button>
+                        <button class="btn btn-primary" onclick="agregarAlCarrito('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Óptica D\\'villa', '${imgSrc}')">🛒 Agregar al Carrito</button>
                     `;
                 }
 
                 contenedorCatalogo.innerHTML += `
-                    <div class="card-producto">
+                    <div class="card-producto ${claseAgotado}">
                         <div>
                             <div class="img-container">
+                                ${ribbonHtml}
                                 <img src="${imgSrc}" alt="${p.nombre}" onerror="this.src='dvilla.jpg';">
                             </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <span style="font-size: 0.8rem; color: #888; font-weight: 700;">ID: ${p.id}</span>
+                                ${badgeStockHtml}
+                            </div>
                             <h3>${p.nombre}</h3>
-                            <p>ID: ${p.id} - Línea profesional y exclusiva de Óptica D'villa.</p>
+                            <p>Línea profesional, armazones premium y tecnología oftálmica de Óptica D'villa.</p>
                         </div>
                         <div>
-                            <div class="precio">${estadoTexto}</div>
+                            <div class="precio">${precioFmt}</div>
                             <div class="botones-card">${botonHtml}</div>
                         </div>
                     </div>`;
@@ -413,63 +272,15 @@
             document.getElementById('modalPagos').style.display = 'flex';
         }
 
-        function cerrarModal() { document.getElementById('modalPagos').style.display = 'none'; }
-        
-        function obtenerCarrito() { return JSON.parse(localStorage.getItem('mvr_carrito_global')) || []; }
-        function guardarCarrito(carrito) { localStorage.setItem('mvr_carrito_global', JSON.stringify(carrito)); actualizarContadorCarrito(); }
-        function actualizarContadorCarrito() {
-            let carrito = obtenerCarrito();
-            document.getElementById('contadorCarrito').innerText = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+        function cerrarModal() { 
+            document.getElementById('modalPagos').style.display = 'none'; 
         }
-        function agregarAlCarrito(id, nombre, precio, sucursal) {
-            let carrito = obtenerCarrito();
-            let index = carrito.findIndex(item => item.id === id);
-            if (index > -1) { carrito[index].cantidad += 1; } 
-            else { carrito.push({ id: id, nombre: nombre, precio: parseFloat(precio), sucursal: sucursal, cantidad: 1 }); }
-            guardarCarrito(carrito);
-            alert(`✅ ¡"${nombre}" agregado al carrito global!`);
-        }
-        function abrirCarritoGlobal() {
-            let carrito = obtenerCarrito();
-            let listaDiv = document.getElementById('listaProductosCarrito');
-            let totalMxn = 0;
-            listaDiv.innerHTML = "";
-            if (carrito.length === 0) {
-                listaDiv.innerHTML = `<p style="text-align: center; color: #777;">Tu carrito está vacío.</p>`;
-            } else {
-                carrito.forEach((item, index) => {
-                    let subtotal = item.precio * item.cantidad;
-                    totalMxn += subtotal;
-                    let subtotalFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(subtotal);
-                    listaDiv.innerHTML += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: #f9f9f9; padding: 8px; border-radius: 5px; font-size: 0.9rem;">
-                            <div><strong>${item.nombre}</strong><br><small style="color: #666;">${item.sucursal} - $${item.precio} x ${item.cantidad}</small></div>
-                            <div style="display: flex; align-items: center; gap: 8px;"><span style="font-weight: bold; color: #28a745;">${subtotalFmt}</span><button onclick="eliminarItemCarrito(${index})" style="background: #a80f14; color: white; border: none; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">❌</button></div>
-                        </div>`;
-                });
-            }
-            document.getElementById('totalCarritoMxn').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(totalMxn);
-            document.getElementById('modalCarritoGlobal').style.display = 'flex';
-        }
-        function cerrarCarritoGlobal() { document.getElementById('modalCarritoGlobal').style.display = 'none'; }
-        function eliminarItemCarrito(index) { let carrito = obtenerCarrito(); carrito.splice(index, 1); guardarCarrito(carrito); abrirCarritoGlobal(); }
-        function vaciarCarrito() { if (confirm("¿Estás seguro de vaciar el carrito?")) { localStorage.removeItem('mvr_carrito_global'); actualizarContadorCarrito(); abrirCarritoGlobal(); } }
-        function enviarPedidoWhatsApp() {
-            let carrito = obtenerCarrito();
-            if (carrito.length === 0) return alert("El carrito está vacío.");
-            let mensaje = "Hola, me gustaría realizar el siguiente pedido global en Grupo MVR:\n\n";
-            let total = 0;
-            carrito.forEach(item => {
-                let sub = item.precio * item.cantidad; total += sub;
-                mensaje += `▪️ *${item.nombre}* (${item.sucursal}) x${item.cantidad} - $${sub} MXN\n`;
-            });
-            let totalFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(total);
-            mensaje += `\n💰 *Total Estimado:* ${totalFmt}\n\nQuedo a la espera de las instrucciones de pago o validación con vale.`;
-            window.open(`https://wa.me/528332854129?text=${encodeURIComponent(mensaje)}`, '_blank');
-        }
+
         window.onclick = function(event) {
-            if (event.target === document.getElementById('modalPagos')) document.getElementById('modalPagos').style.display = 'none';
-            if (event.target === document.getElementById('modalCarritoGlobal')) document.getElementById('modalCarritoGlobal').style.display = 'none';
+            const modalPagos = document.getElementById('modalPagos');
+            const modalCarrito = document.getElementById('modalCarritoGlobal');
+            if (event.target === modalPagos) modalPagos.style.display = 'none';
+            if (event.target === modalCarrito) modalCarrito.style.display = 'none';
         }
     </script>
 </body>
