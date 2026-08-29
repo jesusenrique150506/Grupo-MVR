@@ -433,15 +433,27 @@
             } catch (e) { alert("Error al registrar promotora."); }
         }
 
-        async function cambiarEstadoPromotora(nombrePromotora, estadoActual) {
+        async function cambiarEstadoPromotora(nombrePromotora, estadoActual, btnElement) {
             let nuevoEstado = (estadoActual === "Bloqueada") ? "Activa" : "Bloqueada";
+            if (btnElement) {
+                btnElement.disabled = true;
+                btnElement.innerText = "⏳ Guardando...";
+            }
             try {
                 await fetch(API_URL, {
                     method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ accion: "cambiarEstadoPromotora", promotora: nombrePromotora, estado: nuevoEstado })
                 });
-                cargarTodoDesdeLaNube();
-            } catch (e) {}
+                setTimeout(async () => {
+                    await cargarTodoDesdeLaNube();
+                    if (typeof mostrarToast === 'function') {
+                        mostrarToast("Estatus Actualizado", `Promotora ${nombrePromotora} ahora está ${nuevoEstado}.`);
+                    }
+                }, 800);
+            } catch (e) {
+                alert("Error al actualizar estatus de promotora.");
+                if (btnElement) btnElement.disabled = false;
+            }
         }
 
         async function eliminarPromotora(nombrePromotora) {
@@ -609,7 +621,7 @@
                                 <td><strong>${prom}</strong></td><td><span class="pass-badge">${pass}</span></td>
                                 <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold;">${estado}</span></td>
                                 <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
-                                    <button onclick="cambiarEstadoPromotora('${prom}', '${estado}')" style="background-color: #ff8c00; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">${textoBoton}</button>
+                                    <button onclick="cambiarEstadoPromotora('${prom}', '${estado}', this)" style="background-color: #ff8c00; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">${textoBoton}</button>
                                     <button onclick="eliminarPromotora('${prom}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
                                 </td>
                             </tr>`;
