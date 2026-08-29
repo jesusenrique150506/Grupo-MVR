@@ -57,18 +57,18 @@
             <form id="formLoginAdmin" onsubmit="iniciarSesionAdmin(event)">
                 <div class="form-group">
                     <label for="loginUsuarioAdmin" style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">Usuario Administrador:</label>
-                    <div class="input-icon-wrapper">
-                        <span class="input-lead-icon">👤</span>
-                        <input type="text" id="loginUsuarioAdmin" class="input-modern" placeholder="Ej. ADMIN-MASTER" required autocomplete="username">
+                    <div class="modern-field-box">
+                        <span class="field-icon-lead">👤</span>
+                        <input type="text" id="loginUsuarioAdmin" class="field-input-clean" placeholder="Ej. Jesus Zamora" required autocomplete="username">
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-top: 1rem;">
+                <div class="form-group" style="margin-top: 1.2rem;">
                     <label for="loginPassAdmin" style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">Contraseña Maestra:</label>
-                    <div class="input-icon-wrapper">
-                        <span class="input-lead-icon" id="iconCandadoAdmin">🔒</span>
-                        <input type="password" id="loginPassAdmin" class="input-modern input-pass" placeholder="Ingresa tu contraseña" required autocomplete="current-password">
-                        <button type="button" class="btn-toggle-eye" onclick="togglePasswordVisibility('loginPassAdmin', this)" title="Mostrar u ocultar contraseña">
+                    <div class="modern-field-box">
+                        <span class="field-icon-lead" id="iconCandadoAdmin">🔒</span>
+                        <input type="password" id="loginPassAdmin" class="field-input-clean" placeholder="Ingresa tu contraseña" required autocomplete="current-password">
+                        <button type="button" class="field-btn-toggle" onclick="togglePasswordVisibility('loginPassAdmin', this)" title="Mostrar u ocultar contraseña">
                             👁️
                         </button>
                     </div>
@@ -284,16 +284,23 @@
             }
         }
 
-        function normalizarCadenaAdmin(str) {
+        function normalizarTextoPlano(str) {
             return String(str || '')
                 .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/[^a-zA-Z0-9]/g, "")
-                .toUpperCase()
+                .replace(/[\u0300-\u036f]/g, "") // Remueve tildes
+                .replace(/[^a-zA-Z0-9]/g, "")   // Remueve caracteres especiales y espacios
+                .toLowerCase()
                 .trim();
         }
 
         function validarCredencialesAdmin(usuarioBD, passBD, usuarioInput, passInput) {
+            const uBDStr = String(usuarioBD || '').trim();
+            // Ignorar filas de encabezado o vacías
+            if (!uBDStr || uBDStr.toLowerCase() === 'id admin' || uBDStr.toLowerCase() === 'usuario') {
+                return false;
+            }
+
+            // 1. Validar Contraseña
             let passReal = '';
             if (typeof passBD === 'object' && passBD !== null) {
                 passReal = String(passBD.password || passBD.pass || passBD.contrasena || '').trim();
@@ -301,29 +308,32 @@
                 passReal = String(passBD || '').trim();
             }
 
-            if (passReal !== String(passInput || '').trim()) {
+            const passInp = String(passInput || '').trim();
+            if (passReal !== passInp) {
                 return false;
             }
 
-            const uBD = String(usuarioBD || '').trim().toUpperCase();
-            const uInp = String(usuarioInput || '').trim().toUpperCase();
-            if (uBD === uInp) return true;
+            // 2. Validar Usuario de forma tolerante e inteligente
+            const uInp = String(usuarioInput || '').trim();
+            if (!uInp) return false;
 
-            const normBD = normalizarCadenaAdmin(usuarioBD);
-            const normInp = normalizarCadenaAdmin(usuarioInput);
+            const normBD = normalizarTextoPlano(uBDStr);
+            const normInp = normalizarTextoPlano(uInp);
+
+            // Coincidencia normalizada directa
             if (normBD === normInp) return true;
 
-            const cleanBD = normBD.replace(/[^A-Z]/g, '');
-            const cleanInp = normInp.replace(/[^A-Z]/g, '');
-            if (cleanBD === cleanInp) return true;
+            // Coincidencias por palabras clave (ej: jesus, zamora, admin, master)
+            const terminosClave = ['jesus', 'zamora', 'admin', 'master'];
+            for (let termino of terminosClave) {
+                if (normInp.includes(termino) && (normBD.includes(termino) || normBD.includes(termino.substring(0, 3)))) {
+                    return true;
+                }
+            }
 
-            const palabras = uInp.split(/\s+/).filter(w => w.length >= 3);
-            if (palabras.length > 0) {
-                let coincideTodo = palabras.every(p => {
-                    const pNorm = normalizarCadenaAdmin(p);
-                    return normBD.includes(pNorm) || (pNorm.startsWith('JES') && normBD.startsWith('JES'));
-                });
-                if (coincideTodo) return true;
+            // Si el texto ingresado tiene 3 o más caracteres y está contenido en el usuario de BD o viceversa
+            if (normInp.length >= 3 && (normBD.includes(normInp) || normInp.includes(normBD))) {
+                return true;
             }
 
             return false;
@@ -345,12 +355,12 @@
                 let res = await fetch(`${API_URL}?accion=obtenerAdmins&nocache=${new Date().getTime()}`);
                 let admins = await res.json();
                 let accesoConcedido = false;
-                let usuarioAutenticado = usuarioInput;
+                let usuarioAutenticado = usuarioInput || "JESÚS ZAMORA";
 
                 for (let usuarioBD in admins) {
                     if (validarCredencialesAdmin(usuarioBD, admins[usuarioBD], usuarioInput, passInput)) {
                         accesoConcedido = true;
-                        usuarioAutenticado = usuarioBD.replace(/\ufffd/g, 'U'); // Limpiar posibles caracteres corruptos
+                        usuarioAutenticado = String(usuarioBD).replace(/\ufffd/g, 'U').trim() || usuarioInput;
                         break;
                     }
                 }
