@@ -2077,53 +2077,67 @@ footer p {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
     margin-top: 0.35rem;
 }
 
-.input-lead-icon {
+.input-icon-wrapper .input-lead-icon {
     position: absolute;
     left: 14px;
-    font-size: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.15rem;
     color: #64748b;
     pointer-events: none;
+    z-index: 5;
     transition: color var(--duration-fast);
 }
 
-.input-modern {
-    width: 100%;
-    padding: 0.85rem 1rem 0.85rem 2.8rem;
-    border: 1.5px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    font-size: 0.95rem;
-    background: #ffffff;
-    box-sizing: border-box;
+.input-icon-wrapper input.input-modern {
+    width: 100% !important;
+    padding-left: 44px !important; /* Espacio limpio para que el texto no toque el icono */
+    padding-right: 48px !important; /* Espacio limpio para que el texto no toque el botón ojo */
+    padding-top: 0.9rem !important;
+    padding-bottom: 0.9rem !important;
+    font-size: 0.98rem !important;
+    line-height: 1.4 !important;
+    border: 1.5px solid var(--color-border) !important;
+    border-radius: var(--radius-sm) !important;
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    box-sizing: border-box !important;
     transition: all var(--duration-fast) var(--ease-smooth);
 }
 
-.input-modern.input-pass {
-    padding-right: 3rem;
+[data-theme="dark"] .input-icon-wrapper input.input-modern {
+    background-color: #0b1329 !important;
+    color: #f8fafc !important;
+    border-color: #1e294b !important;
 }
 
-.input-modern:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 4px rgba(0, 89, 179, 0.12);
-    outline: none;
+.input-icon-wrapper input.input-modern:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 4px rgba(0, 89, 179, 0.15) !important;
+    outline: none !important;
 }
 
-.input-modern:focus + .input-lead-icon,
+.input-icon-wrapper input.input-modern:focus ~ .input-lead-icon,
 .input-icon-wrapper:focus-within .input-lead-icon {
     color: var(--color-primary);
 }
 
-.btn-toggle-eye {
+.input-icon-wrapper .btn-toggle-eye {
     position: absolute;
     right: 12px;
-    background: none;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
     border: none;
     cursor: pointer;
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     color: #64748b;
-    padding: 4px;
+    padding: 6px;
+    z-index: 5;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2131,9 +2145,9 @@ footer p {
     transition: transform var(--duration-fast) var(--ease-spring), color var(--duration-fast);
 }
 
-.btn-toggle-eye:hover {
+.input-icon-wrapper .btn-toggle-eye:hover {
     color: var(--color-primary);
-    transform: scale(1.15);
+    transform: translateY(-50%) scale(1.15);
 }
 
 /* Botón Moderno de Login */

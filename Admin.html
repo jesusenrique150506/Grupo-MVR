@@ -284,9 +284,54 @@
             }
         }
 
+        function normalizarCadenaAdmin(str) {
+            return String(str || '')
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-zA-Z0-9]/g, "")
+                .toUpperCase()
+                .trim();
+        }
+
+        function validarCredencialesAdmin(usuarioBD, passBD, usuarioInput, passInput) {
+            let passReal = '';
+            if (typeof passBD === 'object' && passBD !== null) {
+                passReal = String(passBD.password || passBD.pass || passBD.contrasena || '').trim();
+            } else {
+                passReal = String(passBD || '').trim();
+            }
+
+            if (passReal !== String(passInput || '').trim()) {
+                return false;
+            }
+
+            const uBD = String(usuarioBD || '').trim().toUpperCase();
+            const uInp = String(usuarioInput || '').trim().toUpperCase();
+            if (uBD === uInp) return true;
+
+            const normBD = normalizarCadenaAdmin(usuarioBD);
+            const normInp = normalizarCadenaAdmin(usuarioInput);
+            if (normBD === normInp) return true;
+
+            const cleanBD = normBD.replace(/[^A-Z]/g, '');
+            const cleanInp = normInp.replace(/[^A-Z]/g, '');
+            if (cleanBD === cleanInp) return true;
+
+            const palabras = uInp.split(/\s+/).filter(w => w.length >= 3);
+            if (palabras.length > 0) {
+                let coincideTodo = palabras.every(p => {
+                    const pNorm = normalizarCadenaAdmin(p);
+                    return normBD.includes(pNorm) || (pNorm.startsWith('JES') && normBD.startsWith('JES'));
+                });
+                if (coincideTodo) return true;
+            }
+
+            return false;
+        }
+
         async function iniciarSesionAdmin(event) {
             event.preventDefault();
-            const usuarioInput = document.getElementById('loginUsuarioAdmin').value.trim().toUpperCase();
+            const usuarioInput = document.getElementById('loginUsuarioAdmin').value.trim();
             const passInput = document.getElementById('loginPassAdmin').value.trim();
             const btn = document.getElementById('btnAccesoAdmin');
             const btnTxt = document.getElementById('btnAccesoAdminTxt');
@@ -300,17 +345,19 @@
                 let res = await fetch(`${API_URL}?accion=obtenerAdmins&nocache=${new Date().getTime()}`);
                 let admins = await res.json();
                 let accesoConcedido = false;
+                let usuarioAutenticado = usuarioInput;
 
                 for (let usuarioBD in admins) {
-                    if (String(usuarioBD).trim().toUpperCase() === usuarioInput && String(admins[usuarioBD]).trim() === passInput) {
+                    if (validarCredencialesAdmin(usuarioBD, admins[usuarioBD], usuarioInput, passInput)) {
                         accesoConcedido = true;
+                        usuarioAutenticado = usuarioBD.replace(/\ufffd/g, 'U'); // Limpiar posibles caracteres corruptos
                         break;
                     }
                 }
 
                 if (accesoConcedido) {
-                    localStorage.setItem('mvr_admin_activo', usuarioInput);
-                    activarPanelAdmin(usuarioInput);
+                    localStorage.setItem('mvr_admin_activo', usuarioAutenticado);
+                    activarPanelAdmin(usuarioAutenticado);
                 } else {
                     mostrarErrorLoginAdmin("Acceso denegado. Usuario o contraseña incorrectos.");
                 }

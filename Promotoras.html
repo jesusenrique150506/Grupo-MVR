@@ -332,19 +332,34 @@
 
             try {
                 let credenciales = await consumirAPI('obtenerPromotoras');
+                let datosProm = null;
+                let idPromReal = num;
 
-                if (!credenciales || !credenciales[num]) {
+                if (credenciales) {
+                    if (credenciales[num]) {
+                        datosProm = credenciales[num];
+                    } else {
+                        for (let clave in credenciales) {
+                            if (clave.trim().toUpperCase() === num || clave.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() === num.replace(/[^a-zA-Z0-9]/g, '')) {
+                                datosProm = credenciales[clave];
+                                idPromReal = clave;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!datosProm) {
                     mostrarErrorLoginProm("ID de promotora no registrado. Consulta a administración.");
                 } else {
-                    const datosProm = credenciales[num];
                     const passwordReal = typeof datosProm === 'object' ? datosProm.password : datosProm;
                     const estadoReal = typeof datosProm === 'object' ? datosProm.estado : "Activa";
 
                     if (estadoReal === "Bloqueada") {
                         mostrarErrorLoginProm("Acceso suspendido temporalmente por cartera vencida.");
                     } else if (String(passwordReal).trim() === pass) {
-                        localStorage.setItem('mvr_promotora_activa', num);
-                        activarPortal(num);
+                        localStorage.setItem('mvr_promotora_activa', idPromReal);
+                        activarPortal(idPromReal);
                     } else {
                         mostrarErrorLoginProm("Contraseña incorrecta. Por favor verifica tus datos.");
                     }
