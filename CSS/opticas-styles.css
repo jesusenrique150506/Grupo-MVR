@@ -3408,7 +3408,7 @@ footer p {
    -------------------------------------------------------------------------- */
 @media print {
     body { background: #ffffff !important; color: #000000 !important; animation: none !important; }
-    header, footer, .hero, #valeForm, .login-promotora-container, button, label, input, select, div[style*="flex"], .btn-whatsapp, .btn-whatsapp-soporte, .btn-flotante-carrito, #btnFlotanteCarrito, .btn-flotante-fav, #mvrSpeedDial, #mvrMobileBottomNav, #mvrTickerTape, .floating-compare-bar, .pwa-install-banner { 
+    header, footer, .hero, #valeForm, .login-promotora-container, .btn-whatsapp, .btn-whatsapp-soporte, .btn-flotante-carrito, #btnFlotanteCarrito, .btn-flotante-fav, #mvrSpeedDial, #mvrMobileBottomNav, #mvrTickerTape, .floating-compare-bar, .pwa-install-banner, .no-print { 
         display: none !important; 
     }
     body.imprimiendo-vale .cartera-container { display: none !important; }

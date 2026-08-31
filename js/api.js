@@ -643,6 +643,74 @@ function inyectarComponentesModernos() {
 /* --------------------------------------------------------------------------
    8. SISTEMA DE EXPORTACIÓN Y REPORTES SEGMENTADOS (EXCEL / PDF)
    -------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------
+   8. SISTEMA DE EXPORTACIÓN Y REPORTES SEGMENTADOS (EXCEL / PDF) CON BRANDING
+   -------------------------------------------------------------------------- */
+function obtenerBrandingSucursal(sucursal) {
+    const s = String(sucursal || '').toLowerCase();
+    if (s.includes('ravali')) {
+        return {
+            nombre: 'Óptica Ravali',
+            logo: 'ravali.jpg',
+            logoAlt: 'ravali.png',
+            colorPrimario: '#a80f14',
+            colorSecundario: '#d32f2f',
+            colorGradiente: 'linear-gradient(135deg, #a80f14 0%, #d32f2f 100%)',
+            colorAcento: '#ef4444',
+            fondoSuave: '#fff5f5',
+            bordeColor: '#fca5a5',
+            slogan: 'Moda, diseño y máxima protección visual para ti',
+            badgeBg: '#fee2e2',
+            badgeText: '#991b1b'
+        };
+    } else if (s.includes('marcel')) {
+        return {
+            nombre: 'Marcel Boutique',
+            logo: 'marcel.png',
+            logoAlt: 'mvr.jpg',
+            colorPrimario: '#880e4f',
+            colorSecundario: '#c2185b',
+            colorGradiente: 'linear-gradient(135deg, #880e4f 0%, #c2185b 100%)',
+            colorAcento: '#f06292',
+            fondoSuave: '#fce4ec',
+            bordeColor: '#f48fb1',
+            slogan: 'Moda, estilo y elegancia para tu mejor versión',
+            badgeBg: '#fce7f3',
+            badgeText: '#831843'
+        };
+    } else if (s.includes('villa') || s.includes('dvilla')) {
+        return {
+            nombre: "Óptica D'villa",
+            logo: 'dvilla.jpg',
+            logoAlt: 'dvilla.png',
+            colorPrimario: '#002b55',
+            colorSecundario: '#0059b3',
+            colorGradiente: 'linear-gradient(135deg, #002b55 0%, #0059b3 100%)',
+            colorAcento: '#38bdf8',
+            fondoSuave: '#f0f7ff',
+            bordeColor: '#93c5fd',
+            slogan: 'Donde la salud, la visión y el estilo se encuentran',
+            badgeBg: '#dbeafe',
+            badgeText: '#1e40af'
+        };
+    } else {
+        return {
+            nombre: 'Grupo MVR',
+            logo: 'mvr.jpg',
+            logoAlt: 'mvr.png',
+            colorPrimario: '#002b55',
+            colorSecundario: '#ff8c00',
+            colorGradiente: 'linear-gradient(135deg, #002b55 0%, #0059b3 100%)',
+            colorAcento: '#ff8c00',
+            fondoSuave: '#f8fafc',
+            bordeColor: '#cbd5e1',
+            slogan: "Óptica D'villa • Óptica Ravali • Marcel Boutique",
+            badgeBg: '#f1f5f9',
+            badgeText: '#0f172a'
+        };
+    }
+}
+
 function filtrarValesData(vales, filtroSucursal = 'TODAS', filtroPromotora = '') {
     if (!Array.isArray(vales)) return [];
     const fSuc = String(filtroSucursal || 'TODAS').trim().toLowerCase();
@@ -784,6 +852,7 @@ function imprimirReporteCartera(vales, filtroSucursal = 'TODAS', filtroPromotora
         return;
     }
 
+    const brand = obtenerBrandingSucursal(filtroSucursal);
     let totalMonto = 0;
     let totalVencido = 0;
     let totalAlCorriente = 0;
@@ -799,65 +868,73 @@ function imprimirReporteCartera(vales, filtroSucursal = 'TODAS', filtroPromotora
         const colorBadge = esVencido ? '#d32f2f' : '#28a745';
         const fechaFmt = v.fecha ? new Date(v.fecha).toLocaleDateString('es-MX') : '-';
 
+        const rowBrand = obtenerBrandingSucursal(v.sucursal);
+
         filasHtml += `
             <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 8px; font-weight: bold; color: #002b55;">${v.folio || '-'}</td>
+                <td style="padding: 8px; font-weight: bold; color: ${brand.colorPrimario};">${v.folio || '-'}</td>
                 <td style="padding: 8px;">${fechaFmt}</td>
                 <td style="padding: 8px; font-weight: bold;">${v.promotora || '-'}</td>
-                <td style="padding: 8px;">${v.cliente || '-'}<br><small style="color: #64748b;">${v.telefono || ''}</small></td>
-                <td style="padding: 8px; font-weight: bold;">$${montoNum.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                <td style="padding: 8px;">${v.cliente || '-'}<br><small style="color: #64748b;">📞 ${v.telefono || 'Sin tel.'}</small></td>
+                <td style="padding: 8px; font-weight: bold; color: ${brand.colorPrimario};">$${montoNum.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
                 <td style="padding: 8px;">${v.quincenas || '-'}</td>
-                <td style="padding: 8px;">${v.sucursal || '-'}</td>
-                <td style="padding: 8px;"><span style="background: ${colorBadge}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${estPago}</span></td>
+                <td style="padding: 8px;"><span style="background: ${rowBrand.badgeBg}; color: ${rowBrand.badgeText}; border: 1px solid ${rowBrand.bordeColor}; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem;">${v.sucursal || '-'}</span></td>
+                <td style="padding: 8px;"><span style="background: ${colorBadge}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.78rem; font-weight: bold;">${estPago}</span></td>
             </tr>`;
     });
 
     const tituloSucursal = (filtroSucursal && filtroSucursal !== 'TODAS') ? filtroSucursal : 'Consolidado General (Todas las Sucursales)';
-    const subtituloPromotora = filtroPromotora ? `<h4 style="margin: 4px 0 0 0; color: #0059b3;">Promotora: ${filtroPromotora}</h4>` : '';
+    const subtituloPromotora = filtroPromotora ? `<h4 style="margin: 4px 0 0 0; color: ${brand.colorSecundario};">Promotora: ${filtroPromotora}</h4>` : '';
 
     const htmlDoc = `
         <!DOCTYPE html>
         <html lang="es">
         <head>
             <meta charset="UTF-8">
-            <title>Reporte de Cartera - Grupo MVR</title>
+            <base href="${window.location.href}">
+            <title>Reporte de Cartera - ${brand.nombre}</title>
             <style>
-                @page { size: letter portrait; margin: 15mm; }
-                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 15px; color: #1e293b; margin: 0; }
-                .header { border-bottom: 3px solid #002b55; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
-                .cards-kpi { display: flex; gap: 15px; margin-bottom: 20px; }
-                .card-kpi { flex: 1; padding: 12px 16px; border-radius: 6px; background: #f8fafc; border: 1px solid #cbd5e1; }
-                .card-kpi strong { display: block; font-size: 1.2rem; color: #002b55; margin-top: 4px; }
-                table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-                th { background: #002b55; color: white; text-align: left; padding: 8px 6px; }
+                @page { size: letter portrait; margin: 12mm; }
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 12px; color: #1e293b; margin: 0; }
+                .header { border-bottom: 3px solid ${brand.colorPrimario}; padding-bottom: 15px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+                .header-brand { display: flex; align-items: center; gap: 15px; }
+                .header-logo { height: 60px; width: auto; object-fit: contain; border-radius: 4px; background: white; padding: 3px; border: 1px solid #e2e8f0; }
+                .cards-kpi { display: flex; gap: 12px; margin-bottom: 18px; }
+                .card-kpi { flex: 1; padding: 10px 14px; border-radius: 6px; background: ${brand.fondoSuave}; border: 1px solid ${brand.bordeColor}; }
+                .card-kpi strong { display: block; font-size: 1.15rem; color: ${brand.colorPrimario}; margin-top: 4px; }
+                table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+                th { background: ${brand.colorPrimario}; color: white; text-align: left; padding: 8px 6px; }
                 @media print { .no-print { display: none !important; } body { padding: 0; } }
             </style>
         </head>
         <body>
             <div class="header">
-                <div>
-                    <h1 style="margin: 0; color: #002b55; font-size: 1.6rem; letter-spacing: 1px;">GRUPO MVR</h1>
-                    <p style="margin: 3px 0 0 0; font-size: 0.95rem; color: #64748b;">Óptica D'villa • Óptica Ravali • Marcel Boutique</p>
-                    <h3 style="margin: 10px 0 0 0; color: #334155;">Estado de Cartera de Vales — ${tituloSucursal}</h3>
-                    ${subtituloPromotora}
+                <div class="header-brand">
+                    <img src="${brand.logo}" onerror="this.onerror=null; this.src='${brand.logoAlt}';" class="header-logo" alt="Logo ${brand.nombre}">
+                    <div>
+                        <h1 style="margin: 0; color: ${brand.colorPrimario}; font-size: 1.5rem; letter-spacing: 0.5px;">${brand.nombre}</h1>
+                        <p style="margin: 2px 0 0 0; font-size: 0.85rem; color: #64748b;">${brand.slogan}</p>
+                        <h3 style="margin: 6px 0 0 0; color: #334155; font-size: 1.05rem;">Estado de Cartera de Vales — ${tituloSucursal}</h3>
+                        ${subtituloPromotora}
+                    </div>
                 </div>
-                <div style="text-align: right; font-size: 0.85rem; color: #64748b;">
-                    <p style="margin: 0;"><strong>Fecha de Emisión:</strong> ${new Date().toLocaleDateString('es-MX')} ${new Date().toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'})}</p>
+                <div style="text-align: right; font-size: 0.82rem; color: #64748b;">
+                    <p style="margin: 0;"><strong>Fecha de Emisión:</strong><br>${new Date().toLocaleDateString('es-MX')} ${new Date().toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'})}</p>
                     <p style="margin: 4px 0 0 0;"><strong>Total Registros:</strong> ${lista.length}</p>
                 </div>
             </div>
 
             <div class="cards-kpi">
-                <div class="card-kpi" style="border-left: 4px solid #0059b3;">
-                    <span style="font-size: 0.8rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Monto Total Colocado</span>
+                <div class="card-kpi" style="border-left: 4px solid ${brand.colorPrimario};">
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Monto Total Colocado</span>
                     <strong>$${totalMonto.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN</strong>
                 </div>
                 <div class="card-kpi" style="border-left: 4px solid #28a745;">
-                    <span style="font-size: 0.8rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Al Corriente</span>
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Al Corriente</span>
                     <strong style="color: #28a745;">$${totalAlCorriente.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN</strong>
                 </div>
                 <div class="card-kpi" style="border-left: 4px solid #d32f2f;">
-                    <span style="font-size: 0.8rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Cartera Vencida</span>
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Cartera Vencida</span>
                     <strong style="color: #d32f2f;">$${totalVencido.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN</strong>
                 </div>
             </div>
@@ -880,9 +957,9 @@ function imprimirReporteCartera(vales, filtroSucursal = 'TODAS', filtroPromotora
                 </tbody>
             </table>
 
-            <div style="margin-top: 40px; display: flex; justify-content: space-around; text-align: center; font-size: 0.85rem; color: #64748b;">
-                <div style="border-top: 1px solid #94a3b8; width: 220px; padding-top: 6px;">Firma de Administración</div>
-                <div style="border-top: 1px solid #94a3b8; width: 220px; padding-top: 6px;">Firma de Conformidad</div>
+            <div style="margin-top: 35px; display: flex; justify-content: space-around; text-align: center; font-size: 0.82rem; color: #64748b;">
+                <div style="border-top: 1.5px solid ${brand.colorPrimario}; width: 220px; padding-top: 6px;">Firma de Administración</div>
+                <div style="border-top: 1.5px solid ${brand.colorPrimario}; width: 220px; padding-top: 6px;">Firma de Conformidad</div>
             </div>
         </body>
         </html>
@@ -902,6 +979,7 @@ function mostrarTicketValeModal(vale) {
         document.body.appendChild(modal);
     }
 
+    const brand = obtenerBrandingSucursal(vale.sucursal);
     const montoNum = parseFloat(vale.monto) || 0;
     const qNum = parseInt(vale.quincenas) || 8;
     const cuotaQuincenal = qNum > 0 ? (montoNum / qNum) : 0;
@@ -909,37 +987,38 @@ function mostrarTicketValeModal(vale) {
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${qrData}&margin=4`;
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 440px; padding: 1.5rem; text-align: center;">
+        <div class="modal-content" style="max-width: 440px; padding: 1.5rem; text-align: center; border-top: 5px solid ${brand.colorPrimario};">
             <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
             <div class="ticket-digital-card">
-                <div class="ticket-header">
-                    <span style="font-size: 0.8rem; font-weight: 800; color: #ff8c00; text-transform: uppercase;">Vale Oficial de Crédito</span>
-                    <h3>GRUPO MVR</h3>
-                    <span class="ticket-folio-badge">${vale.folio}</span>
+                <div class="ticket-header" style="background: ${brand.colorGradiente}; color: white; padding: 1rem; border-radius: 8px 8px 0 0; margin: -1rem -1rem 1rem -1rem;">
+                    <img src="${brand.logo}" onerror="this.onerror=null; this.src='${brand.logoAlt}';" style="height: 48px; width: auto; object-fit: contain; background: white; padding: 2px; border-radius: 4px; margin-bottom: 6px;">
+                    <span style="font-size: 0.75rem; font-weight: 800; color: #fff; text-transform: uppercase; display: block; opacity: 0.9;">Vale Oficial de Crédito</span>
+                    <h3 style="margin: 2px 0 6px 0; font-size: 1.3rem; color: white;">${brand.nombre}</h3>
+                    <span class="ticket-folio-badge" style="background: white; color: ${brand.colorPrimario}; font-weight: 900; font-size: 1.1rem; padding: 4px 12px; border-radius: 20px; display: inline-block;">${vale.folio}</span>
                 </div>
                 
-                <div class="ticket-row"><strong>Sucursal:</strong> <span>${vale.sucursal}</span></div>
+                <div class="ticket-row"><strong>Sucursal:</strong> <span style="font-weight: bold; color: ${brand.colorPrimario};">${vale.sucursal}</span></div>
                 <div class="ticket-row"><strong>Promotora:</strong> <span>${vale.promotora}</span></div>
                 <div class="ticket-row"><strong>Cliente:</strong> <span>${vale.cliente}</span></div>
                 <div class="ticket-row"><strong>Teléfono:</strong> <span>${vale.telefono || '-'}</span></div>
-                <div class="ticket-row"><strong>Monto Autorizado:</strong> <span style="font-size: 1.1rem; font-weight: 900; color: #0059b3;">$${montoNum.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN</span></div>
+                <div class="ticket-row"><strong>Monto Autorizado:</strong> <span style="font-size: 1.15rem; font-weight: 900; color: ${brand.colorPrimario};">$${montoNum.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN</span></div>
                 <div class="ticket-row"><strong>Plazo:</strong> <span>${vale.quincenas}</span></div>
                 <div class="ticket-row"><strong>Pago Quincenal Aprox.:</strong> <span style="font-weight: bold; color: #28a745;">$${cuotaQuincenal.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN</span></div>
                 <div class="ticket-row"><strong>Estatus Pago:</strong> <span style="font-weight: bold;">${vale.estatusPago || 'Al Corriente'}</span></div>
 
-                <div class="ticket-qr-container">
-                    <img src="${qrUrl}" alt="QR de Validación de Vale">
+                <div class="ticket-qr-container" style="margin-top: 12px; padding: 10px; background: ${brand.fondoSuave}; border: 1px dashed ${brand.bordeColor}; border-radius: 8px;">
+                    <img src="${qrUrl}" alt="QR de Validación de Vale" style="border: 2px solid ${brand.colorPrimario}; border-radius: 6px; padding: 4px; background: white;">
                     <p style="margin: 6px 0 0 0; font-size: 0.75rem; color: #64748b;">Escanea en caja para validar y canjear</p>
                 </div>
 
                 <div style="font-size: 0.72rem; color: #64748b; line-height: 1.3; margin-top: 10px; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
-                    * Válido únicamente en sucursales oficiales de Grupo MVR. Indispensable presentar identificación oficial al canjear.
+                    * Válido únicamente en sucursales oficiales de Grupo MVR (${brand.nombre}). Indispensable presentar identificación oficial al canjear.
                 </div>
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 1.2rem; justify-content: center;">
-                <button onclick="imprimirTicketValeDirecto('${vale.folio}', '${vale.promotora}', '${String(vale.cliente).replace(/'/g, "")}', '${montoNum}', '${vale.quincenas}', '${vale.sucursal}', '${vale.telefono || ''}')" class="btn btn-primary" style="flex: 1; padding: 0.8rem; font-size: 0.9rem;">🖨️ Imprimir Ticket</button>
-                <button onclick="compartirValeWhatsApp('${vale.folio}', '${vale.cliente}', '${montoNum}', '${vale.quincenas}', '${vale.sucursal}', '${vale.telefono}')" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.8rem; font-size: 0.9rem; font-weight: bold;">📲 WhatsApp</button>
+                <button onclick="imprimirTicketValeDirecto('${vale.folio}', '${vale.promotora}', '${String(vale.cliente).replace(/'/g, "")}', '${montoNum}', '${vale.quincenas}', '${vale.sucursal}', '${vale.telefono || ''}')" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.8rem; font-size: 0.9rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">🖨️ Imprimir Recibo PDF</button>
+                <button onclick="compartirValeWhatsApp('${vale.folio}', '${vale.cliente}', '${montoNum}', '${vale.quincenas}', '${vale.sucursal}', '${vale.telefono}')" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.8rem; font-size: 0.9rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">📲 WhatsApp</button>
             </div>
         </div>`;
 
@@ -947,53 +1026,163 @@ function mostrarTicketValeModal(vale) {
 }
 
 function imprimirTicketValeDirecto(folio, promotora, cliente, monto, quincenas, sucursal, telefono) {
-    const qrData = encodeURIComponent(`GRUPO MVR | Folio: ${folio} | Monto: $${monto} | Cliente: ${cliente}`);
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${qrData}`;
+    const brand = obtenerBrandingSucursal(sucursal);
+    const montoNum = parseFloat(monto) || 0;
+    const numQ = parseInt(quincenas) || 8;
+    const cuota = montoNum > 0 ? (montoNum / numQ) : 0;
+    const cuotaFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cuota);
+    const montoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoNum);
 
-    const w = window.open('', '_blank');
-    w.document.write(`
+    const qrData = encodeURIComponent(`GRUPO MVR | SUCURSAL: ${sucursal}\nFolio: ${folio}\nCliente: ${cliente}\nPromotora: ${promotora}\nMonto: ${montoFmt}\nPlazo: ${quincenas}\nPago Q: ${cuotaFmt}`);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${qrData}&margin=2`;
+
+    const htmlDoc = `
         <!DOCTYPE html>
-        <html>
+        <html lang="es">
         <head>
-            <title>Ticket Vale - ${folio}</title>
+            <meta charset="UTF-8">
+            <base href="${window.location.href}">
+            <title>Recibo Oficial de Vale - ${folio} (${brand.nombre})</title>
             <style>
-                body { font-family: 'Courier New', monospace; width: 300px; margin: 0 auto; padding: 10px; font-size: 13px; color: #000; }
-                .center { text-align: center; }
-                .line { border-top: 1px dashed #000; margin: 8px 0; }
-                .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+                @page { size: 80mm 200mm; margin: 4mm; }
+                body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    width: 320px; 
+                    margin: 0 auto; 
+                    padding: 12px; 
+                    color: #1e293b; 
+                    font-size: 13px; 
+                    background: #ffffff;
+                }
+                .ticket-container {
+                    border: 2px solid ${brand.colorPrimario};
+                    border-radius: 8px;
+                    padding: 14px;
+                    background: #ffffff;
+                }
+                .header-ticket {
+                    text-align: center;
+                    border-bottom: 2px dashed ${brand.bordeColor};
+                    padding-bottom: 10px;
+                    margin-bottom: 12px;
+                }
+                .logo-ticket {
+                    height: 55px;
+                    width: auto;
+                    object-fit: contain;
+                    margin-bottom: 4px;
+                }
+                .folio-box {
+                    background: ${brand.colorGradiente};
+                    color: #ffffff;
+                    padding: 6px 10px;
+                    border-radius: 6px;
+                    font-size: 1.25rem;
+                    font-weight: 900;
+                    letter-spacing: 2px;
+                    margin: 8px 0;
+                    text-align: center;
+                }
+                .ticket-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 10px 0;
+                }
+                .ticket-table td {
+                    padding: 5px 2px;
+                    border-bottom: 1px dotted #e2e8f0;
+                }
+                .ticket-table td.label {
+                    color: #64748b;
+                    font-size: 0.85rem;
+                }
+                .ticket-table td.val {
+                    text-align: right;
+                    font-weight: 700;
+                    color: #0f172a;
+                }
+                .qr-box {
+                    text-align: center;
+                    margin: 12px 0;
+                    padding: 8px;
+                    background: ${brand.fondoSuave};
+                    border-radius: 6px;
+                    border: 1px solid ${brand.bordeColor};
+                }
+                .qr-box img {
+                    width: 130px;
+                    height: 130px;
+                    background: white;
+                    padding: 4px;
+                    border-radius: 4px;
+                }
+                .footer-legal {
+                    font-size: 0.72rem;
+                    color: #64748b;
+                    text-align: center;
+                    margin-top: 10px;
+                    line-height: 1.3;
+                }
+                .signature-box {
+                    margin-top: 25px;
+                    text-align: center;
+                }
+                .signature-line {
+                    border-top: 1px solid ${brand.colorPrimario};
+                    width: 180px;
+                    margin: 0 auto 4px auto;
+                }
+                @media print {
+                    body { width: 100%; padding: 0; }
+                    .ticket-container { border: 1.5px solid ${brand.colorPrimario}; }
+                }
             </style>
         </head>
         <body>
-            <div class="center">
-                <h3 style="margin:0;">GRUPO MVR</h3>
-                <p style="margin:2px 0;">VALE DE CRÉDITO</p>
-                <strong>${folio}</strong>
+            <div class="ticket-container">
+                <div class="header-ticket">
+                    <img src="${brand.logo}" onerror="this.onerror=null; this.src='${brand.logoAlt}';" class="logo-ticket" alt="Logo ${brand.nombre}">
+                    <h2 style="margin: 0; color: ${brand.colorPrimario}; font-size: 1.2rem; text-transform: uppercase;">${brand.nombre}</h2>
+                    <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #64748b; font-style: italic;">"${brand.slogan}"</p>
+                    <div style="font-size: 0.78rem; font-weight: bold; color: ${brand.colorSecundario}; margin-top: 4px; text-transform: uppercase;">VALE OFICIAL DE CRÉDITO</div>
+                    <div class="folio-box">${folio}</div>
+                </div>
+
+                <table class="ticket-table">
+                    <tr><td class="label">🏢 Sucursal:</td><td class="val" style="color: ${brand.colorPrimario};">${sucursal}</td></tr>
+                    <tr><td class="label">👤 Promotora:</td><td class="val">${promotora}</td></tr>
+                    <tr><td class="label">🛍️ Cliente:</td><td class="val">${cliente}</td></tr>
+                    <tr><td class="label">📞 Teléfono:</td><td class="val">${telefono || 'N/D'}</td></tr>
+                    <tr><td class="label">📅 Plazo:</td><td class="val">${quincenas}</td></tr>
+                    <tr><td class="label">💳 Pago Quincenal:</td><td class="val" style="color: #28a745;">${cuotaFmt}</td></tr>
+                    <tr style="background: ${brand.fondoSuave};"><td class="label" style="font-weight: bold; color: ${brand.colorPrimario}; font-size: 0.9rem;">💰 MONTO TOTAL:</td><td class="val" style="color: ${brand.colorPrimario}; font-size: 1.05rem;">${montoFmt} MXN</td></tr>
+                </table>
+
+                <div class="qr-box">
+                    <img src="${qrUrl}" alt="QR Vale ${folio}">
+                    <p style="margin: 4px 0 0 0; font-size: 0.72rem; color: #475569; font-weight: bold;">Escanea en caja para validar y canjear</p>
+                </div>
+
+                <div class="signature-box">
+                    <div class="signature-line"></div>
+                    <small style="color: #475569; font-weight: bold; font-size: 0.75rem;">Firma de Conformidad del Cliente</small>
+                </div>
+
+                <div class="footer-legal">
+                    * Válido únicamente en sucursales de Grupo MVR (${brand.nombre}). Indispensable presentar identificación oficial al canjear.<br>
+                    <strong>¡Gracias por tu preferencia! ✨</strong>
+                </div>
             </div>
-            <div class="line"></div>
-            <div class="row"><span>Sucursal:</span><strong>${sucursal}</strong></div>
-            <div class="row"><span>Promotora:</span><strong>${promotora}</strong></div>
-            <div class="row"><span>Cliente:</span><strong>${cliente}</strong></div>
-            <div class="row"><span>Teléfono:</span><strong>${telefono}</strong></div>
-            <div class="row"><span>Plazo:</span><strong>${quincenas}</strong></div>
-            <div class="row"><span>Monto:</span><strong>$${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} MXN</strong></div>
-            <div class="line"></div>
-            <div class="center">
-                <img src="${qrUrl}" style="width: 120px; height: 120px;">
-                <p style="font-size: 10px; margin: 4px 0 0 0;">Canjeable en sucursal con ID oficial.</p>
-            </div>
-            <div style="margin-top: 25px; text-align: center;">
-                <div style="border-top: 1px solid #000; width: 180px; margin: 0 auto 4px auto;"></div>
-                <small>Firma del Cliente</small>
-            </div>
-            <script>window.onload = function() { window.print(); };<\/script>
         </body>
         </html>
-    `);
-    w.document.close();
+    `;
+
+    imprimirHTMLSeguro(htmlDoc, `Recibo_Vale_${folio}`);
 }
 
 function compartirValeWhatsApp(folio, cliente, monto, quincenas, sucursal, telefono) {
-    const msj = encodeURIComponent(`🎟️ *¡Tu Vale de Crédito en Grupo MVR está Listo!*\n\n• *Folio:* ${folio}\n• *Cliente:* ${cliente}\n• *Monto:* $${parseFloat(monto).toLocaleString('es-MX')} MXN\n• *Plazo:* ${quincenas}\n• *Sucursal:* ${sucursal}\n\nPresenta tu folio o identificación en sucursal para canjearlo. ¡Gracias por tu preferencia!`);
+    const brand = obtenerBrandingSucursal(sucursal);
+    const msj = encodeURIComponent(`🎟️ *¡Tu Vale Oficial en ${brand.nombre} está Listo!*\n\n• *Folio:* ${folio}\n• *Cliente:* ${cliente}\n• *Monto:* $${parseFloat(monto).toLocaleString('es-MX')} MXN\n• *Plazo:* ${quincenas}\n• *Sucursal:* ${sucursal}\n\nPresenta tu folio o identificación en sucursal para canjearlo. ¡Gracias por tu preferencia con Grupo MVR! ✨`);
     const telLimpio = String(telefono || '').replace(/[^0-9]/g, '');
     const urlWa = (telLimpio.length === 10) ? `https://wa.me/52${telLimpio}?text=${msj}` : `https://wa.me/?text=${msj}`;
     window.open(urlWa, '_blank');
@@ -1862,41 +2051,63 @@ function imprimirListaPrecios(inventario) {
         const p = inventario[id];
         const precio = parseFloat(p.precio) || 0;
         const cuota8 = precio / 8;
+        const brandP = obtenerBrandingSucursal(p.sucursal);
+
         filas += `
             <tr style="border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 8px; font-weight: bold;">${id}</td>
-                <td style="padding: 8px;">${p.sucursal || '-'}</td>
-                <td style="padding: 8px; font-weight: bold;">${p.nombre || '-'}</td>
-                <td style="padding: 8px; color: #0059b3; font-weight: 900;">$${precio.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
-                <td style="padding: 8px; color: #28a745; font-weight: bold;">$${cuota8.toLocaleString('es-MX', {minimumFractionDigits:2})} / Q</td>
-                <td style="padding: 8px; text-align: center;">${p.stock || 0} pzas</td>
+                <td style="padding: 7px 6px; font-weight: bold; color: #002b55;">${id}</td>
+                <td style="padding: 7px 6px;"><span style="background: ${brandP.badgeBg}; color: ${brandP.badgeText}; border: 1px solid ${brandP.bordeColor}; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.75rem;">${p.sucursal || '-'}</span></td>
+                <td style="padding: 7px 6px; font-weight: bold;">${p.nombre || '-'}</td>
+                <td style="padding: 7px 6px; color: #0059b3; font-weight: 900;">$${precio.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                <td style="padding: 7px 6px; color: #28a745; font-weight: bold;">$${cuota8.toLocaleString('es-MX', {minimumFractionDigits:2})} / Q</td>
+                <td style="padding: 7px 6px; text-align: center; font-weight: bold;">${p.stock || 0} pzas</td>
             </tr>`;
     });
 
     const html = `
         <!DOCTYPE html>
-        <html>
+        <html lang="es">
         <head>
+            <meta charset="UTF-8">
+            <base href="${window.location.href}">
             <title>Lista de Precios Oficial - Grupo MVR</title>
             <style>
-                @page { size: letter portrait; margin: 15mm; }
-                body { font-family: 'Segoe UI', sans-serif; padding: 15px; color: #1e293b; margin: 0; }
-                table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 15px; }
+                @page { size: letter portrait; margin: 12mm; }
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 12px; color: #1e293b; margin: 0; }
+                .header { border-bottom: 3px solid #002b55; padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+                .header-brand { display: flex; align-items: center; gap: 15px; }
+                .header-logo { height: 55px; width: auto; object-fit: contain; border-radius: 4px; background: white; padding: 2px; border: 1px solid #e2e8f0; }
+                table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-top: 15px; }
                 th { background: #002b55; color: white; text-align: left; padding: 8px 6px; }
+                @media print { .no-print { display: none !important; } body { padding: 0; } }
             </style>
         </head>
         <body>
-            <div style="border-bottom: 3px solid #002b55; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end;">
-                <div>
-                    <h1 style="margin:0; color:#002b55;">GRUPO MVR</h1>
-                    <p style="margin:2px 0; color:#64748b;">Lista Oficial de Precios y Catálogo de Modelos</p>
+            <div class="header">
+                <div class="header-brand">
+                    <img src="mvr.jpg" onerror="this.onerror=null; this.src='mvr.png';" class="header-logo" alt="Logo Grupo MVR">
+                    <div>
+                        <h1 style="margin: 0; color: #002b55; font-size: 1.4rem; letter-spacing: 0.5px;">GRUPO MVR</h1>
+                        <p style="margin: 2px 0 0 0; font-size: 0.85rem; color: #64748b;">Lista Oficial de Precios y Catálogo de Modelos Vigente</p>
+                        <div style="display: flex; gap: 6px; margin-top: 4px;">
+                            <span style="background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 3px; font-size: 0.72rem; font-weight: bold;">Óptica D'villa</span>
+                            <span style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 3px; font-size: 0.72rem; font-weight: bold;">Óptica Ravali</span>
+                            <span style="background: #fce7f3; color: #831843; padding: 2px 6px; border-radius: 3px; font-size: 0.72rem; font-weight: bold;">Marcel Boutique</span>
+                        </div>
+                    </div>
                 </div>
-                <div style="text-align: right; color: #64748b;">Fecha: ${new Date().toLocaleDateString('es-MX')}</div>
+                <div style="text-align: right; color: #64748b; font-size: 0.82rem;">
+                    <p style="margin: 0;"><strong>Fecha de Emisión:</strong><br>${new Date().toLocaleDateString('es-MX')} ${new Date().toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'})}</p>
+                    <p style="margin: 4px 0 0 0;"><strong>Total Modelos:</strong> ${ids.length}</p>
+                </div>
             </div>
             <table>
                 <thead><tr><th>SKU / ID</th><th>Sucursal</th><th>Modelo</th><th>Precio Contado</th><th>Cuota Estimada (8Q)</th><th>Stock</th></tr></thead>
                 <tbody>${filas}</tbody>
             </table>
+            <div style="margin-top: 30px; text-align: center; font-size: 0.75rem; color: #94a3b8;">
+                * Lista de precios sujeta a disponibilidad de existencias. Grupo MVR © ${new Date().getFullYear()}
+            </div>
         </body>
         </html>
     `;

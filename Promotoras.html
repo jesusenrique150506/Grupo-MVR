@@ -469,30 +469,44 @@
                 const contenedor = document.getElementById('resultadoVale');
                 contenedor.className = "";
                 let logoImg = "dvilla.jpg", logoFallback = "dvilla.png";
-                if (sucursal === "Óptica Ravali") { contenedor.classList.add('tema-ravali'); logoImg = "ravali.jpg"; logoFallback = "ravali.png"; } 
-                else if (sucursal === "Marcel Boutique") { contenedor.classList.add('tema-marcel'); logoImg = "marcel.png"; logoFallback = "mvr.png"; } 
-                else { contenedor.classList.add('tema-dvilla'); }
+                let btnColor = "#002b55";
+                if (sucursal === "Óptica Ravali") { 
+                    contenedor.classList.add('tema-ravali'); 
+                    logoImg = "ravali.jpg"; 
+                    logoFallback = "ravali.png"; 
+                    btnColor = "#a80f14";
+                } else if (sucursal === "Marcel Boutique") { 
+                    contenedor.classList.add('tema-marcel'); 
+                    logoImg = "marcel.png"; 
+                    logoFallback = "mvr.png"; 
+                    btnColor = "#880e4f";
+                } else { 
+                    contenedor.classList.add('tema-dvilla'); 
+                }
 
                 const mensajeWsp = encodeURIComponent(`🌟 *HOLA ${cliente.toUpperCase()}, TU VALE DIGITAL HA SIDO AUTORIZADO* 🌟\n\n🏢 *Sucursal:* ${sucursal}\n🎟️ *Folio de Vale:* ${folio}\n💰 *Monto Autorizado:* ${montoFormateado} MXN\n📅 *Plazo:* ${quincenas}\n💳 *Pago Quincenal:* ${cuotaFmt} MXN\n👤 *Promotora Asignada:* ${promotora}\n📅 *Fecha de Emisión:* ${nuevoVale.fecha}\n\nPresenta este folio o código en sucursal para disfrutar de tus lentes, armazones o prendas favoritas. ¡Gracias por tu preferencia con Grupo MVR!`);
                 const urlWsp = `https://api.whatsapp.com/send?phone=52${telefono}&text=${mensajeWsp}`;
                 const urlQrNativo = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(`=== GRUPO MVR: VALE AUTORIZADO ===\nFolio: ${folio}\nSucursal: ${sucursal}\nCliente: ${cliente}\nTel: ${telefono}\nMonto: ${montoFormateado}\nPlazo: ${quincenas}\nPago Q.: ${cuotaFmt}\nPromotora: ${promotora}\nFecha: ${nuevoVale.fecha}`)}`;
+
+                const valeJsonSafe = JSON.stringify(nuevoVale).replace(/'/g, "&apos;");
 
                 contenedor.innerHTML = `
                     <img src="${logoImg}" onerror="this.onerror=null; this.src='${logoFallback}';" class="logo-vale-head">
                     <h2 class="titulo-vale" style="margin: 0; text-transform: uppercase;">${sucursal} - Vale Autorizado</h2>
                     <div class="folio-box">${folio}</div>
                     <div style="margin: 1rem auto; display: flex; flex-direction: column; align-items: center;">
-                        <img src="${urlQrNativo}" style="padding: 6px; background: white; border-radius: 6px; border: 2px dashed #002b55;">
+                        <img src="${urlQrNativo}" style="padding: 6px; background: white; border-radius: 6px; border: 2px dashed ${btnColor};">
                     </div>
                     <div style="font-size: 0.95rem; color: #333; line-height: 1.8; text-align: left; background: #fff; padding: 1.2rem; border-radius: 6px; border: 1px solid #ccc; margin-top: 1rem;">
                         <strong>Cliente:</strong> ${cliente}<br>
-                        <strong>Monto Autorizado:</strong> <span style="font-weight: bold; font-size: 1.1rem; color: #002b55;">${montoFormateado} MXN</span><br>
+                        <strong>Monto Autorizado:</strong> <span style="font-weight: bold; font-size: 1.1rem; color: ${btnColor};">${montoFormateado} MXN</span><br>
                         <strong>Plazo:</strong> ${quincenas} (<strong>${cuotaFmt}</strong> por quincena)<br>
                         <strong>Promotora:</strong> ${promotora}
                     </div>
                     <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem;">
-                        <a href="${urlWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.8rem 1.2rem; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">💬 Enviar Vale al Cliente por WhatsApp</a>
-                        <button onclick="imprimirElemento('vale')" style="background-color: #002b55; color: white; border: none; padding: 0.8rem 1.4rem; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer;">🖨️ Guardar PDF / Imprimir</button>
+                        <button onclick='mostrarPassbookModal(${valeJsonSafe})' class="btn btn-primary" style="padding: 0.75rem 1.2rem; font-size: 0.95rem;">📱 Tarjeta Passbook</button>
+                        <button onclick="imprimirTicketValeDirecto('${folio}', '${promotora}', '${String(cliente).replace(/'/g, "")}', '${montoRaw}', '${quincenas}', '${sucursal}', '${telefono}')" style="background-color: ${btnColor}; color: white; border: none; padding: 0.75rem 1.2rem; font-size: 0.95rem; font-weight: bold; border-radius: 5px; cursor: pointer;">🖨️ Recibo Oficial PDF</button>
+                        <a href="${urlWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.75rem 1.2rem; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">💬 WhatsApp</a>
                     </div>`;
                 contenedor.style.display = 'block';
                 contenedor.scrollIntoView({ behavior: 'smooth' });
