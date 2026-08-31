@@ -645,13 +645,77 @@ function inyectarComponentesModernos() {
    -------------------------------------------------------------------------- */
 function filtrarValesData(vales, filtroSucursal = 'TODAS', filtroPromotora = '') {
     if (!Array.isArray(vales)) return [];
+    const fSuc = String(filtroSucursal || 'TODAS').trim().toLowerCase();
+    const fProm = String(filtroPromotora || '').trim().toUpperCase();
+
     return vales.filter(v => {
         const suc = String(v.sucursal || '').trim();
         const prom = String(v.promotora || '').trim().toUpperCase();
-        const matchSucursal = (filtroSucursal === 'TODAS' || !filtroSucursal) ? true : (suc.toLowerCase() === filtroSucursal.toLowerCase());
-        const matchProm = (!filtroPromotora) ? true : (prom === filtroPromotora.trim().toUpperCase());
+        
+        const matchSucursal = (fSuc === 'todas' || fSuc === '' || fSuc === 'all') 
+            ? true 
+            : (suc.toLowerCase() === fSuc);
+
+        const matchProm = (!fProm || fProm === 'TODAS') 
+            ? true 
+            : (prom === fProm || prom.includes(fProm) || fProm.includes(prom));
+
         return matchSucursal && matchProm;
     });
+}
+
+function imprimirHTMLSeguro(htmlDocumento, tituloDocumento = 'Reporte Oficial Grupo MVR') {
+    reproducirSonido('click');
+    
+    // Método 1: Iframe Invisible (Garantiza cero bloqueos por popup blockers)
+    try {
+        let iframe = document.getElementById('iframeImpresionMVR');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.id = 'iframeImpresionMVR';
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
+        }
+
+        const iframeDoc = iframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(htmlDocumento);
+        iframeDoc.close();
+
+        setTimeout(() => {
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            } catch (e) {
+                console.warn("Iframe print fallback trigger", e);
+                abrirVentanaPrintFallback(htmlDocumento);
+            }
+        }, 450);
+        return;
+    } catch (err) {
+        console.warn("Error con iframe de impresión, usando ventana emergente:", err);
+        abrirVentanaPrintFallback(htmlDocumento);
+    }
+}
+
+function abrirVentanaPrintFallback(htmlDocumento) {
+    const ventana = window.open('', '_blank');
+    if (ventana) {
+        ventana.document.open();
+        ventana.document.write(htmlDocumento);
+        ventana.document.close();
+        ventana.focus();
+        setTimeout(() => {
+            try { ventana.print(); } catch (e) {}
+        }, 500);
+    } else {
+        alert("⚠️ Tu navegador bloqueó la ventana emergente. Por favor permite las ventanas emergentes o revisa la vista en pantalla.");
+    }
 }
 
 function exportarCarteraCSV(vales, filtroSucursal = 'TODAS', filtroPromotora = '', nombreArchivoPersonalizado = '') {
@@ -709,12 +773,14 @@ function exportarCarteraCSV(vales, filtroSucursal = 'TODAS', filtroPromotora = '
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    reproducirSonido('success');
+    mostrarToast("¡Descarga Exitosa!", "Tu archivo Excel (.csv) se ha generado y descargado correctamente.");
 }
 
 function imprimirReporteCartera(vales, filtroSucursal = 'TODAS', filtroPromotora = '') {
     const lista = filtrarValesData(vales, filtroSucursal, filtroPromotora);
     if (lista.length === 0) {
-        alert("⚠️ No hay registros de vales para imprimir.");
+        alert("⚠️ No hay registros de vales para imprimir con los filtros seleccionados.");
         return;
     }
 
@@ -749,22 +815,22 @@ function imprimirReporteCartera(vales, filtroSucursal = 'TODAS', filtroPromotora
     const tituloSucursal = (filtroSucursal && filtroSucursal !== 'TODAS') ? filtroSucursal : 'Consolidado General (Todas las Sucursales)';
     const subtituloPromotora = filtroPromotora ? `<h4 style="margin: 4px 0 0 0; color: #0059b3;">Promotora: ${filtroPromotora}</h4>` : '';
 
-    const ventanaImpresion = window.open('', '_blank');
-    ventanaImpresion.document.write(`
+    const htmlDoc = `
         <!DOCTYPE html>
         <html lang="es">
         <head>
             <meta charset="UTF-8">
             <title>Reporte de Cartera - Grupo MVR</title>
             <style>
-                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px; color: #1e293b; }
+                @page { size: letter portrait; margin: 15mm; }
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 15px; color: #1e293b; margin: 0; }
                 .header { border-bottom: 3px solid #002b55; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
                 .cards-kpi { display: flex; gap: 15px; margin-bottom: 20px; }
                 .card-kpi { flex: 1; padding: 12px 16px; border-radius: 6px; background: #f8fafc; border: 1px solid #cbd5e1; }
                 .card-kpi strong { display: block; font-size: 1.2rem; color: #002b55; margin-top: 4px; }
-                table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-                th { background: #002b55; color: white; text-align: left; padding: 10px 8px; }
-                @media print { .no-print { display: none; } body { padding: 0; } }
+                table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+                th { background: #002b55; color: white; text-align: left; padding: 8px 6px; }
+                @media print { .no-print { display: none !important; } body { padding: 0; } }
             </style>
         </head>
         <body>
@@ -818,13 +884,11 @@ function imprimirReporteCartera(vales, filtroSucursal = 'TODAS', filtroPromotora
                 <div style="border-top: 1px solid #94a3b8; width: 220px; padding-top: 6px;">Firma de Administración</div>
                 <div style="border-top: 1px solid #94a3b8; width: 220px; padding-top: 6px;">Firma de Conformidad</div>
             </div>
-            <script>
-                window.onload = function() { window.print(); };
-            <\/script>
         </body>
         </html>
-    `);
-    ventanaImpresion.document.close();
+    `;
+
+    imprimirHTMLSeguro(htmlDoc, `Reporte_Cartera_${tituloSucursal}`);
 }
 
 function mostrarTicketValeModal(vale) {
@@ -1782,11 +1846,18 @@ function exportarInventarioCSV(inventario) {
 }
 
 function imprimirListaPrecios(inventario) {
-    if (!inventario || typeof inventario !== 'object') return;
+    if (!inventario || typeof inventario !== 'object') {
+        alert("⚠️ No hay inventario cargado para imprimir.");
+        return;
+    }
 
     const ids = Object.keys(inventario);
-    let filas = '';
+    if (ids.length === 0) {
+        alert("⚠️ No hay productos en el inventario.");
+        return;
+    }
 
+    let filas = '';
     ids.forEach(id => {
         const p = inventario[id];
         const precio = parseFloat(p.precio) || 0;
@@ -1802,20 +1873,20 @@ function imprimirListaPrecios(inventario) {
             </tr>`;
     });
 
-    const w = window.open('', '_blank');
-    w.document.write(`
+    const html = `
         <!DOCTYPE html>
         <html>
         <head>
             <title>Lista de Precios Oficial - Grupo MVR</title>
             <style>
-                body { font-family: 'Segoe UI', sans-serif; padding: 25px; color: #1e293b; }
-                table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 15px; }
-                th { background: #002b55; color: white; text-align: left; padding: 10px 8px; }
+                @page { size: letter portrait; margin: 15mm; }
+                body { font-family: 'Segoe UI', sans-serif; padding: 15px; color: #1e293b; margin: 0; }
+                table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 15px; }
+                th { background: #002b55; color: white; text-align: left; padding: 8px 6px; }
             </style>
         </head>
         <body>
-            <div style="border-bottom: 3px solid #002b55; padding-bottom: 10px; display: flex; justify-content: space-between;">
+            <div style="border-bottom: 3px solid #002b55; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end;">
                 <div>
                     <h1 style="margin:0; color:#002b55;">GRUPO MVR</h1>
                     <p style="margin:2px 0; color:#64748b;">Lista Oficial de Precios y Catálogo de Modelos</p>
@@ -1826,11 +1897,11 @@ function imprimirListaPrecios(inventario) {
                 <thead><tr><th>SKU / ID</th><th>Sucursal</th><th>Modelo</th><th>Precio Contado</th><th>Cuota Estimada (8Q)</th><th>Stock</th></tr></thead>
                 <tbody>${filas}</tbody>
             </table>
-            <script>window.onload = function() { window.print(); };<\/script>
         </body>
         </html>
-    `);
-    w.document.close();
+    `;
+
+    imprimirHTMLSeguro(html, 'Lista_Precios_GrupoMVR');
 }
 
 /* --------------------------------------------------------------------------

@@ -624,9 +624,25 @@
             document.getElementById('tablaCarteraResultado').style.display = 'block';
         }
 
-        function exportarCarteraPromotora(formato) {
-            const prom = document.getElementById('buscarPromotora').value.trim().toUpperCase();
-            const suc = document.getElementById('filtroSucursalPromotora').value;
+        async function exportarCarteraPromotora(formato) {
+            let prom = document.getElementById('buscarPromotora').value.trim().toUpperCase();
+            if (!prom) {
+                prom = localStorage.getItem('mvr_promotora_activa') || '';
+            }
+            const suc = document.getElementById('filtroSucursalPromotora') ? document.getElementById('filtroSucursalPromotora').value : 'TODAS';
+
+            if (!listaValesPromotoraCache || listaValesPromotoraCache.length === 0) {
+                if (typeof mostrarToast === 'function') mostrarToast("Sincronizando...", "Consultando registros en la nube para generar el reporte...");
+                try {
+                    let vales = await consumirAPI('obtenerVales');
+                    if (vales && Array.isArray(vales)) {
+                        listaValesPromotoraCache = vales.filter(v => String(v.promotora).toUpperCase().includes(prom));
+                    }
+                } catch (e) {
+                    console.error("Error cargando vales para exportar:", e);
+                }
+            }
+
             if (formato === 'excel') {
                 exportarCarteraCSV(listaValesPromotoraCache, suc, prom);
             } else if (formato === 'pdf') {
