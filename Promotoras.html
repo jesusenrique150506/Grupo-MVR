@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupo MVR | Portal de Promotoras y Vales</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#002b55">
     <link rel="stylesheet" href="CSS/opticas-styles.css">
 
     <style>
@@ -201,7 +203,7 @@
             <div id="resultadoVale"></div>
         </main>
 
-        <section class="cartera-container" style="max-width: 1000px;">
+        <section class="cartera-container" style="max-width: 1050px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
                 <h3 style="color: #002b55; margin: 0;">📂 Cartera de Clientes y Módulo de Cobranza</h3>
                 <button onclick="buscarCartera()" id="btnConsultarCartera" class="btn" style="background-color: #28a745; color: white; padding: 0.6rem 1.2rem; font-size: 0.9rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
@@ -210,6 +212,26 @@
             </div>
             
             <input type="hidden" id="buscarPromotora">
+
+            <div class="export-toolbar" style="margin-top: 1rem;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <label for="filtroSucursalPromotora" style="font-weight: bold; color: #002b55; margin: 0;">🏢 Filtrar por Sucursal:</label>
+                    <select id="filtroSucursalPromotora" class="select-segmentacion" onchange="renderizarCarteraFiltradaPromotora()">
+                        <option value="TODAS">🌐 Todas mis Sucursales (Consolidado)</option>
+                        <option value="Óptica D'villa">🔵 Óptica D'villa</option>
+                        <option value="Óptica Ravali">🔴 Óptica Ravali</option>
+                        <option value="Marcel Boutique">🟣 Marcel Boutique</option>
+                    </select>
+                </div>
+                <div class="export-btn-group">
+                    <button onclick="exportarCarteraPromotora('excel')" class="btn-export btn-export-excel" title="Descargar mi cartera en Excel">
+                        <span>📊</span> Mi Cartera en Excel
+                    </button>
+                    <button onclick="exportarCarteraPromotora('pdf')" class="btn-export btn-export-pdf" title="Descargar o imprimir mi estado de cuenta oficial">
+                        <span>📄</span> Estado de Cuenta PDF
+                    </button>
+                </div>
+            </div>
 
             <div id="tablaCarteraResultado" style="display: none; margin-top: 1rem; overflow-x: auto;">
                 <table class="tabla-cartera" style="width: 100%;">
@@ -221,14 +243,12 @@
                             <th>Plazo / Cuota</th>
                             <th>Sucursal</th>
                             <th>Estatus</th>
+                            <th style="text-align: center;">Ticket Digital</th>
                             <th style="text-align: center;">Cobranza WhatsApp</th>
                         </tr>
                     </thead>
                     <tbody id="cuerpoTablaCartera"></tbody>
                 </table>
-                <button onclick="imprimirElemento('cartera')" style="width: 100%; background-color: #002b55; color: white; border: none; padding: 0.8rem; font-weight: bold; border-radius: 5px; margin-top: 1.5rem; cursor: pointer;">
-                    🖨️ Exportar Cartera en PDF
-                </button>
             </div>
         </section>
     </div>
@@ -485,98 +505,22 @@
             btn.disabled = false;
         }
 
+        let listaValesPromotoraCache = [];
+
         async function buscarCartera() {
             reiniciarTemporizadorInactividad();
             const btn = document.getElementById('btnConsultarCartera');
             if (btn) btn.innerText = "Sincronizando...";
             const busqueda = document.getElementById('buscarPromotora').value.trim().toUpperCase();
             const cuerpo = document.getElementById('cuerpoTablaCartera');
-            if (cuerpo) cuerpo.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">Cargando registros...</td></tr>`;
+            if (cuerpo) cuerpo.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#888;">Cargando registros...</td></tr>`;
 
             try {
                 let valesGuardados = await consumirAPI('obtenerVales');
                 
                 if (valesGuardados) {
-                    const filtrados = valesGuardados.filter(v => String(v.promotora).toUpperCase().includes(busqueda));
-
-                    let totalVendido = 0;
-                    let clientesSet = new Set();
-
-                    if (filtrados.length === 0) {
-                        cuerpo.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No se encontraron vales registrados para tu ID.</td></tr>`;
-                    } else {
-                        cuerpo.innerHTML = "";
-                        filtrados.forEach(v => {
-                            const esRavali = v.sucursal === "Óptica Ravali";
-                            const esMarcel = v.sucursal === "Marcel Boutique";
-                            const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
-                            const montoNum = parseFloat(v.monto) || 0;
-                            totalVendido += montoNum;
-                            clientesSet.add(v.cliente);
-
-                            const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoNum);
-                            const numQ = parseInt(v.quincenas) || 8;
-                            const cuota = montoNum > 0 ? (montoNum / numQ) : 0;
-                            const cuotaFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cuota);
-
-                            const telLimpo = String(v.telefono || '').replace(/\D/g, '');
-                            
-                            // Lectura Dinámica del Estatus desde la Base de Datos
-                            const estatus = String(v.estatusPago || v.estadoPago || v.estatus || v.estado || 'Al Corriente').trim();
-                            const estatusCanje = String(v.estatusCanje || '').trim();
-                            const estatusLower = estatus.toLowerCase();
-
-                            let badgeStatusHtml = '';
-                            if (estatusLower.includes('vencid') || estatusLower.includes('atras') || estatusLower.includes('mora')) {
-                                badgeStatusHtml = `<span style="background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🔴 ${estatus}</span>`;
-                            } else if (estatusLower.includes('liquid') || estatusLower.includes('pagad')) {
-                                badgeStatusHtml = `<span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🔵 ${estatus}</span>`;
-                            } else if (estatusLower.includes('pendient')) {
-                                badgeStatusHtml = `<span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🟡 ${estatus}</span>`;
-                            } else {
-                                badgeStatusHtml = `<span class="badge-status-corriente">🟢 ${estatus}</span>`;
-                            }
-
-                            if (estatusCanje) {
-                                let colorCanje = estatusCanje.toLowerCase().includes('canjeado') ? '#0059b3' : '#64748b';
-                                badgeStatusHtml += `<br><small style="color: ${colorCanje}; font-weight: 700; font-size: 0.75rem;">🏷️ ${estatusCanje}</small>`;
-                            }
-
-                            let mensajeCobro = '';
-                            if (estatusLower.includes('vencid') || estatusLower.includes('atras') || estatusLower.includes('mora')) {
-                                mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe informamos cordialmente que tu cuenta correspondiente al vale *${v.folio}* presenta un estatus de *${estatus}* con un pago quincenal pendiente de *${cuotaFmt} MXN*.\n\nPor favor comunícate a la brevedad con tu promotora (${v.promotora}) para regularizar tu saldo y mantener tu crédito activo. ¡Muchas gracias!`);
-                            } else {
-                                mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe recordamos cordialmente que tu pago quincenal correspondiente al vale *${v.folio}* por un monto de *${cuotaFmt} MXN* vence en esta quincena.\n\n¡Agradecemos mucho tu puntualidad y preferencia! ✨`);
-                            }
-
-                            const linkCobroWsp = `https://api.whatsapp.com/send?phone=52${telLimpo}&text=${mensajeCobro}`;
-
-                            cuerpo.innerHTML += `
-                                <tr class="${esRavali ? 'row-ravali' : (esMarcel ? 'row-marcel' : 'row-dvilla')}">
-                                    <td><strong>${v.folio}</strong></td>
-                                    <td>${v.cliente}<br><small style="color: #666;">📞 ${v.telefono || 'Sin tel.'}</small></td>
-                                    <td style="font-weight: bold; color: #002b55;">${montoF}</td>
-                                    <td>${v.quincenas}<br><small style="color: #28a745; font-weight: bold;">${cuotaFmt} / Q</small></td>
-                                    <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
-                                    <td>${badgeStatusHtml}</td>
-                                    <td style="text-align: center;">
-                                        ${telLimpo.length >= 10 ? `
-                                            <a href="${linkCobroWsp}" target="_blank" class="btn-wsp-recordatorio" title="Enviar recordatorio cordial de pago">
-                                                🔔 Recordar Pago
-                                            </a>` : `<small style="color: #999;">Sin WhatsApp</small>`}
-                                    </td>
-                                </tr>`;
-                        });
-                    }
-
-                    // Actualizar KPIs
-                    const comisionEstimada = totalVendido * 0.10;
-                    document.getElementById('kpiMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(totalVendido);
-                    document.getElementById('kpiComisionEstimada').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(comisionEstimada);
-                    document.getElementById('kpiTotalVales').innerText = filtrados.length;
-                    document.getElementById('kpiClientesActivos').innerText = clientesSet.size;
-
-                    document.getElementById('tablaCarteraResultado').style.display = 'block';
+                    listaValesPromotoraCache = valesGuardados.filter(v => String(v.promotora).toUpperCase().includes(busqueda));
+                    renderizarCarteraFiltradaPromotora();
                 }
             } catch (error) {
                 console.error("Error al cargar cartera", error);
@@ -584,12 +528,110 @@
             if (btn) btn.innerText = "🔄 Actualizar Cartera";
         }
 
-        function imprimirElemento(tipo) {
-            reiniciarTemporizadorInactividad();
-            document.body.classList.remove('imprimiendo-vale', 'imprimiendo-cartera');
-            if (tipo === 'vale') document.body.classList.add('imprimiendo-vale');
-            else if (tipo === 'cartera') document.body.classList.add('imprimiendo-cartera');
-            window.print();
+        function renderizarCarteraFiltradaPromotora() {
+            const filtroSucursal = document.getElementById('filtroSucursalPromotora') ? document.getElementById('filtroSucursalPromotora').value : 'TODAS';
+            const cuerpo = document.getElementById('cuerpoTablaCartera');
+            if (!cuerpo) return;
+
+            const filtrados = (filtroSucursal === 'TODAS' || !filtroSucursal) 
+                ? listaValesPromotoraCache 
+                : listaValesPromotoraCache.filter(v => String(v.sucursal || '').toLowerCase() === filtroSucursal.toLowerCase());
+
+            let totalVendido = 0;
+            let clientesSet = new Set();
+
+            if (filtrados.length === 0) {
+                cuerpo.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#888;">No se encontraron vales registrados para la sucursal seleccionada.</td></tr>`;
+            } else {
+                cuerpo.innerHTML = "";
+                filtrados.slice().reverse().forEach(v => {
+                    const esRavali = v.sucursal === "Óptica Ravali";
+                    const esMarcel = v.sucursal === "Marcel Boutique";
+                    const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
+                    const montoNum = parseFloat(v.monto) || 0;
+                    totalVendido += montoNum;
+                    clientesSet.add(v.cliente);
+
+                    const montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoNum);
+                    const numQ = parseInt(v.quincenas) || 8;
+                    const cuota = montoNum > 0 ? (montoNum / numQ) : 0;
+                    const cuotaFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cuota);
+
+                    const telLimpo = String(v.telefono || '').replace(/\D/g, '');
+                    
+                    const estatus = String(v.estatusPago || v.estadoPago || v.estatus || v.estado || 'Al Corriente').trim();
+                    const estatusCanje = String(v.estatusCanje || '').trim();
+                    const estatusLower = estatus.toLowerCase();
+
+                    let badgeStatusHtml = '';
+                    if (estatusLower.includes('vencid') || estatusLower.includes('atras') || estatusLower.includes('mora')) {
+                        badgeStatusHtml = `<span style="background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🔴 ${estatus}</span>`;
+                    } else if (estatusLower.includes('liquid') || estatusLower.includes('pagad')) {
+                        badgeStatusHtml = `<span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🔵 ${estatus}</span>`;
+                    } else if (estatusLower.includes('pendient')) {
+                        badgeStatusHtml = `<span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🟡 ${estatus}</span>`;
+                    } else {
+                        badgeStatusHtml = `<span class="badge-status-corriente">🟢 ${estatus}</span>`;
+                    }
+
+                    if (estatusCanje) {
+                        let colorCanje = estatusCanje.toLowerCase().includes('canjeado') ? '#0059b3' : '#64748b';
+                        badgeStatusHtml += `<br><small style="color: ${colorCanje}; font-weight: 700; font-size: 0.75rem;">🏷️ ${estatusCanje}</small>`;
+                    }
+
+                    let mensajeCobro = '';
+                    if (estatusLower.includes('vencid') || estatusLower.includes('atras') || estatusLower.includes('mora')) {
+                        mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe informamos cordialmente que tu cuenta correspondiente al vale *${v.folio}* presenta un estatus de *${estatus}* con un pago quincenal pendiente de *${cuotaFmt} MXN*.\n\nPor favor comunícate a la brevedad con tu promotora (${v.promotora}) para regularizar tu saldo y mantener tu crédito activo. ¡Muchas gracias!`);
+                    } else {
+                        mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe recordamos cordialmente que tu pago quincenal correspondiente al vale *${v.folio}* por un monto de *${cuotaFmt} MXN* vence en esta quincena.\n\n¡Agradecemos mucho tu puntualidad y preferencia! ✨`);
+                    }
+
+                    const linkCobroWsp = `https://api.whatsapp.com/send?phone=52${telLimpo}&text=${mensajeCobro}`;
+                    const valeJsonSafe = JSON.stringify(v).replace(/'/g, "&apos;");
+
+                    cuerpo.innerHTML += `
+                        <tr class="${esRavali ? 'row-ravali' : (esMarcel ? 'row-marcel' : 'row-dvilla')}">
+                            <td><strong>${v.folio}</strong></td>
+                            <td>${v.cliente}<br><small style="color: #666;">📞 ${v.telefono || 'Sin tel.'}</small></td>
+                            <td style="font-weight: bold; color: #002b55;">${montoF}</td>
+                            <td>${v.quincenas}<br><small style="color: #28a745; font-weight: bold;">${cuotaFmt} / Q</small></td>
+                            <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
+                            <td>${badgeStatusHtml}</td>
+                            <td style="text-align: center;">
+                                <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
+                                    <button onclick='mostrarPassbookModal(${valeJsonSafe})' class="btn btn-primary" style="padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">📱 Passbook</button>
+                                    <button onclick='mostrarTicketValeModal(${valeJsonSafe})' class="btn" style="background: #0059b3; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">🎟️ QR</button>
+                                    <button onclick="abrirModalAbonos('${v.folio}', '${String(v.cliente).replace(/'/g, "")}', ${montoNum}, '${v.quincenas}', '${v.promotora}', '${v.sucursal}')" class="btn" style="background: #28a745; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">💵 Abonos</button>
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                ${telLimpo.length >= 10 ? `
+                                    <a href="${linkCobroWsp}" target="_blank" class="btn-wsp-recordatorio" title="Enviar recordatorio cordial de pago">
+                                        🔔 Recordar Pago
+                                    </a>` : `<small style="color: #999;">Sin WhatsApp</small>`}
+                            </td>
+                        </tr>`;
+                });
+            }
+
+            // Actualizar KPIs de la promotora
+            const comisionEstimada = totalVendido * 0.10;
+            document.getElementById('kpiMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(totalVendido);
+            document.getElementById('kpiComisionEstimada').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(comisionEstimada);
+            document.getElementById('kpiTotalVales').innerText = filtrados.length;
+            document.getElementById('kpiClientesActivos').innerText = clientesSet.size;
+
+            document.getElementById('tablaCarteraResultado').style.display = 'block';
+        }
+
+        function exportarCarteraPromotora(formato) {
+            const prom = document.getElementById('buscarPromotora').value.trim().toUpperCase();
+            const suc = document.getElementById('filtroSucursalPromotora').value;
+            if (formato === 'excel') {
+                exportarCarteraCSV(listaValesPromotoraCache, suc, prom);
+            } else if (formato === 'pdf') {
+                imprimirReporteCartera(listaValesPromotoraCache, suc, prom);
+            }
         }
     </script>
 </body>

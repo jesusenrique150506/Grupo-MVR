@@ -640,9 +640,1316 @@ function inyectarComponentesModernos() {
     }
 }
 
-// Inicializar el contador y tema al cargar la página
+/* --------------------------------------------------------------------------
+   8. SISTEMA DE EXPORTACIÓN Y REPORTES SEGMENTADOS (EXCEL / PDF)
+   -------------------------------------------------------------------------- */
+function filtrarValesData(vales, filtroSucursal = 'TODAS', filtroPromotora = '') {
+    if (!Array.isArray(vales)) return [];
+    return vales.filter(v => {
+        const suc = String(v.sucursal || '').trim();
+        const prom = String(v.promotora || '').trim().toUpperCase();
+        const matchSucursal = (filtroSucursal === 'TODAS' || !filtroSucursal) ? true : (suc.toLowerCase() === filtroSucursal.toLowerCase());
+        const matchProm = (!filtroPromotora) ? true : (prom === filtroPromotora.trim().toUpperCase());
+        return matchSucursal && matchProm;
+    });
+}
+
+function exportarCarteraCSV(vales, filtroSucursal = 'TODAS', filtroPromotora = '', nombreArchivoPersonalizado = '') {
+    const lista = filtrarValesData(vales, filtroSucursal, filtroPromotora);
+    if (lista.length === 0) {
+        alert("⚠️ No hay registros de vales para exportar con los filtros seleccionados.");
+        return;
+    }
+
+    let csvContent = "\uFEFF"; // UTF-8 BOM para apertura perfecta de tildes y símbolos en Excel
+    csvContent += "Folio,Fecha,Promotora,Cliente,Telefono,Direccion,Monto Autorizado,Monto Venta,Plazo,Sucursal,Estatus Pago,Estatus Canje\r\n";
+
+    let totalMonto = 0;
+    let totalAlCorriente = 0;
+    let totalVencido = 0;
+
+    lista.forEach(v => {
+        const folio = `"${String(v.folio || '').replace(/"/g, '""')}"`;
+        const fecha = `"${String(v.fecha ? new Date(v.fecha).toLocaleDateString('es-MX') : '').replace(/"/g, '""')}"`;
+        const prom = `"${String(v.promotora || '').replace(/"/g, '""')}"`;
+        const cli = `"${String(v.cliente || '').replace(/"/g, '""')}"`;
+        const tel = `"${String(v.telefono || '').replace(/"/g, '""')}"`;
+        const dir = `"${String(v.direccion || '').replace(/"/g, '""')}"`;
+        const montoNum = parseFloat(v.monto) || 0;
+        const montoVenta = parseFloat(v.montoVenta) || 0;
+        totalMonto += montoNum;
+
+        const plazo = `"${String(v.quincenas || '').replace(/"/g, '""')}"`;
+        const suc = `"${String(v.sucursal || '').replace(/"/g, '""')}"`;
+        const estPago = String(v.estatusPago || 'Al Corriente').trim();
+        const estCanje = String(v.estatusCanje || 'Pendiente').trim();
+
+        if (estPago.toLowerCase().includes('vencido')) totalVencido += montoNum;
+        else totalAlCorriente += montoNum;
+
+        csvContent += `${folio},${fecha},${prom},${cli},${tel},${dir},${montoNum},${montoVenta},${plazo},${suc},"${estPago}","${estCanje}"\r\n`;
+    });
+
+    // Fila de Totales
+    csvContent += `\r\n"--- RESUMEN ---","","","","","","","","","","",""\r\n`;
+    csvContent += `"Total de Vales:",${lista.length},"","","","","","","","","",""\r\n`;
+    csvContent += `"Monto Total Colocado:",${totalMonto},"","","","","","","","","",""\r\n`;
+    csvContent += `"Total al Corriente:",${totalAlCorriente},"","","","","","","","","",""\r\n`;
+    csvContent += `"Total en Cartera Vencida:",${totalVencido},"","","","","","","","","",""\r\n`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    const fechaHoy = new Date().toISOString().split('T')[0];
+    const etiquetaSuc = (filtroSucursal && filtroSucursal !== 'TODAS') ? filtroSucursal.replace(/[^a-zA-Z0-9]/g, '_') : 'General_Consolidado';
+    const etiquetaProm = filtroPromotora ? `_Promotora_${filtroPromotora.replace(/[^a-zA-Z0-9]/g, '_')}` : '';
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", nombreArchivoPersonalizado || `Cartera_${etiquetaSuc}${etiquetaProm}_${fechaHoy}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function imprimirReporteCartera(vales, filtroSucursal = 'TODAS', filtroPromotora = '') {
+    const lista = filtrarValesData(vales, filtroSucursal, filtroPromotora);
+    if (lista.length === 0) {
+        alert("⚠️ No hay registros de vales para imprimir.");
+        return;
+    }
+
+    let totalMonto = 0;
+    let totalVencido = 0;
+    let totalAlCorriente = 0;
+
+    let filasHtml = '';
+    lista.forEach(v => {
+        const montoNum = parseFloat(v.monto) || 0;
+        totalMonto += montoNum;
+        const estPago = String(v.estatusPago || 'Al Corriente').trim();
+        const esVencido = estPago.toLowerCase().includes('vencido');
+        if (esVencido) totalVencido += montoNum; else totalAlCorriente += montoNum;
+
+        const colorBadge = esVencido ? '#d32f2f' : '#28a745';
+        const fechaFmt = v.fecha ? new Date(v.fecha).toLocaleDateString('es-MX') : '-';
+
+        filasHtml += `
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 8px; font-weight: bold; color: #002b55;">${v.folio || '-'}</td>
+                <td style="padding: 8px;">${fechaFmt}</td>
+                <td style="padding: 8px; font-weight: bold;">${v.promotora || '-'}</td>
+                <td style="padding: 8px;">${v.cliente || '-'}<br><small style="color: #64748b;">${v.telefono || ''}</small></td>
+                <td style="padding: 8px; font-weight: bold;">$${montoNum.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                <td style="padding: 8px;">${v.quincenas || '-'}</td>
+                <td style="padding: 8px;">${v.sucursal || '-'}</td>
+                <td style="padding: 8px;"><span style="background: ${colorBadge}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">${estPago}</span></td>
+            </tr>`;
+    });
+
+    const tituloSucursal = (filtroSucursal && filtroSucursal !== 'TODAS') ? filtroSucursal : 'Consolidado General (Todas las Sucursales)';
+    const subtituloPromotora = filtroPromotora ? `<h4 style="margin: 4px 0 0 0; color: #0059b3;">Promotora: ${filtroPromotora}</h4>` : '';
+
+    const ventanaImpresion = window.open('', '_blank');
+    ventanaImpresion.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Reporte de Cartera - Grupo MVR</title>
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 25px; color: #1e293b; }
+                .header { border-bottom: 3px solid #002b55; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+                .cards-kpi { display: flex; gap: 15px; margin-bottom: 20px; }
+                .card-kpi { flex: 1; padding: 12px 16px; border-radius: 6px; background: #f8fafc; border: 1px solid #cbd5e1; }
+                .card-kpi strong { display: block; font-size: 1.2rem; color: #002b55; margin-top: 4px; }
+                table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+                th { background: #002b55; color: white; text-align: left; padding: 10px 8px; }
+                @media print { .no-print { display: none; } body { padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div>
+                    <h1 style="margin: 0; color: #002b55; font-size: 1.6rem; letter-spacing: 1px;">GRUPO MVR</h1>
+                    <p style="margin: 3px 0 0 0; font-size: 0.95rem; color: #64748b;">Óptica D'villa • Óptica Ravali • Marcel Boutique</p>
+                    <h3 style="margin: 10px 0 0 0; color: #334155;">Estado de Cartera de Vales — ${tituloSucursal}</h3>
+                    ${subtituloPromotora}
+                </div>
+                <div style="text-align: right; font-size: 0.85rem; color: #64748b;">
+                    <p style="margin: 0;"><strong>Fecha de Emisión:</strong> ${new Date().toLocaleDateString('es-MX')} ${new Date().toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'})}</p>
+                    <p style="margin: 4px 0 0 0;"><strong>Total Registros:</strong> ${lista.length}</p>
+                </div>
+            </div>
+
+            <div class="cards-kpi">
+                <div class="card-kpi" style="border-left: 4px solid #0059b3;">
+                    <span style="font-size: 0.8rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Monto Total Colocado</span>
+                    <strong>$${totalMonto.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN</strong>
+                </div>
+                <div class="card-kpi" style="border-left: 4px solid #28a745;">
+                    <span style="font-size: 0.8rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Al Corriente</span>
+                    <strong style="color: #28a745;">$${totalAlCorriente.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN</strong>
+                </div>
+                <div class="card-kpi" style="border-left: 4px solid #d32f2f;">
+                    <span style="font-size: 0.8rem; color: #64748b; font-weight: bold; text-transform: uppercase;">Cartera Vencida</span>
+                    <strong style="color: #d32f2f;">$${totalVencido.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN</strong>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Folio</th>
+                        <th>Fecha</th>
+                        <th>Promotora</th>
+                        <th>Cliente / Teléfono</th>
+                        <th>Monto</th>
+                        <th>Plazo</th>
+                        <th>Sucursal</th>
+                        <th>Estatus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${filasHtml}
+                </tbody>
+            </table>
+
+            <div style="margin-top: 40px; display: flex; justify-content: space-around; text-align: center; font-size: 0.85rem; color: #64748b;">
+                <div style="border-top: 1px solid #94a3b8; width: 220px; padding-top: 6px;">Firma de Administración</div>
+                <div style="border-top: 1px solid #94a3b8; width: 220px; padding-top: 6px;">Firma de Conformidad</div>
+            </div>
+            <script>
+                window.onload = function() { window.print(); };
+            <\/script>
+        </body>
+        </html>
+    `);
+    ventanaImpresion.document.close();
+}
+
+function mostrarTicketValeModal(vale) {
+    const modalId = 'modalTicketValeDigital';
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.style.display = 'none';
+        document.body.appendChild(modal);
+    }
+
+    const montoNum = parseFloat(vale.monto) || 0;
+    const qNum = parseInt(vale.quincenas) || 8;
+    const cuotaQuincenal = qNum > 0 ? (montoNum / qNum) : 0;
+    const qrData = encodeURIComponent(`GRUPO MVR | VALE OFICIAL\nFolio: ${vale.folio}\nCliente: ${vale.cliente}\nPromotora: ${vale.promotora}\nMonto: $${montoNum} MXN\nPlazo: ${vale.quincenas}\nSucursal: ${vale.sucursal}`);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${qrData}&margin=4`;
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 440px; padding: 1.5rem; text-align: center;">
+            <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+            <div class="ticket-digital-card">
+                <div class="ticket-header">
+                    <span style="font-size: 0.8rem; font-weight: 800; color: #ff8c00; text-transform: uppercase;">Vale Oficial de Crédito</span>
+                    <h3>GRUPO MVR</h3>
+                    <span class="ticket-folio-badge">${vale.folio}</span>
+                </div>
+                
+                <div class="ticket-row"><strong>Sucursal:</strong> <span>${vale.sucursal}</span></div>
+                <div class="ticket-row"><strong>Promotora:</strong> <span>${vale.promotora}</span></div>
+                <div class="ticket-row"><strong>Cliente:</strong> <span>${vale.cliente}</span></div>
+                <div class="ticket-row"><strong>Teléfono:</strong> <span>${vale.telefono || '-'}</span></div>
+                <div class="ticket-row"><strong>Monto Autorizado:</strong> <span style="font-size: 1.1rem; font-weight: 900; color: #0059b3;">$${montoNum.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN</span></div>
+                <div class="ticket-row"><strong>Plazo:</strong> <span>${vale.quincenas}</span></div>
+                <div class="ticket-row"><strong>Pago Quincenal Aprox.:</strong> <span style="font-weight: bold; color: #28a745;">$${cuotaQuincenal.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN</span></div>
+                <div class="ticket-row"><strong>Estatus Pago:</strong> <span style="font-weight: bold;">${vale.estatusPago || 'Al Corriente'}</span></div>
+
+                <div class="ticket-qr-container">
+                    <img src="${qrUrl}" alt="QR de Validación de Vale">
+                    <p style="margin: 6px 0 0 0; font-size: 0.75rem; color: #64748b;">Escanea en caja para validar y canjear</p>
+                </div>
+
+                <div style="font-size: 0.72rem; color: #64748b; line-height: 1.3; margin-top: 10px; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+                    * Válido únicamente en sucursales oficiales de Grupo MVR. Indispensable presentar identificación oficial al canjear.
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 1.2rem; justify-content: center;">
+                <button onclick="imprimirTicketValeDirecto('${vale.folio}', '${vale.promotora}', '${String(vale.cliente).replace(/'/g, "")}', '${montoNum}', '${vale.quincenas}', '${vale.sucursal}', '${vale.telefono || ''}')" class="btn btn-primary" style="flex: 1; padding: 0.8rem; font-size: 0.9rem;">🖨️ Imprimir Ticket</button>
+                <button onclick="compartirValeWhatsApp('${vale.folio}', '${vale.cliente}', '${montoNum}', '${vale.quincenas}', '${vale.sucursal}', '${vale.telefono}')" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.8rem; font-size: 0.9rem; font-weight: bold;">📲 WhatsApp</button>
+            </div>
+        </div>`;
+
+    modal.style.display = 'flex';
+}
+
+function imprimirTicketValeDirecto(folio, promotora, cliente, monto, quincenas, sucursal, telefono) {
+    const qrData = encodeURIComponent(`GRUPO MVR | Folio: ${folio} | Monto: $${monto} | Cliente: ${cliente}`);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${qrData}`;
+
+    const w = window.open('', '_blank');
+    w.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Ticket Vale - ${folio}</title>
+            <style>
+                body { font-family: 'Courier New', monospace; width: 300px; margin: 0 auto; padding: 10px; font-size: 13px; color: #000; }
+                .center { text-align: center; }
+                .line { border-top: 1px dashed #000; margin: 8px 0; }
+                .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+            </style>
+        </head>
+        <body>
+            <div class="center">
+                <h3 style="margin:0;">GRUPO MVR</h3>
+                <p style="margin:2px 0;">VALE DE CRÉDITO</p>
+                <strong>${folio}</strong>
+            </div>
+            <div class="line"></div>
+            <div class="row"><span>Sucursal:</span><strong>${sucursal}</strong></div>
+            <div class="row"><span>Promotora:</span><strong>${promotora}</strong></div>
+            <div class="row"><span>Cliente:</span><strong>${cliente}</strong></div>
+            <div class="row"><span>Teléfono:</span><strong>${telefono}</strong></div>
+            <div class="row"><span>Plazo:</span><strong>${quincenas}</strong></div>
+            <div class="row"><span>Monto:</span><strong>$${parseFloat(monto).toLocaleString('es-MX', {minimumFractionDigits:2})} MXN</strong></div>
+            <div class="line"></div>
+            <div class="center">
+                <img src="${qrUrl}" style="width: 120px; height: 120px;">
+                <p style="font-size: 10px; margin: 4px 0 0 0;">Canjeable en sucursal con ID oficial.</p>
+            </div>
+            <div style="margin-top: 25px; text-align: center;">
+                <div style="border-top: 1px solid #000; width: 180px; margin: 0 auto 4px auto;"></div>
+                <small>Firma del Cliente</small>
+            </div>
+            <script>window.onload = function() { window.print(); };<\/script>
+        </body>
+        </html>
+    `);
+    w.document.close();
+}
+
+function compartirValeWhatsApp(folio, cliente, monto, quincenas, sucursal, telefono) {
+    const msj = encodeURIComponent(`🎟️ *¡Tu Vale de Crédito en Grupo MVR está Listo!*\n\n• *Folio:* ${folio}\n• *Cliente:* ${cliente}\n• *Monto:* $${parseFloat(monto).toLocaleString('es-MX')} MXN\n• *Plazo:* ${quincenas}\n• *Sucursal:* ${sucursal}\n\nPresenta tu folio o identificación en sucursal para canjearlo. ¡Gracias por tu preferencia!`);
+    const telLimpio = String(telefono || '').replace(/[^0-9]/g, '');
+    const urlWa = (telLimpio.length === 10) ? `https://wa.me/52${telLimpio}?text=${msj}` : `https://wa.me/?text=${msj}`;
+    window.open(urlWa, '_blank');
+}
+
+/* --------------------------------------------------------------------------
+   9. SISTEMA DE FAVORITOS (WISHLIST ❤️)
+   -------------------------------------------------------------------------- */
+function obtenerFavoritos() {
+    try {
+        return JSON.parse(localStorage.getItem('mvr_favoritos')) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function esFavorito(id) {
+    const favs = obtenerFavoritos();
+    return favs.some(item => item.id === id);
+}
+
+function toggleFavorito(id, nombre, precio, imagen, sucursal) {
+    let favs = obtenerFavoritos();
+    const index = favs.findIndex(item => item.id === id);
+
+    if (index >= 0) {
+        favs.splice(index, 1);
+        mostrarToast("Eliminado de Favoritos", `${nombre} se quitó de tu lista ❤️.`);
+    } else {
+        favs.push({ id, nombre, precio, imagen, sucursal });
+        mostrarToast("¡Guardado en Favoritos! ❤️", `${nombre} se agregó a tu lista.`);
+    }
+
+    localStorage.setItem('mvr_favoritos', JSON.stringify(favs));
+    actualizarBotonesFavoritosUI();
+    actualizarBotonFlotanteFavoritos();
+}
+
+function actualizarBotonesFavoritosUI() {
+    const btns = document.querySelectorAll('.btn-fav-heart');
+    btns.forEach(btn => {
+        const id = btn.getAttribute('data-id');
+        if (id && esFavorito(id)) {
+            btn.classList.add('active');
+            btn.innerHTML = '❤️';
+        } else if (id) {
+            btn.classList.remove('active');
+            btn.innerHTML = '🤍';
+        }
+    });
+}
+
+function actualizarBotonFlotanteFavoritos() {
+    const favs = obtenerFavoritos();
+    let btnFlotante = document.getElementById('btnFlotanteFavoritos');
+
+    if (favs.length > 0) {
+        if (!btnFlotante) {
+            btnFlotante = document.createElement('button');
+            btnFlotante.id = 'btnFlotanteFavoritos';
+            btnFlotante.className = 'btn-flotante-fav';
+            btnFlotante.onclick = abrirModalFavoritos;
+            document.body.appendChild(btnFlotante);
+        }
+        btnFlotante.innerHTML = `❤️ Favoritos (${favs.length})`;
+        btnFlotante.style.display = 'inline-flex';
+    } else if (btnFlotante) {
+        btnFlotante.style.display = 'none';
+    }
+}
+
+function abrirModalFavoritos() {
+    const modalId = 'modalWishlistGlobal';
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        document.body.appendChild(modal);
+    }
+
+    const favs = obtenerFavoritos();
+    let cuerpoItems = '';
+
+    if (favs.length === 0) {
+        cuerpoItems = `
+            <div style="text-align: center; padding: 2rem 1rem;">
+                <span style="font-size: 3rem;">🤍</span>
+                <h4 style="margin: 10px 0 6px 0; color: #64748b;">Tu lista de favoritos está vacía</h4>
+                <p style="font-size: 0.88rem; color: #94a3b8;">Toca el corazón en cualquier modelo para guardarlo aquí.</p>
+            </div>`;
+    } else {
+        cuerpoItems = `<div style="max-height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin: 1rem 0;">`;
+        favs.forEach(p => {
+            const precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.precio || 0);
+            cuerpoItems += `
+                <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; gap: 10px;">
+                    <img src="${p.imagen}" style="width: 55px; height: 55px; object-fit: cover; border-radius: 6px;" onerror="this.src='mvr.jpg';">
+                    <div style="flex: 1; text-align: left;">
+                        <h4 style="margin: 0; font-size: 0.95rem; color: #002b55;">${p.nombre}</h4>
+                        <small style="color: #64748b;">${p.sucursal || 'Grupo MVR'} • <strong>${precioFmt}</strong></small>
+                    </div>
+                    <button onclick="toggleFavorito('${p.id}', '${p.nombre}', ${p.precio}, '${p.imagen}', '${p.sucursal}'); abrirModalFavoritos();" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #e11d48;" title="Quitar de favoritos">🗑️</button>
+                </div>`;
+        });
+        cuerpoItems += `</div>`;
+    }
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 480px; padding: 1.5rem; text-align: center;">
+            <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+            <h3 style="margin: 0; color: #e11d48; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>❤️</span> Mis Modelos Favoritos
+            </h3>
+            ${cuerpoItems}
+            ${favs.length > 0 ? `
+                <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                    <button onclick="compartirFavoritosWhatsApp()" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.8rem; font-weight: bold;">
+                        📲 Cotizar Favoritos por WhatsApp
+                    </button>
+                </div>` : ''}
+        </div>`;
+
+    modal.style.display = 'flex';
+}
+
+function compartirFavoritosWhatsApp() {
+    const favs = obtenerFavoritos();
+    if (favs.length === 0) return;
+
+    let mensaje = "Hola Grupo MVR, me interesan estos modelos de mi lista de favoritos:\n\n";
+    favs.forEach((p, idx) => {
+        mensaje += `${idx + 1}. *${p.nombre}* (${p.sucursal || 'Grupo MVR'}) - $${p.precio} MXN\n`;
+    });
+    mensaje += "\n¿Tienen disponibilidad y vales para estos modelos?";
+    window.open(`https://wa.me/528332854129?text=${encodeURIComponent(mensaje)}`, '_blank');
+}
+
+/* --------------------------------------------------------------------------
+   10. PROBADOR VIRTUAL 2D (ESPEJO DIGITAL)
+   -------------------------------------------------------------------------- */
+let streamCamaraActual = null;
+let posicionLente = { x: 0, y: 0, scale: 1 };
+
+function abrirProbadorVirtual(imgLente, nombreModelo) {
+    let overlay = document.getElementById('probadorVirtualOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'probadorVirtualOverlay';
+        overlay.className = 'probador-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    posicionLente = { x: 0, y: 0, scale: 1 };
+
+    overlay.innerHTML = `
+        <div class="probador-container">
+            <span class="cerrar-modal" onclick="cerrarProbadorVirtual()">&times;</span>
+            <h3 style="margin: 0 0 6px 0; color: #002b55;">👓 Espejo y Probador Virtual 2D</h3>
+            <p style="margin: 0; font-size: 0.88rem; color: #64748b;">Probando modelo: <strong>${nombreModelo || 'Armazón Grupo MVR'}</strong></p>
+
+            <div class="probador-viewport" id="probadorViewport">
+                <video id="probadorVideo" autoplay playsinline style="display: none;"></video>
+                <img id="probadorFotoUsuario" class="user-photo" src="imagenes/dvilla/lente1.jpg" style="display: block;" onerror="this.src='mvr.jpg';">
+                <img id="probadorArmazon" class="frame-overlay" src="${imgLente}" alt="Lente" style="transform: translate(0px, 0px) scale(1);">
+            </div>
+
+            <div class="probador-controls">
+                <button onclick="activarCamaraProbador()" class="btn btn-primary" style="font-size: 0.85rem; padding: 6px 12px;">📷 Activar Cámara</button>
+                <label class="btn btn-secondary" style="font-size: 0.85rem; padding: 6px 12px; cursor: pointer; margin: 0;">
+                    📁 Subir mi Foto
+                    <input type="file" accept="image/*" onchange="cargarFotoUsuarioProbador(event)" style="display: none;">
+                </label>
+                <button onclick="ajustarTamanioLente(1.1)" class="btn" style="background: #e2e8f0; color: #1e293b; font-size: 0.85rem; padding: 6px 12px;">🔍 + Grande</button>
+                <button onclick="ajustarTamanioLente(0.9)" class="btn" style="background: #e2e8f0; color: #1e293b; font-size: 0.85rem; padding: 6px 12px;">🔍 - Chico</button>
+            </div>
+            <p style="font-size: 0.78rem; color: #94a3b8; margin: 10px 0 0 0;">💡 Puedes arrastrar el armazón con el mouse o con tu dedo para acomodarlo a tu rostro.</p>
+        </div>`;
+
+    overlay.style.display = 'flex';
+    configurarArrastreLente();
+}
+
+function cerrarProbadorVirtual() {
+    const overlay = document.getElementById('probadorVirtualOverlay');
+    if (overlay) overlay.style.display = 'none';
+    if (streamCamaraActual) {
+        streamCamaraActual.getTracks().forEach(track => track.stop());
+        streamCamaraActual = null;
+    }
+}
+
+async function activarCamaraProbador() {
+    const video = document.getElementById('probadorVideo');
+    const foto = document.getElementById('probadorFotoUsuario');
+    try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            streamCamaraActual = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            video.srcObject = streamCamaraActual;
+            video.style.display = 'block';
+            if (foto) foto.style.display = 'none';
+        }
+    } catch (e) {
+        alert("No se pudo acceder a la cámara. Puedes subir una foto de tu rostro para probar el armazón.");
+    }
+}
+
+function cargarFotoUsuarioProbador(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const foto = document.getElementById('probadorFotoUsuario');
+        const video = document.getElementById('probadorVideo');
+        if (video) video.style.display = 'none';
+        if (foto) {
+            foto.src = e.target.result;
+            foto.style.display = 'block';
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+function ajustarTamanioLente(factor) {
+    posicionLente.scale *= factor;
+    const armazon = document.getElementById('probadorArmazon');
+    if (armazon) {
+        armazon.style.transform = `translate(${posicionLente.x}px, ${posicionLente.y}px) scale(${posicionLente.scale})`;
+    }
+}
+
+function configurarArrastreLente() {
+    const armazon = document.getElementById('probadorArmazon');
+    const viewport = document.getElementById('probadorViewport');
+    if (!armazon || !viewport) return;
+
+    let isDragging = false;
+    let startX, startY;
+
+    function onStart(e) {
+        isDragging = true;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        startX = clientX - posicionLente.x;
+        startY = clientY - posicionLente.y;
+    }
+
+    function onMove(e) {
+        if (!isDragging) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        posicionLente.x = clientX - startX;
+        posicionLente.y = clientY - startY;
+        armazon.style.transform = `translate(${posicionLente.x}px, ${posicionLente.y}px) scale(${posicionLente.scale})`;
+    }
+
+    function onEnd() {
+        isDragging = false;
+    }
+
+    armazon.addEventListener('mousedown', onStart);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
+
+    armazon.addEventListener('touchstart', onStart, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend', onEnd);
+}
+
+/* --------------------------------------------------------------------------
+   11. MICRO-INTERACCIONES SONORAS Y HÁPTICAS (WEB AUDIO API)
+   -------------------------------------------------------------------------- */
+let audioCtx = null;
+
+function obtenerAudioContext() {
+    if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    return audioCtx;
+}
+
+function reproducirSonido(tipo = 'click') {
+    try {
+        const ctx = obtenerAudioContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (tipo === 'click') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+            osc.start(now);
+            osc.stop(now + 0.05);
+            vibrarDispositivo(20);
+        } else if (tipo === 'success') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(523.25, now); // C5
+            osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+            osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+            osc.start(now);
+            osc.stop(now + 0.35);
+            vibrarDispositivo([30, 40, 50]);
+        } else if (tipo === 'cash') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(987.77, now); // B5
+            osc.frequency.setValueAtTime(1318.51, now + 0.09); // E6
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+            osc.start(now);
+            osc.stop(now + 0.4);
+            vibrarDispositivo([40, 60, 40]);
+        }
+    } catch (e) {
+        // Silencioso si el navegador bloquea audio sin interacción previa
+    }
+}
+
+function vibrarDispositivo(patron) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate(patron || 30);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   12. PROGRESSIVE WEB APP (PWA) & SERVICE WORKER
+   -------------------------------------------------------------------------- */
+let eventoInstalacionPWA = null;
+
+function inicializarPWA() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            console.log('✅ ServiceWorker registrado con éxito para Grupo MVR:', reg.scope);
+        }).catch(err => {
+            console.log('ℹ️ ServiceWorker offline info:', err);
+        });
+    }
+
+    window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        eventoInstalacionPWA = e;
+        mostrarBannerInstalacionPWA();
+    });
+}
+
+function mostrarBannerInstalacionPWA() {
+    let banner = document.getElementById('pwaInstallBanner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'pwaInstallBanner';
+        banner.className = 'pwa-install-banner';
+        banner.innerHTML = `
+            <span>📲 <strong>Instala la App de Grupo MVR</strong></span>
+            <button onclick="instalarPWA()">Instalar</button>
+            <span onclick="this.parentElement.style.display='none'" style="cursor:pointer; font-weight:bold; padding-left:4px;">&times;</span>
+        `;
+        document.body.appendChild(banner);
+    }
+    banner.style.display = 'flex';
+}
+
+function instalarPWA() {
+    reproducirSonido('click');
+    if (eventoInstalacionPWA) {
+        eventoInstalacionPWA.prompt();
+        eventoInstalacionPWA.userChoice.then(choice => {
+            if (choice.outcome === 'accepted') {
+                mostrarToast("¡App Instalada!", "Grupo MVR ahora está en tu pantalla de inicio.");
+            }
+            eventoInstalacionPWA = null;
+            const b = document.getElementById('pwaInstallBanner');
+            if (b) b.style.display = 'none';
+        });
+    } else {
+        alert("Para instalar Grupo MVR:\n\n• En Chrome / Android: Toca los 3 puntos (⋮) y elige 'Instalar aplicación' o 'Agregar a pantalla principal'.\n• En iPhone (Safari): Toca el botón Compartir (⎙) y elige 'Agregar a pantalla de inicio'.");
+    }
+}
+
+/* --------------------------------------------------------------------------
+   13. COMPARADOR DE MODELOS LADO A LADO (2 O 3 PRODUCTOS)
+   -------------------------------------------------------------------------- */
+function obtenerComparador() {
+    try {
+        return JSON.parse(localStorage.getItem('mvr_comparador')) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function estaEnComparador(id) {
+    return obtenerComparador().some(p => p.id === id);
+}
+
+function toggleComparar(id, nombre, precio, imagen, sucursal, specs = {}) {
+    let comp = obtenerComparador();
+    const idx = comp.findIndex(p => p.id === id);
+
+    if (idx >= 0) {
+        comp.splice(idx, 1);
+        reproducirSonido('click');
+        mostrarToast("Comparador", `${nombre} quitado del comparador.`);
+    } else {
+        if (comp.length >= 3) {
+            alert("⚠️ Puedes comparar un máximo de 3 productos a la vez. Deselecciona uno para agregar este modelo.");
+            return;
+        }
+        comp.push({ id, nombre, precio, imagen, sucursal, specs });
+        reproducirSonido('success');
+        mostrarToast("Comparador ⚖️", `${nombre} añadido. (${comp.length}/3)`);
+    }
+
+    localStorage.setItem('mvr_comparador', JSON.stringify(comp));
+    actualizarBarraComparadorUI();
+}
+
+function actualizarBarraComparadorUI() {
+    const comp = obtenerComparador();
+    let bar = document.getElementById('floatingCompareBar');
+
+    // Actualizar botones de toggle en la página
+    document.querySelectorAll('.btn-compare-toggle').forEach(btn => {
+        const id = btn.getAttribute('data-id');
+        if (id && estaEnComparador(id)) {
+            btn.classList.add('active');
+            btn.innerHTML = '⚖️✓';
+        } else if (id) {
+            btn.classList.remove('active');
+            btn.innerHTML = '⚖️';
+        }
+    });
+
+    if (comp.length > 0) {
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'floatingCompareBar';
+            bar.className = 'floating-compare-bar';
+            document.body.appendChild(bar);
+        }
+        let thumbs = comp.map(p => `<img src="${p.imagen}" class="compare-item-thumb" title="${p.nombre}" onerror="this.src='mvr.jpg';">`).join('');
+        bar.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+                ${thumbs}
+                <strong style="font-size: 0.9rem;">Comparar (${comp.length}/3)</strong>
+            </div>
+            <button onclick="abrirModalComparador()" class="btn" style="background: #ff8c00; color: white; padding: 6px 14px; font-weight: bold; border-radius: 20px; font-size: 0.85rem; border: none; cursor: pointer;">
+                Ver Comparativa
+            </button>
+            <button onclick="limpiarComparador()" style="background: none; border: none; color: #cbd5e1; font-size: 1.1rem; cursor: pointer;" title="Limpiar comparador">&times;</button>
+        `;
+        bar.style.display = 'flex';
+    } else if (bar) {
+        bar.style.display = 'none';
+    }
+}
+
+function limpiarComparador() {
+    localStorage.removeItem('mvr_comparador');
+    actualizarBarraComparadorUI();
+    reproducirSonido('click');
+}
+
+function abrirModalComparador() {
+    reproducirSonido('click');
+    const comp = obtenerComparador();
+    if (comp.length === 0) return;
+
+    const modalId = 'modalComparadorGlobal';
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        document.body.appendChild(modal);
+    }
+
+    let filasHeader = '<th>Característica</th>';
+    let filasFotos = '<td><strong>Modelo</strong></td>';
+    let filasPrecio = '<td><strong>Precio Contado</strong></td>';
+    let filasQuincenal = '<td><strong>Pago Quincenal (8Q)</strong></td>';
+    let filasSucursal = '<td><strong>Sucursal</strong></td>';
+    let filasAcciones = '<td><strong>Acción</strong></td>';
+
+    comp.forEach(p => {
+        const precioNum = parseFloat(p.precio) || 0;
+        const precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(precioNum);
+        const cuota8Q = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(precioNum / 8);
+
+        filasHeader += `<th>${p.nombre}</th>`;
+        filasFotos += `<td><img src="${p.imagen}" style="width: 100px; height: 75px; object-fit: contain; border-radius: 6px;" onerror="this.src='mvr.jpg';"><br><strong>${p.nombre}</strong></td>`;
+        filasPrecio += `<td style="font-size: 1.1rem; font-weight: 900; color: #0059b3;">${precioFmt}</td>`;
+        filasQuincenal += `<td style="font-weight: bold; color: #28a745;">${cuota8Q} / quincena</td>`;
+        filasSucursal += `<td><span class="badge-optica">${p.sucursal || 'Grupo MVR'}</span></td>`;
+        filasAcciones += `
+            <td>
+                <button onclick="agregarAlCarrito('${p.id}', '${String(p.nombre).replace(/'/g, "")}', ${p.precio}, '${p.sucursal}', '${p.imagen}'); document.getElementById('${modalId}').style.display='none';" class="btn btn-primary" style="padding: 6px 10px; font-size: 0.8rem; width: 100%;">
+                    🛒 Carrito
+                </button>
+            </td>`;
+    });
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 750px; padding: 1.5rem; text-align: center;">
+            <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+            <h3 style="margin: 0; color: #002b55; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>⚖️</span> Comparador de Modelos Lado a Lado
+            </h3>
+            <div style="overflow-x: auto;">
+                <table class="compare-modal-table">
+                    <thead><tr>${filasHeader}</tr></thead>
+                    <tbody>
+                        <tr>${filasFotos}</tr>
+                        <tr>${filasPrecio}</tr>
+                        <tr>${filasQuincenal}</tr>
+                        <tr>${filasSucursal}</tr>
+                        <tr>${filasAcciones}</tr>
+                    </tbody>
+                </table>
+            </div>
+            <button onclick="limpiarComparador(); document.getElementById('${modalId}').style.display = 'none';" class="btn" style="background: #e2e8f0; color: #334155; margin-top: 1rem; padding: 6px 14px; font-size: 0.85rem; font-weight: bold;">
+                🗑️ Limpiar Comparativa
+            </button>
+        </div>`;
+
+    modal.style.display = 'flex';
+}
+
+/* --------------------------------------------------------------------------
+   14. VALE DIGITAL APPLE WALLET / PASSBOOK CON DESCARGA PNG
+   -------------------------------------------------------------------------- */
+function mostrarPassbookModal(vale) {
+    reproducirSonido('click');
+    const modalId = 'modalPassbookDigital';
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        document.body.appendChild(modal);
+    }
+
+    const montoNum = parseFloat(vale.monto) || 0;
+    const qNum = parseInt(vale.quincenas) || 8;
+    const cuotaQuincenal = qNum > 0 ? (montoNum / qNum) : 0;
+    const qrData = encodeURIComponent(`GRUPO MVR | Folio: ${vale.folio} | Monto: $${montoNum} | Cliente: ${vale.cliente} | Promotora: ${vale.promotora}`);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrData}&margin=2`;
+
+    const claseWallet = String(vale.sucursal).includes('Ravali') ? 'ravali' : (String(vale.sucursal).includes('Marcel') ? 'marcel' : '');
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 440px; padding: 1.5rem; text-align: center; background: transparent; box-shadow: none;">
+            <span class="cerrar-modal" style="color: white; font-size: 2rem;" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+            <div class="passbook-wallet ${claseWallet}" id="passbookCardExportTarget">
+                <div class="passbook-top">
+                    <div>
+                        <span class="passbook-label">Vale de Crédito Digital</span>
+                        <h2 style="margin: 0; font-size: 1.4rem; letter-spacing: 1px;">GRUPO MVR</h2>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="passbook-label">Sucursal</span>
+                        <strong style="font-size: 0.95rem;">${vale.sucursal}</strong>
+                    </div>
+                </div>
+
+                <div class="passbook-body">
+                    <div class="passbook-row-main">
+                        <div>
+                            <span class="passbook-label">Cliente Autorizado</span>
+                            <strong style="font-size: 1.1rem;">${vale.cliente}</strong>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="passbook-label">Monto Aprobado</span>
+                            <span class="passbook-value-large">$${montoNum.toLocaleString('es-MX')}</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.85rem; opacity: 0.9;">
+                        <div><span class="passbook-label">Folio</span><strong>${vale.folio}</strong></div>
+                        <div><span class="passbook-label">Plazo</span><strong>${vale.quincenas}</strong></div>
+                        <div><span class="passbook-label">Cuota Quincenal</span><strong>$${cuotaQuincenal.toFixed(0)} MXN</strong></div>
+                    </div>
+
+                    <div class="passbook-qr-box">
+                        <img src="${qrUrl}" alt="QR de Vale" crossOrigin="anonymous">
+                        <p style="margin: 6px 0 0 0; font-size: 0.72rem; color: #1e293b; font-weight: bold;">Presenta este código en caja al solicitar tu armazón</p>
+                    </div>
+
+                    <div style="margin-top: 12px; font-size: 0.7rem; opacity: 0.75; text-align: center;">
+                        Promotora: <strong>${vale.promotora}</strong> • Válido en Grupo MVR
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 1.2rem; justify-content: center;">
+                <button onclick="descargarPassbookComoImagen('${vale.folio}', '${vale.cliente}', '${montoNum}', '${vale.sucursal}', '${vale.promotora}', '${vale.quincenas}')" class="btn btn-primary" style="padding: 0.8rem; font-size: 0.9rem; flex: 1;">
+                    📥 Guardar en Galería (PNG)
+                </button>
+                <button onclick="compartirValeWhatsApp('${vale.folio}', '${vale.cliente}', '${montoNum}', '${vale.quincenas}', '${vale.sucursal}', '${vale.telefono}')" class="btn" style="background: #25d366; color: white; padding: 0.8rem; font-size: 0.9rem; font-weight: bold; flex: 1;">
+                    📲 Enviar WhatsApp
+                </button>
+            </div>
+        </div>`;
+
+    modal.style.display = 'flex';
+}
+
+function descargarPassbookComoImagen(folio, cliente, monto, sucursal, promotora, quincenas) {
+    reproducirSonido('cash');
+    const canvas = document.createElement('canvas');
+    canvas.width = 600;
+    canvas.height = 800;
+    const ctx = canvas.getContext('2d');
+
+    // Fondo degradado elegante
+    const grad = ctx.createLinearGradient(0, 0, 600, 800);
+    if (sucursal.includes('Ravali')) {
+        grad.addColorStop(0, '#4a0508'); grad.addColorStop(1, '#8b0000');
+    } else if (sucursal.includes('Marcel')) {
+        grad.addColorStop(0, '#2b0938'); grad.addColorStop(1, '#5a189a');
+    } else {
+        grad.addColorStop(0, '#001f3f'); grad.addColorStop(1, '#003366');
+    }
+    ctx.fillStyle = grad;
+    ctx.roundRect(0, 0, 600, 800, 24);
+    ctx.fill();
+
+    // Encabezado
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 32px sans-serif';
+    ctx.fillText('GRUPO MVR', 40, 65);
+    ctx.font = '16px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fillText('VALE DE CRÉDITO DIGITAL', 40, 95);
+    ctx.textAlign = 'right';
+    ctx.fillText(sucursal, 560, 65);
+    ctx.textAlign = 'left';
+
+    // Línea divisoria
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.beginPath();
+    ctx.setLineDash([8, 8]);
+    ctx.moveTo(40, 120); ctx.lineTo(560, 120);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Datos del Cliente y Monto
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '14px sans-serif';
+    ctx.fillText('CLIENTE AUTORIZADO', 40, 160);
+    ctx.fillText('MONTO APROBADO', 360, 160);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 24px sans-serif';
+    ctx.fillText(cliente, 40, 195);
+    ctx.font = 'bold 36px sans-serif';
+    ctx.fillText(`$${parseFloat(monto).toLocaleString('es-MX')}`, 360, 200);
+
+    // Detalles secundarios
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '14px sans-serif';
+    ctx.fillText('FOLIO', 40, 260);
+    ctx.fillText('PLAZO', 220, 260);
+    ctx.fillText('PROMOTORA', 380, 260);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.fillText(folio, 40, 290);
+    ctx.fillText(quincenas, 220, 290);
+    ctx.fillText(promotora, 380, 290);
+
+    // Recuadro blanco para el QR
+    ctx.fillStyle = '#ffffff';
+    ctx.roundRect(160, 340, 280, 340, 16);
+    ctx.fill();
+
+    // Cargar y pintar QR
+    const qrImg = new Image();
+    qrImg.crossOrigin = 'anonymous';
+    const qrData = encodeURIComponent(`GRUPO MVR | ${folio} | $${monto} | ${cliente}`);
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrData}`;
+
+    qrImg.onload = function() {
+        ctx.drawImage(qrImg, 180, 360, 240, 240);
+        ctx.fillStyle = '#002b55';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Escanear en sucursal al pagar', 300, 640);
+
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.font = '13px sans-serif';
+        ctx.fillText('Presentar folio o identificación oficial al canjear.', 300, 740);
+
+        // Descarga
+        const link = document.createElement('a');
+        link.download = `Vale_MVR_${folio}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        mostrarToast("¡Vale Guardado!", `El vale ${folio} se descargó como imagen.`);
+    };
+}
+
+/* --------------------------------------------------------------------------
+   15. MÓDULO DE REGISTRO DE ABONOS Y PAGOS PARCIALES
+   -------------------------------------------------------------------------- */
+function obtenerHistorialAbonos(folio) {
+    try {
+        const key = `mvr_abonos_${folio}`;
+        return JSON.parse(localStorage.getItem(key)) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function registrarAbonoEnStorage(folio, montoAbono, nota) {
+    const key = `mvr_abonos_${folio}`;
+    let abonos = obtenerHistorialAbonos(folio);
+    const nuevo = {
+        fecha: new Date().toISOString(),
+        monto: parseFloat(montoAbono) || 0,
+        nota: nota || 'Abono quincenal'
+    };
+    abonos.push(nuevo);
+    localStorage.setItem(key, JSON.stringify(abonos));
+    return abonos;
+}
+
+function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucursal) {
+    reproducirSonido('click');
+    const modalId = 'modalAbonosVale';
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        document.body.appendChild(modal);
+    }
+
+    const montoNum = parseFloat(montoTotal) || 0;
+    const abonos = obtenerHistorialAbonos(folio);
+    const totalAbonado = abonos.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
+    const saldoRestante = Math.max(0, montoNum - totalAbonado);
+    const porcentajePagado = montoNum > 0 ? Math.min(100, Math.round((totalAbonado / montoNum) * 100)) : 0;
+
+    let filasAbonos = '';
+    if (abonos.length === 0) {
+        filasAbonos = `<tr><td colspan="3" style="text-align:center; color:#888;">No se han registrado abonos aún.</td></tr>`;
+    } else {
+        abonos.forEach((a, idx) => {
+            filasAbonos += `
+                <tr>
+                    <td>#${idx + 1} - ${new Date(a.fecha).toLocaleDateString('es-MX')}</td>
+                    <td style="font-weight: bold; color: #28a745;">+$${parseFloat(a.monto).toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
+                    <td>${a.nota}</td>
+                </tr>`;
+        });
+    }
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 500px; padding: 1.5rem; text-align: center;">
+            <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+            <h3 style="margin: 0; color: #002b55;">💵 Control de Abonos y Amortizaciones</h3>
+            <p style="margin: 4px 0 1rem 0; color: #64748b; font-size: 0.9rem;">Folio: <strong>${folio}</strong> • Cliente: <strong>${cliente}</strong></p>
+
+            <div class="modal-abonos-card">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                    <span>Monto Total: <strong>$${montoNum.toLocaleString('es-MX')}</strong></span>
+                    <span>Total Abonado: <strong style="color: #28a745;">$${totalAbonado.toLocaleString('es-MX')}</strong></span>
+                </div>
+                <div class="abono-progreso-bar">
+                    <div class="abono-progreso-fill" style="width: ${porcentajePagado}%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: bold;">
+                    <span>Amortización: ${porcentajePagado}%</span>
+                    <span style="color: ${saldoRestante === 0 ? '#28a745' : '#d32f2f'};">Saldo Restante: $${saldoRestante.toLocaleString('es-MX')}</span>
+                </div>
+            </div>
+
+            <div style="overflow-y: auto; max-height: 180px; margin-bottom: 1rem;">
+                <table class="tabla-admin" style="font-size: 0.85rem;">
+                    <thead><tr><th>Fecha</th><th>Abono</th><th>Nota</th></tr></thead>
+                    <tbody>${filasAbonos}</tbody>
+                </table>
+            </div>
+
+            <div style="background: #f1f5f9; padding: 1rem; border-radius: 6px; text-align: left;">
+                <h4 style="margin: 0 0 8px 0; font-size: 0.9rem; color: #002b55;">➕ Registrar Nuevo Abono</h4>
+                <div style="display: flex; gap: 8px;">
+                    <input type="number" id="inputMontoAbono" placeholder="Monto ($)" min="1" max="${saldoRestante}" style="flex: 1; padding: 0.5rem; border-radius: 4px; border: 1px solid #cbd5e1;">
+                    <input type="text" id="inputNotaAbono" placeholder="Nota (Ej. Quincena 1)" style="flex: 1.5; padding: 0.5rem; border-radius: 4px; border: 1px solid #cbd5e1;">
+                    <button onclick="guardarAbonoModal('${folio}', '${cliente}', ${montoNum}, '${quincenas}', '${promotora}', '${sucursal}')" class="btn btn-primary" style="padding: 0.5rem 1rem;">Guardar</button>
+                </div>
+            </div>
+        </div>`;
+
+    modal.style.display = 'flex';
+}
+
+function guardarAbonoModal(folio, cliente, montoTotal, quincenas, promotora, sucursal) {
+    const inputMonto = document.getElementById('inputMontoAbono');
+    const inputNota = document.getElementById('inputNotaAbono');
+    const monto = parseFloat(inputMonto.value);
+
+    if (!monto || monto <= 0) {
+        alert("Por favor ingresa un monto válido de abono.");
+        return;
+    }
+
+    registrarAbonoEnStorage(folio, monto, inputNota.value);
+    reproducirSonido('cash');
+    mostrarToast("¡Abono Registrado!", `Se sumó un abono de $${monto} al vale ${folio}.`);
+    abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucursal);
+}
+
+/* --------------------------------------------------------------------------
+   16. EXPORTACIÓN TOTAL DE INVENTARIO Y LISTAS DE PRECIOS
+   -------------------------------------------------------------------------- */
+function exportarInventarioCSV(inventario) {
+    if (!inventario || typeof inventario !== 'object') {
+        alert("No hay datos de inventario disponibles para exportar.");
+        return;
+    }
+
+    let csv = "\uFEFFSKU / ID,Sucursal,Nombre del Producto,Precio Contado,Existencias,Estado\r\n";
+    const ids = Object.keys(inventario);
+
+    ids.forEach(id => {
+        const p = inventario[id];
+        const stock = parseInt(p.stock) || 0;
+        const estado = stock > 0 ? 'Disponible' : 'Agotado';
+        csv += `"${id}","${p.sucursal || ''}","${String(p.nombre || '').replace(/"/g, '""')}",${p.precio || 0},${stock},"${estado}"\r\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Inventario_GrupoMVR_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+}
+
+function imprimirListaPrecios(inventario) {
+    if (!inventario || typeof inventario !== 'object') return;
+
+    const ids = Object.keys(inventario);
+    let filas = '';
+
+    ids.forEach(id => {
+        const p = inventario[id];
+        const precio = parseFloat(p.precio) || 0;
+        const cuota8 = precio / 8;
+        filas += `
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 8px; font-weight: bold;">${id}</td>
+                <td style="padding: 8px;">${p.sucursal || '-'}</td>
+                <td style="padding: 8px; font-weight: bold;">${p.nombre || '-'}</td>
+                <td style="padding: 8px; color: #0059b3; font-weight: 900;">$${precio.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                <td style="padding: 8px; color: #28a745; font-weight: bold;">$${cuota8.toLocaleString('es-MX', {minimumFractionDigits:2})} / Q</td>
+                <td style="padding: 8px; text-align: center;">${p.stock || 0} pzas</td>
+            </tr>`;
+    });
+
+    const w = window.open('', '_blank');
+    w.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Lista de Precios Oficial - Grupo MVR</title>
+            <style>
+                body { font-family: 'Segoe UI', sans-serif; padding: 25px; color: #1e293b; }
+                table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 15px; }
+                th { background: #002b55; color: white; text-align: left; padding: 10px 8px; }
+            </style>
+        </head>
+        <body>
+            <div style="border-bottom: 3px solid #002b55; padding-bottom: 10px; display: flex; justify-content: space-between;">
+                <div>
+                    <h1 style="margin:0; color:#002b55;">GRUPO MVR</h1>
+                    <p style="margin:2px 0; color:#64748b;">Lista Oficial de Precios y Catálogo de Modelos</p>
+                </div>
+                <div style="text-align: right; color: #64748b;">Fecha: ${new Date().toLocaleDateString('es-MX')}</div>
+            </div>
+            <table>
+                <thead><tr><th>SKU / ID</th><th>Sucursal</th><th>Modelo</th><th>Precio Contado</th><th>Cuota Estimada (8Q)</th><th>Stock</th></tr></thead>
+                <tbody>${filas}</tbody>
+            </table>
+            <script>window.onload = function() { window.print(); };<\/script>
+        </body>
+        </html>
+    `);
+    w.document.close();
+}
+
+/* --------------------------------------------------------------------------
+   17. DRAWER DE FILTROS FACETADOS AVANZADOS (OFF-CANVAS)
+   -------------------------------------------------------------------------- */
+let filtrosFacetadosActivos = {
+    forma: null,
+    material: null,
+    genero: null,
+    soloStock: false
+};
+
+function abrirDrawerFiltros() {
+    reproducirSonido('click');
+    let drawer = document.getElementById('mvrFiltrosDrawerOverlay');
+    if (!drawer) {
+        drawer = document.createElement('div');
+        drawer.id = 'mvrFiltrosDrawerOverlay';
+        drawer.className = 'drawer-overlay';
+        drawer.onclick = function(e) { if (e.target === drawer) cerrarDrawerFiltros(); };
+
+        drawer.innerHTML = `
+            <div class="drawer-panel" onclick="event.stopPropagation()">
+                <div class="drawer-header">
+                    <h3>🎛️ Filtros Avanzados</h3>
+                    <span style="font-size: 1.5rem; cursor: pointer; color: #64748b;" onclick="cerrarDrawerFiltros()">&times;</span>
+                </div>
+                <div class="drawer-content">
+                    <div>
+                        <div class="filter-group-title">Forma de Armazón</div>
+                        <div class="filter-chips-grid">
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('forma', 'Aviador', this)">Aviador</button>
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('forma', 'Cat Eye', this)">Cat Eye</button>
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('forma', 'Redondo', this)">Redondo</button>
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('forma', 'Rectangular', this)">Rectangular</button>
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('forma', 'Cuadrado', this)">Cuadrado</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="filter-group-title">Material</div>
+                        <div class="filter-chips-grid">
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('material', 'Pasta', this)">Pasta / Acetato</button>
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('material', 'Metálico', this)">Metálico</button>
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('material', 'Titanio', this)">Titanio</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="filter-group-title">Género</div>
+                        <div class="filter-chips-grid">
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('genero', 'Dama', this)">Dama</button>
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('genero', 'Caballero', this)">Caballero</button>
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('genero', 'Unisex', this)">Unisex</button>
+                            <button class="chip-filter" onclick="seleccionarChipFiltro('genero', 'Niños', this)">Niños</button>
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--color-border); padding-top: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: bold; cursor: pointer;">
+                            <input type="checkbox" id="chkSoloStock" onchange="filtrosFacetadosActivos.soloStock = this.checked">
+                            <span>🟢 Solo modelos con stock disponible</span>
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: auto; padding-top: 1rem;">
+                        <button onclick="aplicarFiltrosFacetados()" class="btn btn-primary" style="flex: 1; padding: 0.8rem; font-weight: bold;">Aplicar Filtros</button>
+                        <button onclick="limpiarFiltrosFacetados()" class="btn" style="background: #e2e8f0; color: #1e293b; padding: 0.8rem; font-weight: bold;">Limpiar</button>
+                    </div>
+                </div>
+            </div>`;
+        document.body.appendChild(drawer);
+    }
+    drawer.classList.add('active');
+}
+
+function cerrarDrawerFiltros() {
+    const drawer = document.getElementById('mvrFiltrosDrawerOverlay');
+    if (drawer) drawer.classList.remove('active');
+}
+
+function seleccionarChipFiltro(categoria, valor, btn) {
+    reproducirSonido('click');
+    if (filtrosFacetadosActivos[categoria] === valor) {
+        filtrosFacetadosActivos[categoria] = null;
+        btn.classList.remove('active');
+    } else {
+        filtrosFacetadosActivos[categoria] = valor;
+        btn.parentElement.querySelectorAll('.chip-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+}
+
+function aplicarFiltrosFacetados() {
+    reproducirSonido('click');
+    cerrarDrawerFiltros();
+    if (typeof filtrarCatalogoCombinado === 'function') {
+        filtrarCatalogoCombinado();
+    }
+}
+
+function limpiarFiltrosFacetados() {
+    filtrosFacetadosActivos = { forma: null, material: null, genero: null, soloStock: false };
+    document.querySelectorAll('.chip-filter').forEach(b => b.classList.remove('active'));
+    const chk = document.getElementById('chkSoloStock');
+    if (chk) chk.checked = false;
+    cerrarDrawerFiltros();
+    if (typeof filtrarCatalogoCombinado === 'function') {
+        filtrarCatalogoCombinado();
+    }
+}
+
+// Inicializar el contador, favoritos, PWA y tema al cargar la página
 window.addEventListener('DOMContentLoaded', () => {
     inicializarTema();
     inyectarComponentesModernos();
     actualizarContadorCarrito();
+    actualizarBotonesFavoritosUI();
+    actualizarBotonFlotanteFavoritos();
+    actualizarBarraComparadorUI();
+    inicializarPWA();
 });

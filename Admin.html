@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupo MVR | Panel de Administración</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#002b55">
     <link rel="stylesheet" href="CSS/opticas-styles.css">
+    <!-- Chart.js para Business Intelligence y Gráficas Interactivas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         #panelProtegidoAdmin { display: none; }
@@ -114,12 +118,46 @@
             </div>
         </div>
 
+        <!-- DASHBOARD EJECUTIVO DE ANALÍTICA (BUSINESS INTELLIGENCE) -->
+        <div class="dashboard-analytics-grid">
+            <div class="chart-card-box">
+                <h4><span>🏢</span> Colocación por Sucursal</h4>
+                <div style="position: relative; height: 220px;">
+                    <canvas id="chartSucursales"></canvas>
+                </div>
+            </div>
+            <div class="chart-card-box">
+                <h4><span>🥧</span> Salud de la Cartera</h4>
+                <div style="position: relative; height: 220px;">
+                    <canvas id="chartSaludCartera"></canvas>
+                </div>
+            </div>
+            <div class="chart-card-box">
+                <h4><span>🏆</span> Top Promotoras</h4>
+                <div style="position: relative; height: 220px;">
+                    <canvas id="chartTopPromotoras"></canvas>
+                </div>
+            </div>
+        </div>
+
         <!-- MÓDULO 1: INVENTARIO -->
         <button class="btn-acordeon" onclick="toggleSeccion('seccionInventario')">
             <span>📦 Gestor Dinámico de Productos e Inventario</span>
             <span class="icono-flecha">▼</span>
         </button>
         <div id="seccionInventario" class="contenido-desplegable">
+            <div class="export-toolbar">
+                <span style="font-weight: bold; color: #002b55;">📑 Reportes de Inventario:</span>
+                <div class="export-btn-group">
+                    <button onclick="exportarInventarioCSV(inventarioGlobalCache)" class="btn-export btn-export-excel">
+                        <span>📊</span> Exportar Catálogo a Excel (.csv)
+                    </button>
+                    <button onclick="imprimirListaPrecios(inventarioGlobalCache)" class="btn-export btn-export-pdf">
+                        <span>📄</span> Imprimir Lista Oficial de Precios
+                    </button>
+                </div>
+            </div>
+
             <div class="card-resumen" style="border-left-color: #0059b3; padding: 1.5rem; margin-bottom: 1.5rem;">
                 <h4 style="color: #0059b3; margin-bottom: 1rem;">Agregar Nuevo Producto a la Tienda</h4>
                 <form id="formNuevoProducto" onsubmit="agregarNuevoProducto(event)">
@@ -163,8 +201,8 @@
             </div>
             <div style="overflow-x: auto; background: #fff; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
                 <table class="tabla-admin">
-                    <thead><tr><th>ID Promotora</th><th>Contraseña</th><th>Estado</th><th style="text-align: center;">Acciones</th></tr></thead>
-                    <tbody id="cuerpoTablaPromotoras"><tr><td colspan="4" style="text-align:center;">Cargando...</td></tr></tbody>
+                    <thead><tr><th>ID Promotora</th><th>Contraseña</th><th>Estado</th><th style="text-align: center;">Cortes y Recibos</th><th style="text-align: center;">Acciones</th></tr></thead>
+                    <tbody id="cuerpoTablaPromotoras"><tr><td colspan="5" style="text-align:center;">Cargando...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -195,20 +233,30 @@
             </div>
         </div>
 
-        <!-- MÓDULO 4: VALES (CON FILTRO POR SUCURSAL Y DATOS DEL CLIENTE) -->
+        <!-- MÓDULO 4: VALES Y EXPORTACIÓN SEGMENTADA DE CARTERA -->
         <button class="btn-acordeon" onclick="toggleSeccion('seccionVales')">
-            <span>📋 Historial Global de Vales y Cortes de Caja</span>
+            <span>📋 Historial Global de Vales y Reportes de Cartera</span>
             <span class="icono-flecha">▼</span>
         </button>
         <div id="seccionVales" class="contenido-desplegable">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; background: #f8f9fa; padding: 1rem; border-radius: 6px;">
-                <label for="filtroSucursalVales" style="font-weight: bold; color: #002b55; margin: 0;">Filtrar Vales por Sucursal:</label>
-                <select id="filtroSucursalVales" onchange="filtrarValesPorSucursal()" style="max-width: 250px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
-                    <option value="TODAS">Todas las Sucursales</option>
-                    <option value="Óptica D'villa">Óptica D'villa</option>
-                    <option value="Óptica Ravali">Óptica Ravali</option>
-                    <option value="Marcel Boutique">Marcel Boutique</option>
-                </select>
+            <div class="export-toolbar">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <label for="filtroSucursalVales" style="font-weight: bold; color: #002b55; margin: 0;">🏢 Sucursal:</label>
+                    <select id="filtroSucursalVales" class="select-segmentacion" onchange="filtrarValesPorSucursal()">
+                        <option value="TODAS">🌐 Todas las Sucursales (Consolidado)</option>
+                        <option value="Óptica D'villa">🔵 Óptica D'villa</option>
+                        <option value="Óptica Ravali">🔴 Óptica Ravali</option>
+                        <option value="Marcel Boutique">🟣 Marcel Boutique</option>
+                    </select>
+                </div>
+                <div class="export-btn-group">
+                    <button onclick="exportarCarteraCSV(listaGlobalVales, document.getElementById('filtroSucursalVales').value)" class="btn-export btn-export-excel" title="Descargar en Excel">
+                        <span>📊</span> Descargar Excel (.csv)
+                    </button>
+                    <button onclick="imprimirReporteCartera(listaGlobalVales, document.getElementById('filtroSucursalVales').value)" class="btn-export btn-export-pdf" title="Descargar o imprimir reporte PDF oficial">
+                        <span>📄</span> Descargar Reporte PDF
+                    </button>
+                </div>
             </div>
             <div style="overflow-x: auto;">
                 <table class="tabla-admin">
@@ -226,9 +274,10 @@
                             <th>Sucursal</th>
                             <th>Pago</th>
                             <th>Canje</th>
+                            <th style="text-align: center;">Ticket Digital</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpoTablaAdmin"><tr><td colspan="12" style="text-align:center;">Cargando...</td></tr></tbody>
+                    <tbody id="cuerpoTablaAdmin"><tr><td colspan="13" style="text-align:center;">Cargando...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -558,43 +607,42 @@
         }
 
         // --- SINCRONIZACIÓN MAESTRA Y RENDERIZADO DE VALES CON FILTRO ---
+        let inventarioGlobalCache = {};
+        let chartSucursalesInst = null;
+        let chartSaludInst = null;
+        let chartTopPromInst = null;
+
         async function cargarTodoDesdeLaNube() {
             const btn = document.getElementById('btnActualizarDatos');
-            if (btn) btn.innerText = "Sincronizando con Google Sheets...";
-            
+            if (btn) btn.innerText = "⏳ Sincronizando datos...";
             try {
                 // 1. INVENTARIO
                 let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
-                let inventarioRemoto = await resInv.json();
+                inventarioGlobalCache = await resInv.json();
                 const cuerpoInv = document.getElementById('cuerpoTablaInventarioAdmin');
                 cuerpoInv.innerHTML = "";
-                let ids = Object.keys(inventarioRemoto);
+                let ids = Object.keys(inventarioGlobalCache);
                 if (ids.length === 0) {
                     cuerpoInv.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888;">No hay productos registrados.</td></tr>`;
                 } else {
                     ids.forEach(id => {
-                        let prod = inventarioRemoto[id];
-                        let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(prod.precio || 0);
-                        let imgSrc = prod.imagen ? prod.imagen : 'mvr.jpg';
-                        let stockNum = parseInt(prod.stock) || 0;
-                        let alertaHtml = '';
-                        if (stockNum === 0) {
-                            alertaHtml = `<span style="color: #d32f2f; font-weight: bold; font-size: 0.75rem; display:block;">⚠️ Agotado</span>`;
-                        } else if (stockNum <= 3) {
-                            alertaHtml = `<span class="alerta-stock-bajo" style="font-size: 0.75rem; display:block; margin-top:2px;">⚠️ ¡Stock Bajo!</span>`;
-                        }
+                        let p = inventarioGlobalCache[id];
+                        let stock = parseInt(p.stock) || 0;
+                        let precio = parseFloat(p.precio) || 0;
+                        let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(precio);
+                        let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'mvr.jpg';
+                        let estadoStock = stock > 0 ? `<span style="color:#28a745; font-weight:bold;">🟢 ${stock} pzas</span>` : `<span style="color:#d32f2f; font-weight:bold;">🔴 Agotado</span>`;
 
                         cuerpoInv.innerHTML += `
                             <tr>
                                 <td><img src="${imgSrc}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;" onerror="this.src='mvr.jpg';"></td>
-                                <td><strong>${id}</strong></td><td>${prod.sucursal}</td><td><strong>${prod.nombre}</strong>${prod.tallas ? `<br><small style="color: #880e4f; font-weight: bold;">📏 Tallas: ${prod.tallas}</small>` : ''}</td><td>${precioFmt}</td>
-                                <td>
-                                    <input type="number" id="stock-${id}" value="${stockNum}" min="0" style="width: 70px; text-align: center; font-weight: bold;">
-                                    ${alertaHtml}
-                                </td>
-                                <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
-                                    <button onclick="guardarStockIndividual('${id}', '${prod.sucursal}', '${String(prod.nombre).replace(/'/g, "")}', ${prod.precio}, '${prod.imagen || ''}')" style="background-color: #28a745; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">💾 Guardar</button>
-                                    <button onclick="eliminarProductoInventario('${id}', '${prod.nombre}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
+                                <td><strong>${id}</strong></td>
+                                <td>${p.sucursal}</td>
+                                <td><strong>${p.nombre}</strong></td>
+                                <td>${precioFmt}</td>
+                                <td>${estadoStock}</td>
+                                <td style="text-align: center;">
+                                    <button onclick="eliminarProductoInventario('${id}', '${String(p.nombre).replace(/'/g, "")}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
                                 </td>
                             </tr>`;
                     });
@@ -607,7 +655,7 @@
                 cuerpoProm.innerHTML = "";
                 let listaProm = Object.keys(credencialesPromotoras);
                 if (listaProm.length === 0) {
-                    cuerpoProm.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888;">No hay promotoras.</td></tr>`;
+                    cuerpoProm.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No hay promotoras.</td></tr>`;
                 } else {
                     listaProm.forEach(prom => {
                         let datosP = credencialesPromotoras[prom];
@@ -620,6 +668,12 @@
                             <tr>
                                 <td><strong>${prom}</strong></td><td><span class="pass-badge">${pass}</span></td>
                                 <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold;">${estado}</span></td>
+                                <td style="text-align: center;">
+                                    <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
+                                        <button onclick="imprimirReporteCartera(listaGlobalVales, 'TODAS', '${prom}')" class="btn btn-export-pdf" style="padding: 4px 8px; font-size: 0.78rem;" title="Descargar estado de cuenta/recibos de ${prom}">🧾 Recibos</button>
+                                        <button onclick="exportarCarteraCSV(listaGlobalVales, 'TODAS', '${prom}')" class="btn btn-export-excel" style="padding: 4px 8px; font-size: 0.78rem;" title="Descargar Excel de ${prom}">📊 Excel</button>
+                                    </div>
+                                </td>
                                 <td style="text-align: center; display: flex; gap: 6px; justify-content: center;">
                                     <button onclick="cambiarEstadoPromotora('${prom}', '${estado}', this)" style="background-color: #ff8c00; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">${textoBoton}</button>
                                     <button onclick="eliminarPromotora('${prom}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.6rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
@@ -651,11 +705,12 @@
                     });
                 }
 
-                // 4. VALES Y MÉTRICAS (Guardando en lista global para filtros)
+                // 4. VALES Y MÉTRICAS
                 let resVales = await fetch(`${API_URL}?accion=obtenerVales&nocache=${new Date().getTime()}`);
                 listaGlobalVales = await resVales.json();
                 
                 renderizarTablaVales(listaGlobalVales);
+                actualizarGraficasDashboard(listaGlobalVales, listaProm);
 
             } catch (error) {
                 console.error("Error cargando datos de la nube:", error);
@@ -669,7 +724,7 @@
             let totalVales = 0, montoTotal = 0;
 
             if (vales.length === 0) {
-                cuerpoVales.innerHTML = `<tr><td colspan="12" style="text-align:center; color:#888;">No hay vales registrados para esta selección.</td></tr>`;
+                cuerpoVales.innerHTML = `<tr><td colspan="13" style="text-align:center; color:#888;">No hay vales registrados para esta selección.</td></tr>`;
             } else {
                 vales.slice().reverse().forEach(v => {
                     let monto = parseFloat(v.monto) || 0;
@@ -682,12 +737,15 @@
                     let montoVentaF = montoVentaNum > 0 ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoVentaNum) : '-';
                     let pagoColor = v.estatusPago === "Vencido" ? "#d32f2f" : "#28a745";
                     let canjeColor = v.estatusCanje === "Canjeado" ? "#0059b3" : "#888";
+                    let fechaFmt = v.fecha ? new Date(v.fecha).toLocaleDateString('es-MX') : '-';
+
+                    let valeJsonSafe = JSON.stringify(v).replace(/'/g, "&apos;");
 
                     cuerpoVales.innerHTML += `
                         <tr>
                             <td><strong>${v.folio}</strong></td>
-                            <td>${v.fecha}</td>
-                            <td>${v.promotora}</td>
+                            <td>${fechaFmt}</td>
+                            <td><strong>${v.promotora}</strong></td>
                             <td>${v.cliente}</td>
                             <td>${v.telefono || 'N/D'}</td>
                             <td>${v.direccion || 'N/D'}</td>
@@ -697,6 +755,13 @@
                             <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
                             <td><strong style="color: ${pagoColor};">${v.estatusPago}</strong></td>
                             <td><strong style="color: ${canjeColor};">${v.estatusCanje}</strong></td>
+                            <td style="text-align: center;">
+                                <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
+                                    <button onclick='mostrarPassbookModal(${valeJsonSafe})' class="btn btn-primary" style="padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">📱 Passbook</button>
+                                    <button onclick='mostrarTicketValeModal(${valeJsonSafe})' class="btn" style="background: #0059b3; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">🎟️ QR</button>
+                                    <button onclick="abrirModalAbonos('${v.folio}', '${String(v.cliente).replace(/'/g, "")}', ${monto}, '${v.quincenas}', '${v.promotora}', '${v.sucursal}')" class="btn" style="background: #28a745; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">💵 Abonos</button>
+                                </div>
+                            </td>
                         </tr>`;
                 });
             }

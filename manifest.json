@@ -1,0 +1,24 @@
+{
+  "name": "Grupo MVR - Ópticas & Boutique",
+  "short_name": "Grupo MVR",
+  "description": "Plataforma oficial de Óptica D'villa, Óptica Ravali y Marcel Boutique. Catálogos, vales digitales y promociones.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#002b55",
+  "theme_color": "#002b55",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "mvr.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "mvr.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

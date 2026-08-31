@@ -2736,11 +2736,679 @@ footer p {
 }
 
 /* --------------------------------------------------------------------------
+   28. BARRA DE EXPORTACIÓN Y REPORTES SEGMENTADOS
+   -------------------------------------------------------------------------- */
+.export-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #f8fafc;
+    border: 1px solid var(--color-border);
+    padding: 1rem 1.2rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.2rem;
+}
+
+[data-theme="dark"] .export-toolbar {
+    background: #0d1938;
+    border-color: #1e294b;
+}
+
+.export-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-spring);
+    text-decoration: none;
+}
+
+.btn-export-excel {
+    background: linear-gradient(135deg, #107c41, #1e8e3e);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(16, 124, 65, 0.25);
+}
+
+.btn-export-excel:hover {
+    background: #148a49;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 124, 65, 0.35);
+}
+
+.btn-export-pdf {
+    background: linear-gradient(135deg, #002b55, #0059b3);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 43, 85, 0.25);
+}
+
+.btn-export-pdf:hover {
+    background: #003d7a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 43, 85, 0.35);
+}
+
+.select-segmentacion {
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--color-border);
+    background: #ffffff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--color-text-main);
+    cursor: pointer;
+    outline: none;
+    transition: border-color var(--duration-fast);
+}
+
+[data-theme="dark"] .select-segmentacion {
+    background: #0b1329;
+    color: #f8fafc;
+    border-color: #1e294b;
+}
+
+.select-segmentacion:focus {
+    border-color: var(--color-primary);
+}
+
+/* --------------------------------------------------------------------------
+   29. MODAL DE VALE DIGITAL Y TICKET CON QR
+   -------------------------------------------------------------------------- */
+.ticket-digital-card {
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    border: 2px dashed #cbd5e1;
+    padding: 1.8rem;
+    max-width: 420px;
+    margin: 0 auto;
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    color: #1e293b;
+    text-align: left;
+}
+
+[data-theme="dark"] .ticket-digital-card {
+    background: #0b1329;
+    color: #f8fafc;
+    border-color: #334155;
+}
+
+.ticket-header {
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.ticket-header h3 {
+    margin: 0;
+    color: var(--color-primary);
+    font-size: 1.3rem;
+}
+
+.ticket-folio-badge {
+    display: inline-block;
+    background: #eff6ff;
+    color: #0059b3;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-top: 6px;
+}
+
+.ticket-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.ticket-row strong {
+    color: #64748b;
+}
+
+[data-theme="dark"] .ticket-row strong {
+    color: #94a3b8;
+}
+
+.ticket-qr-container {
+    text-align: center;
+    margin: 1.2rem 0;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+}
+
+[data-theme="dark"] .ticket-qr-container {
+    background: #111e38;
+}
+
+.ticket-qr-container img {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #ffffff;
+    padding: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   30. SISTEMA DE WISHLIST / FAVORITOS (❤️)
+   -------------------------------------------------------------------------- */
+.btn-fav-heart {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    transition: transform var(--duration-fast) var(--ease-spring), background var(--duration-fast);
+}
+
+.btn-fav-heart:hover {
+    transform: scale(1.18);
+}
+
+.btn-fav-heart.active {
+    color: #e11d48;
+    background: #ffe4e6;
+}
+
+.btn-flotante-fav {
+    position: fixed;
+    bottom: 95px;
+    right: 25px;
+    background: linear-gradient(135deg, #e11d48, #be123c);
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: var(--radius-full);
+    font-weight: 800;
+    font-size: 0.95rem;
+    box-shadow: 0 8px 22px rgba(225, 29, 72, 0.4);
+    z-index: 990;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform var(--duration-fast) var(--ease-spring), box-shadow var(--duration-fast);
+}
+
+.btn-flotante-fav:hover {
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 12px 28px rgba(225, 29, 72, 0.55);
+}
+
+@media screen and (max-width: 600px) {
+    .btn-flotante-fav {
+        bottom: 140px;
+        right: 15px;
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   31. PROBADOR VIRTUAL 2D (ESPEJO DIGITAL)
+   -------------------------------------------------------------------------- */
+.probador-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 2500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.probador-container {
+    background: #ffffff;
+    width: 100%;
+    max-width: 580px;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    position: relative;
+    text-align: center;
+    box-shadow: var(--shadow-2xl);
+}
+
+[data-theme="dark"] .probador-container {
+    background: #0b1329;
+    color: #f8fafc;
+}
+
+.probador-viewport {
+    position: relative;
+    width: 100%;
+    height: 380px;
+    background: #000000;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.probador-viewport video, 
+.probador-viewport img.user-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.probador-viewport img.frame-overlay {
+    position: absolute;
+    width: 200px;
+    cursor: move;
+    user-select: none;
+    touch-action: none;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.6));
+}
+
+.probador-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   32. COMPARADOR DE MODELOS LADO A LADO
+   -------------------------------------------------------------------------- */
+.btn-compare-toggle {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--color-border);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+    transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.btn-compare-toggle:hover {
+    transform: scale(1.15);
+    background: #ffffff;
+}
+
+.btn-compare-toggle.active {
+    background: #0059b3;
+    color: #ffffff;
+    border-color: #0059b3;
+    box-shadow: 0 4px 12px rgba(0, 89, 179, 0.4);
+}
+
+.floating-compare-bar {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #002b55;
+    color: #ffffff;
+    padding: 12px 24px;
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-2xl);
+    z-index: 995;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    animation: slideUpFade 0.3s ease-out;
+}
+
+.floating-compare-bar .compare-item-thumb {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff;
+}
+
+.compare-modal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.compare-modal-table th, .compare-modal-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.compare-modal-table th {
+    background: #f8fafc;
+    color: var(--color-primary);
+    font-weight: 800;
+}
+
+[data-theme="dark"] .compare-modal-table th {
+    background: #0d1938;
+}
+
+/* --------------------------------------------------------------------------
+   33. DRAWER DE FILTROS FACETADOS AVANZADOS (OFF-CANVAS)
+   -------------------------------------------------------------------------- */
+.drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--duration-normal) ease;
+}
+
+.drawer-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.drawer-panel {
+    position: fixed;
+    top: 0;
+    left: -360px;
+    width: 340px;
+    height: 100vh;
+    background: #ffffff;
+    box-shadow: var(--shadow-2xl);
+    z-index: 2005;
+    display: flex;
+    flex-direction: column;
+    transition: left var(--duration-normal) var(--ease-spring);
+    overflow-y: auto;
+}
+
+[data-theme="dark"] .drawer-panel {
+    background: #0b1329;
+    color: #f8fafc;
+}
+
+.drawer-overlay.active .drawer-panel {
+    left: 0;
+}
+
+.drawer-header {
+    padding: 1.2rem;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.drawer-header h3 {
+    margin: 0;
+    color: var(--color-primary);
+    font-size: 1.2rem;
+}
+
+.drawer-content {
+    padding: 1.2rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.filter-group-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.6rem;
+}
+
+[data-theme="dark"] .filter-group-title {
+    color: #94a3b8;
+}
+
+.filter-chips-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.chip-filter {
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--color-border);
+    background: #f8fafc;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--duration-fast);
+}
+
+[data-theme="dark"] .chip-filter {
+    background: #111e38;
+    border-color: #1e294b;
+    color: #cbd5e1;
+}
+
+.chip-filter:hover, .chip-filter.active {
+    background: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+
+/* --------------------------------------------------------------------------
+   34. VALE DIGITAL APPLE WALLET / PASSBOOK
+   -------------------------------------------------------------------------- */
+.passbook-wallet {
+    background: linear-gradient(135deg, #001f3f, #003366);
+    border-radius: 18px;
+    color: #ffffff;
+    max-width: 380px;
+    margin: 0 auto;
+    box-shadow: 0 16px 40px rgba(0, 31, 63, 0.4);
+    position: relative;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.passbook-wallet.ravali {
+    background: linear-gradient(135deg, #4a0508, #8b0000);
+    box-shadow: 0 16px 40px rgba(139, 0, 0, 0.4);
+}
+
+.passbook-wallet.marcel {
+    background: linear-gradient(135deg, #2b0938, #5a189a);
+    box-shadow: 0 16px 40px rgba(90, 24, 154, 0.4);
+}
+
+.passbook-top {
+    padding: 1.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.25);
+}
+
+.passbook-body {
+    padding: 1.4rem;
+}
+
+.passbook-row-main {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.passbook-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 0.75;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.passbook-value-large {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+.passbook-qr-box {
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.passbook-qr-box img {
+    width: 140px;
+    height: 140px;
+    display: block;
+    margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   35. DASHBOARD EJECUTIVO Y GRÁFICAS (ADMIN)
+   -------------------------------------------------------------------------- */
+.dashboard-analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card-box {
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    padding: 1.4rem;
+    box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .chart-card-box {
+    background: #0b1329;
+    border-color: #1e294b;
+}
+
+.chart-card-box h4 {
+    margin: 0 0 1rem 0;
+    color: var(--color-primary);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   36. MÓDULO DE ABONOS Y PAGOS PARCIALES
+   -------------------------------------------------------------------------- */
+.modal-abonos-card {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: var(--radius-md);
+    padding: 1.2rem;
+    margin: 1rem 0;
+    text-align: left;
+}
+
+[data-theme="dark"] .modal-abonos-card {
+    background: #0d1938;
+    border-color: #1e294b;
+}
+
+.abono-progreso-bar {
+    width: 100%;
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 8px 0;
+}
+
+.abono-progreso-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745, #20c997);
+    transition: width 0.4s ease;
+}
+
+/* --------------------------------------------------------------------------
+   37. BANNER DE INSTALACIÓN PWA
+   -------------------------------------------------------------------------- */
+.pwa-install-banner {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #002b55, #0059b3);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: var(--radius-full);
+    box-shadow: 0 8px 25px rgba(0, 43, 85, 0.45);
+    z-index: 2200;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    animation: slideDown 0.35s var(--ease-spring);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+}
+
+.pwa-install-banner button {
+    background: #ff8c00;
+    color: #ffffff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: var(--radius-full);
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+/* --------------------------------------------------------------------------
    16. ESTILOS DE IMPRESIÓN (PRINT)
    -------------------------------------------------------------------------- */
 @media print {
     body { background: #ffffff !important; color: #000000 !important; animation: none !important; }
-    header, footer, .hero, #valeForm, .login-promotora-container, button, label, input, select, div[style*="flex"], .btn-whatsapp, .btn-whatsapp-soporte, .btn-flotante-carrito, #btnFlotanteCarrito { 
+    header, footer, .hero, #valeForm, .login-promotora-container, button, label, input, select, div[style*="flex"], .btn-whatsapp, .btn-whatsapp-soporte, .btn-flotante-carrito, #btnFlotanteCarrito, .btn-flotante-fav, #mvrSpeedDial, #mvrMobileBottomNav, #mvrTickerTape, .floating-compare-bar, .pwa-install-banner { 
         display: none !important; 
     }
     body.imprimiendo-vale .cartera-container { display: none !important; }

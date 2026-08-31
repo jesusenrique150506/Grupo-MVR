@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupo MVR | Óptica Ravali</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a0508">
     <link rel="stylesheet" href="CSS/opticas-styles.css">
 </head>
 <body class="pagina-ravali">
@@ -54,6 +56,7 @@
                     <button class="chip-btn" onclick="cambiarFiltro('disponible', this)">🟢 En Stock</button>
                     <button class="chip-btn" onclick="cambiarFiltro('economico', this)">💳 Menos de $1,000</button>
                     <button class="chip-btn" onclick="cambiarFiltro('premium', this)">💎 Premium (+$1,500)</button>
+                    <button class="chip-btn" onclick="abrirDrawerFiltros()" style="background: #a80f14; color: white; border-color: #a80f14;">🎛️ Filtros Avanzados</button>
                 </div>
                 <div class="search-results-counter" id="contadorResultados">Cargando...</div>
             </div>
@@ -242,13 +245,22 @@
                     }
 
                     botonHtml = `
-                        <button class="btn btn-secondary" onclick="abrirModalPagos('${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio})">💳 Ver Quincenas y Promos</button>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+                            <button class="btn btn-secondary" style="padding: 0.55rem 0.4rem; font-size: 0.82rem;" onclick="abrirModalPagos('${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio})">💳 Quincenas</button>
+                            <button class="btn" style="background: linear-gradient(135deg, #a80f14, #d32f2f); color: white; padding: 0.55rem 0.4rem; font-size: 0.82rem; font-weight: bold; border-radius: 4px; border: none; cursor: pointer;" onclick="abrirProbadorVirtual('${imgSrc}', '${String(p.nombre).replace(/'/g, "\\'")}')">👓 Probar</button>
+                        </div>
                         <button class="btn btn-primary" onclick="agregarAlCarrito('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Óptica Ravali', '${imgSrc}')">🛒 Agregar al Carrito</button>
                     `;
                 }
 
+                let favIcon = (typeof esFavorito === 'function' && esFavorito(p.id)) ? '❤️' : '🤍';
+                let favActive = (typeof esFavorito === 'function' && esFavorito(p.id)) ? 'active' : '';
+                let compActive = (typeof estaEnComparador === 'function' && estaEnComparador(p.id)) ? 'active' : '';
+
                 contenedorCatalogo.innerHTML += `
-                    <div class="card-producto ${claseAgotado}">
+                    <div class="card-producto ${claseAgotado}" style="position: relative;">
+                        <button class="btn-compare-toggle ${compActive}" data-id="${p.id}" onclick="event.stopPropagation(); toggleComparar('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio || 0}, '${imgSrc}', 'Óptica Ravali')" title="Comparar modelo">⚖️</button>
+                        <button class="btn-fav-heart ${favActive}" data-id="${p.id}" onclick="event.stopPropagation(); toggleFavorito('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio || 0}, '${imgSrc}', 'Óptica Ravali')" title="Guardar en favoritos">${favIcon}</button>
                         <div>
                             <div class="img-container" onclick="abrirVistaRapidaProducto('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Óptica Ravali', '${imgSrc}', ${stock})" style="cursor: pointer;" title="🔍 Clic para Vista Rápida y Zoom">
                                 ${ribbonHtml}
@@ -281,7 +293,7 @@
             if (btnClear) {
                 btnClear.style.display = input.value.trim().length > 0 ? 'flex' : 'none';
             }
-            filtrarProductos();
+            filtrarCatalogoCombinado();
         }
 
         function limpiarBusquedaInput() {
@@ -289,36 +301,47 @@
             const btnClear = document.getElementById('btnClearSearch');
             if (input) input.value = '';
             if (btnClear) btnClear.style.display = 'none';
-            filtrarProductos();
+            filtrarCatalogoCombinado();
         }
 
-        function filtrarProductos() {
+        function filtrarCatalogoCombinado() {
             let texto = document.getElementById('inputBuscador').value.toLowerCase().trim();
             
             let filtrados = listaGlobalProductos.filter(p => {
-                let coincideTexto = p.nombre.toLowerCase().includes(texto) || p.id.toLowerCase().includes(texto);
+                let coincideTexto = p.nombre.toLowerCase().includes(texto) || p.id.toLowerCase().includes(texto) || (p.categoria && p.categoria.toLowerCase().includes(texto));
                 let precio = parseFloat(p.precio) || 0;
                 let stock = parseInt(p.stock) || 0;
 
-                let coincideFiltro = true;
+                let coincideFiltroChip = true;
                 if (filtroActual === 'disponible') {
-                    coincideFiltro = stock > 0;
+                    coincideFiltroChip = stock > 0;
                 } else if (filtroActual === 'economico') {
-                    coincideFiltro = precio < 1000;
+                    coincideFiltroChip = precio < 1000;
                 } else if (filtroActual === 'premium') {
-                    coincideFiltro = precio >= 1500;
+                    coincideFiltroChip = precio >= 1500;
                 }
-                return coincideTexto && coincideFiltro;
+
+                // Filtros facetados del drawer
+                let coincideFacetado = true;
+                if (typeof filtrosFacetadosActivos !== 'undefined') {
+                    if (filtrosFacetadosActivos.soloStock && stock <= 0) coincideFacetado = false;
+                    if (filtrosFacetadosActivos.forma && !p.nombre.toLowerCase().includes(filtrosFacetadosActivos.forma.toLowerCase())) coincideFacetado = false;
+                    if (filtrosFacetadosActivos.material && !p.nombre.toLowerCase().includes(filtrosFacetadosActivos.material.toLowerCase())) coincideFacetado = false;
+                    if (filtrosFacetadosActivos.genero && !p.nombre.toLowerCase().includes(filtrosFacetadosActivos.genero.toLowerCase())) coincideFacetado = false;
+                }
+
+                return coincideTexto && coincideFiltroChip && coincideFacetado;
             });
 
             renderizarCatalogo(filtrados);
         }
 
         function cambiarFiltro(tipo, btn) {
+            reproducirSonido('click');
             filtroActual = tipo;
             document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('activo'));
             btn.classList.add('activo');
-            filtrarProductos();
+            filtrarCatalogoCombinado();
         }
 
         // --- LÓGICA DEL MODAL DE PAGOS ---
