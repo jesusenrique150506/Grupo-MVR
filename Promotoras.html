@@ -233,6 +233,14 @@
                 </div>
             </div>
 
+            <!-- Buscador en tiempo real de cartera -->
+            <div style="margin-top: 1rem; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px; position: relative;">
+                    <input type="text" id="inputBuscadorEnVivoCartera" oninput="filtrarCarteraEnVivo()" placeholder="🔍 Buscar cliente, teléfono o folio en tiempo real..." style="width: 100%; padding: 0.75rem 1rem; border-radius: 6px; border: 1.5px solid #cbd5e1; font-size: 0.95rem; box-sizing: border-box;">
+                </div>
+                <span id="contadorCarteraEnVivo" style="font-size: 0.85rem; color: #64748b; font-weight: bold;"></span>
+            </div>
+
             <div id="tablaCarteraResultado" style="display: none; margin-top: 1rem; overflow-x: auto;">
                 <table class="tabla-cartera" style="width: 100%;">
                     <thead>
@@ -242,7 +250,7 @@
                             <th>Monto</th>
                             <th>Plazo / Cuota</th>
                             <th>Sucursal</th>
-                            <th>Estatus</th>
+                            <th>Estatus / Semáforo</th>
                             <th style="text-align: center;">Ticket Digital</th>
                             <th style="text-align: center;">Cobranza WhatsApp</th>
                         </tr>
@@ -252,8 +260,6 @@
             </div>
         </section>
     </div>
-
-    <a href="https://wa.me/528332854129?text=Hola,%20soy%20promotora%20de%20Grupo%20MVR%20y%20requiero%20asistencia%20con%20un%20vale." target="_blank" class="btn-whatsapp-soporte">💬 Soporte Promotoras</a>
 
     <footer style="background-color: #002b55; color: #ffffff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR (D'villa, Ravali & Marcel). Todos los derechos reservados.</p>
@@ -542,20 +548,39 @@
             if (btn) btn.innerText = "🔄 Actualizar Cartera";
         }
 
+        function filtrarCarteraEnVivo() {
+            renderizarCarteraFiltradaPromotora();
+        }
+
         function renderizarCarteraFiltradaPromotora() {
             const filtroSucursal = document.getElementById('filtroSucursalPromotora') ? document.getElementById('filtroSucursalPromotora').value : 'TODAS';
+            const busquedaEnVivo = (document.getElementById('inputBuscadorEnVivoCartera') ? document.getElementById('inputBuscadorEnVivoCartera').value : '').trim().toLowerCase();
             const cuerpo = document.getElementById('cuerpoTablaCartera');
             if (!cuerpo) return;
 
-            const filtrados = (filtroSucursal === 'TODAS' || !filtroSucursal) 
+            let filtrados = (filtroSucursal === 'TODAS' || !filtroSucursal) 
                 ? listaValesPromotoraCache 
                 : listaValesPromotoraCache.filter(v => String(v.sucursal || '').toLowerCase() === filtroSucursal.toLowerCase());
+
+            if (busquedaEnVivo) {
+                filtrados = filtrados.filter(v => {
+                    const cli = String(v.cliente || '').toLowerCase();
+                    const tel = String(v.telefono || '').toLowerCase();
+                    const fol = String(v.folio || '').toLowerCase();
+                    return cli.includes(busquedaEnVivo) || tel.includes(busquedaEnVivo) || fol.includes(busquedaEnVivo);
+                });
+            }
+
+            const contadorEl = document.getElementById('contadorCarteraEnVivo');
+            if (contadorEl) {
+                contadorEl.innerText = `${filtrados.length} ${filtrados.length === 1 ? 'resultado' : 'resultados'}`;
+            }
 
             let totalVendido = 0;
             let clientesSet = new Set();
 
             if (filtrados.length === 0) {
-                cuerpo.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#888;">No se encontraron vales registrados para la sucursal seleccionada.</td></tr>`;
+                cuerpo.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#888; padding: 2rem;">🔍 No se encontraron vales que coincidan con la búsqueda.</td></tr>`;
             } else {
                 cuerpo.innerHTML = "";
                 filtrados.slice().reverse().forEach(v => {
@@ -577,15 +602,28 @@
                     const estatusCanje = String(v.estatusCanje || '').trim();
                     const estatusLower = estatus.toLowerCase();
 
+                    // --- CÁLCULO DE SEMÁFORO INTELIGENTE DE QUINCENAS ---
                     let badgeStatusHtml = '';
-                    if (estatusLower.includes('vencid') || estatusLower.includes('atras') || estatusLower.includes('mora')) {
-                        badgeStatusHtml = `<span style="background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🔴 ${estatus}</span>`;
-                    } else if (estatusLower.includes('liquid') || estatusLower.includes('pagad')) {
-                        badgeStatusHtml = `<span style="background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🔵 ${estatus}</span>`;
-                    } else if (estatusLower.includes('pendient')) {
-                        badgeStatusHtml = `<span style="background: #fffbeb; color: #b45309; border: 1px solid #fde68a; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;">🟡 ${estatus}</span>`;
+                    if (estatusLower.includes('liquid') || estatusLower.includes('pagad')) {
+                        badgeStatusHtml = `<span class="badge-semaforo" style="background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd;">🔵 Liquidado</span>`;
+                    } else if (estatusLower.includes('vencid') || estatusLower.includes('atras') || estatusLower.includes('mora')) {
+                        badgeStatusHtml = `<span class="badge-semaforo vencido">🔴 Vencido</span>`;
                     } else {
-                        badgeStatusHtml = `<span class="badge-status-corriente">🟢 ${estatus}</span>`;
+                        // Calcular días respecto a la fecha del vale si está disponible
+                        let diasTranscurridos = 0;
+                        if (v.fecha) {
+                            const fVale = new Date(v.fecha);
+                            if (!isNaN(fVale.getTime())) {
+                                diasTranscurridos = Math.floor((Date.now() - fVale.getTime()) / (1000 * 60 * 60 * 24));
+                            }
+                        }
+                        const diasParaQuincena = 15 - (diasTranscurridos % 15);
+
+                        if (diasParaQuincena <= 3 && diasTranscurridos > 0) {
+                            badgeStatusHtml = `<span class="badge-semaforo por-vencer" title="Pago quincenal en los próximos ${diasParaQuincena} días">🟡 Por Vencer (${diasParaQuincena}d)</span>`;
+                        } else {
+                            badgeStatusHtml = `<span class="badge-semaforo al-corriente">🟢 Al Corriente</span>`;
+                        }
                     }
 
                     if (estatusCanje) {
@@ -595,9 +633,9 @@
 
                     let mensajeCobro = '';
                     if (estatusLower.includes('vencid') || estatusLower.includes('atras') || estatusLower.includes('mora')) {
-                        mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe informamos cordialmente que tu cuenta correspondiente al vale *${v.folio}* presenta un estatus de *${estatus}* con un pago quincenal pendiente de *${cuotaFmt} MXN*.\n\nPor favor comunícate a la brevedad con tu promotora (${v.promotora}) para regularizar tu saldo y mantener tu crédito activo. ¡Muchas gracias!`);
+                        mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe informamos cordialmente que tu cuenta correspondiente al vale *${v.folio}* presenta un pago quincenal pendiente de *${cuotaFmt} MXN*.\n\nPor favor comunícate a la brevedad con tu promotora (${v.promotora}) para regularizar tu saldo y mantener tu crédito activo. ¡Muchas gracias!`);
                     } else {
-                        mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe recordamos cordialmente que tu pago quincenal correspondiente al vale *${v.folio}* por un monto de *${cuotaFmt} MXN* vence en esta quincena.\n\n¡Agradecemos mucho tu puntualidad y preferencia! ✨`);
+                        mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe recordamos cordialmente que tu pago quincenal correspondiente al vale *${v.folio}* por un monto de *${cuotaFmt} MXN* está próximo a vencer.\n\n¡Agradecemos mucho tu puntualidad y preferencia con Grupo MVR! ✨`);
                     }
 
                     const linkCobroWsp = `https://api.whatsapp.com/send?phone=52${telLimpo}&text=${mensajeCobro}`;

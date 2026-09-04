@@ -147,13 +147,16 @@
         </button>
         <div id="seccionInventario" class="contenido-desplegable">
             <div class="export-toolbar">
-                <span style="font-weight: bold; color: #002b55;">📑 Reportes de Inventario:</span>
+                <span style="font-weight: bold; color: #002b55;">📑 Herramientas de Inventario:</span>
                 <div class="export-btn-group">
-                    <button onclick="exportarInventarioCSV(inventarioGlobalCache)" class="btn-export btn-export-excel">
-                        <span>📊</span> Exportar Catálogo a Excel (.csv)
+                    <button onclick="abrirModalCargaMasiva()" class="btn-export" style="background: linear-gradient(135deg, #0059b3, #002b55); color: white;" title="Subir archivo .csv con múltiples productos">
+                        <span>📁</span> Carga Masiva CSV / Excel
                     </button>
-                    <button onclick="imprimirListaPrecios(inventarioGlobalCache)" class="btn-export btn-export-pdf">
-                        <span>📄</span> Imprimir Lista Oficial de Precios
+                    <button onclick="exportarInventarioCSV(inventarioGlobalCache)" class="btn-export btn-export-excel" title="Descargar catálogo completo">
+                        <span>📊</span> Exportar a Excel (.csv)
+                    </button>
+                    <button onclick="imprimirListaPrecios(inventarioGlobalCache)" class="btn-export btn-export-pdf" title="Imprimir lista oficial">
+                        <span>📄</span> Lista Oficial PDF
                     </button>
                 </div>
             </div>
@@ -235,26 +238,57 @@
 
         <!-- MÓDULO 4: VALES Y EXPORTACIÓN SEGMENTADA DE CARTERA -->
         <button class="btn-acordeon" onclick="toggleSeccion('seccionVales')">
-            <span>📋 Historial Global de Vales y Reportes de Cartera</span>
+            <span>📋 Historial Global de Vales y Auditoría Multicriterio</span>
             <span class="icono-flecha">▼</span>
         </button>
         <div id="seccionVales" class="contenido-desplegable">
-            <div class="export-toolbar">
-                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <label for="filtroSucursalVales" style="font-weight: bold; color: #002b55; margin: 0;">🏢 Sucursal:</label>
-                    <select id="filtroSucursalVales" class="select-segmentacion" onchange="filtrarValesPorSucursal()">
-                        <option value="TODAS">🌐 Todas las Sucursales (Consolidado)</option>
+            <!-- Barra de Filtros Multicriterio Avanzada -->
+            <div class="multicriteria-filter-bar">
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: bold; color: #002b55; display: block; margin-bottom: 3px;">📅 Desde:</label>
+                    <input type="date" id="filtroValesFechaInicio" onchange="filtrarValesMulticriterio()" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: bold; color: #002b55; display: block; margin-bottom: 3px;">📅 Hasta:</label>
+                    <input type="date" id="filtroValesFechaFin" onchange="filtrarValesMulticriterio()" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: bold; color: #002b55; display: block; margin-bottom: 3px;">🏢 Sucursal:</label>
+                    <select id="filtroValesSucursal" onchange="filtrarValesMulticriterio()" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: bold;">
+                        <option value="TODAS">🌐 Todas las Sucursales</option>
                         <option value="Óptica D'villa">🔵 Óptica D'villa</option>
                         <option value="Óptica Ravali">🔴 Óptica Ravali</option>
                         <option value="Marcel Boutique">🟣 Marcel Boutique</option>
                     </select>
                 </div>
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: bold; color: #002b55; display: block; margin-bottom: 3px;">👤 Promotora:</label>
+                    <select id="filtroValesPromotora" onchange="filtrarValesMulticriterio()" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        <option value="TODAS">👥 Todas las Promotoras</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: bold; color: #002b55; display: block; margin-bottom: 3px;">💳 Estatus Pago:</label>
+                    <select id="filtroValesEstatus" onchange="filtrarValesMulticriterio()" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        <option value="TODOS">Todos los estatus</option>
+                        <option value="Al Corriente">🟢 Al Corriente</option>
+                        <option value="Vencido">🔴 Vencido / Atrasado</option>
+                        <option value="Liquidado">🔵 Liquidado</option>
+                    </select>
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <input type="text" id="filtroValesTexto" oninput="filtrarValesMulticriterio()" placeholder="🔍 Buscar cliente, folio, teléfono o dirección en tiempo real..." style="width: 100%; padding: 0.65rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+                </div>
+            </div>
+
+            <div class="export-toolbar" style="margin-top: 0.5rem;">
+                <span id="contadorValesFiltradosTxt" style="font-weight: bold; color: #002b55;">Registros filtrados</span>
                 <div class="export-btn-group">
-                    <button onclick="exportarCarteraCSV(listaGlobalVales, document.getElementById('filtroSucursalVales').value)" class="btn-export btn-export-excel" title="Descargar en Excel">
-                        <span>📊</span> Descargar Excel (.csv)
+                    <button onclick="exportarValesFiltradosCSV()" class="btn-export btn-export-excel" title="Descargar datos filtrados a Excel">
+                        <span>📊</span> Exportar Filtro a Excel (.csv)
                     </button>
-                    <button onclick="imprimirReporteCartera(listaGlobalVales, document.getElementById('filtroSucursalVales').value)" class="btn-export btn-export-pdf" title="Descargar o imprimir reporte PDF oficial">
-                        <span>📄</span> Descargar Reporte PDF
+                    <button onclick="imprimirValesFiltradosPDF()" class="btn-export btn-export-pdf" title="Descargar reporte PDF del filtro">
+                        <span>📄</span> Reporte PDF del Filtro
                     </button>
                 </div>
             </div>
@@ -642,6 +676,7 @@
                                 <td>${precioFmt}</td>
                                 <td>${estadoStock}</td>
                                 <td style="text-align: center;">
+                                    <button onclick="abrirModalEditarProducto('${id}')" style="background-color: #0059b3; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 4px;">✏️ Editar</button>
                                     <button onclick="eliminarProductoInventario('${id}', '${String(p.nombre).replace(/'/g, "")}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
                                 </td>
                             </tr>`;
@@ -654,6 +689,16 @@
                 const cuerpoProm = document.getElementById('cuerpoTablaPromotoras');
                 cuerpoProm.innerHTML = "";
                 let listaProm = Object.keys(credencialesPromotoras);
+                
+                // Actualizar selector de promotoras en filtros
+                const selPromFiltro = document.getElementById('filtroValesPromotora');
+                if (selPromFiltro) {
+                    selPromFiltro.innerHTML = '<option value="TODAS">👥 Todas las Promotoras</option>';
+                    listaProm.forEach(pr => {
+                        selPromFiltro.innerHTML += `<option value="${pr}">${pr}</option>`;
+                    });
+                }
+
                 if (listaProm.length === 0) {
                     cuerpoProm.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888;">No hay promotoras.</td></tr>`;
                 } else {
@@ -709,7 +754,7 @@
                 let resVales = await fetch(`${API_URL}?accion=obtenerVales&nocache=${new Date().getTime()}`);
                 listaGlobalVales = await resVales.json();
                 
-                renderizarTablaVales(listaGlobalVales);
+                filtrarValesMulticriterio();
                 actualizarGraficasDashboard(listaGlobalVales, listaProm);
 
             } catch (error) {
@@ -718,13 +763,72 @@
             if (btn) btn.innerText = "🔄 Sincronizar Todo con la Nube";
         }
 
+        let listaValesFiltradosMemoria = [];
+
+        function filtrarValesMulticriterio() {
+            const fInicio = document.getElementById('filtroValesFechaInicio')?.value || '';
+            const fFin = document.getElementById('filtroValesFechaFin')?.value || '';
+            const fSuc = document.getElementById('filtroValesSucursal')?.value || 'TODAS';
+            const fProm = document.getElementById('filtroValesPromotora')?.value || 'TODAS';
+            const fEst = document.getElementById('filtroValesEstatus')?.value || 'TODOS';
+            const fTxt = (document.getElementById('filtroValesTexto')?.value || '').trim().toLowerCase();
+
+            listaValesFiltradosMemoria = listaGlobalVales.filter(v => {
+                // Filtro Sucursal
+                if (fSuc !== 'TODAS' && String(v.sucursal).trim().toLowerCase() !== fSuc.toLowerCase()) return false;
+                // Filtro Promotora
+                if (fProm !== 'TODAS' && String(v.promotora).trim().toUpperCase() !== fProm.toUpperCase()) return false;
+                // Filtro Estatus
+                if (fEst !== 'TODOS') {
+                    const estPago = String(v.estatusPago || 'Al Corriente').toLowerCase();
+                    if (fEst === 'Al Corriente' && (estPago.includes('vencid') || estPago.includes('liquid'))) return false;
+                    if (fEst === 'Vencido' && !estPago.includes('vencid') && !estPago.includes('atras')) return false;
+                    if (fEst === 'Liquidado' && !estPago.includes('liquid') && !estPago.includes('pagad')) return false;
+                }
+                // Filtro Rango de Fechas
+                if (v.fecha) {
+                    const fechaItem = new Date(v.fecha).toISOString().split('T')[0];
+                    if (fInicio && fechaItem < fInicio) return false;
+                    if (fFin && fechaItem > fFin) return false;
+                }
+                // Filtro de Texto libre
+                if (fTxt) {
+                    const cli = String(v.cliente || '').toLowerCase();
+                    const fol = String(v.folio || '').toLowerCase();
+                    const tel = String(v.telefono || '').toLowerCase();
+                    const dir = String(v.direccion || '').toLowerCase();
+                    if (!cli.includes(fTxt) && !fol.includes(fTxt) && !tel.includes(fTxt) && !dir.includes(fTxt)) return false;
+                }
+                return true;
+            });
+
+            const contadorEl = document.getElementById('contadorValesFiltradosTxt');
+            if (contadorEl) {
+                contadorEl.innerText = `Mostrando ${listaValesFiltradosMemoria.length} de ${listaGlobalVales.length} vales`;
+            }
+
+            renderizarTablaVales(listaValesFiltradosMemoria);
+        }
+
+        function exportarValesFiltradosCSV() {
+            const suc = document.getElementById('filtroValesSucursal')?.value || 'TODAS';
+            const prom = document.getElementById('filtroValesPromotora')?.value || '';
+            exportarCarteraCSV(listaValesFiltradosMemoria, suc, prom);
+        }
+
+        function imprimirValesFiltradosPDF() {
+            const suc = document.getElementById('filtroValesSucursal')?.value || 'TODAS';
+            const prom = document.getElementById('filtroValesPromotora')?.value || '';
+            imprimirReporteCartera(listaValesFiltradosMemoria, suc, (prom === 'TODAS' ? '' : prom));
+        }
+
         function renderizarTablaVales(vales) {
             const cuerpoVales = document.getElementById('cuerpoTablaAdmin');
             cuerpoVales.innerHTML = "";
             let totalVales = 0, montoTotal = 0;
 
-            if (vales.length === 0) {
-                cuerpoVales.innerHTML = `<tr><td colspan="13" style="text-align:center; color:#888;">No hay vales registrados para esta selección.</td></tr>`;
+            if (!vales || vales.length === 0) {
+                cuerpoVales.innerHTML = `<tr><td colspan="13" style="text-align:center; color:#888; padding: 2rem;">🔍 No se encontraron vales con los filtros seleccionados.</td></tr>`;
             } else {
                 vales.slice().reverse().forEach(v => {
                     let monto = parseFloat(v.monto) || 0;
@@ -735,8 +839,8 @@
                     let claseBadge = v.sucursal === "Óptica Ravali" ? "badge-ravali" : (v.sucursal === "Marcel Boutique" ? "badge-marcel" : "badge-dvilla");
                     let montoF = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(monto);
                     let montoVentaF = montoVentaNum > 0 ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoVentaNum) : '-';
-                    let pagoColor = v.estatusPago === "Vencido" ? "#d32f2f" : "#28a745";
-                    let canjeColor = v.estatusCanje === "Canjeado" ? "#0059b3" : "#888";
+                    let pagoColor = String(v.estatusPago).toLowerCase().includes("vencid") ? "#d32f2f" : "#28a745";
+                    let canjeColor = String(v.estatusCanje).toLowerCase().includes("canjeado") ? "#0059b3" : "#888";
                     let fechaFmt = v.fecha ? new Date(v.fecha).toLocaleDateString('es-MX') : '-';
 
                     let valeJsonSafe = JSON.stringify(v).replace(/'/g, "&apos;");
@@ -753,8 +857,8 @@
                             <td style="font-weight: bold; color: #0059b3;">${montoVentaF}</td>
                             <td>${v.quincenas}</td>
                             <td><span class="badge-optica ${claseBadge}">${v.sucursal}</span></td>
-                            <td><strong style="color: ${pagoColor};">${v.estatusPago}</strong></td>
-                            <td><strong style="color: ${canjeColor};">${v.estatusCanje}</strong></td>
+                            <td><strong style="color: ${pagoColor};">${v.estatusPago || 'Al Corriente'}</strong></td>
+                            <td><strong style="color: ${canjeColor};">${v.estatusCanje || 'Pendiente'}</strong></td>
                             <td style="text-align: center;">
                                 <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
                                     <button onclick='mostrarPassbookModal(${valeJsonSafe})' class="btn btn-primary" style="padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">📱 Passbook</button>
@@ -768,16 +872,6 @@
 
             document.getElementById('resumenTotalVales').innerText = totalVales;
             document.getElementById('resumenMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoTotal);
-        }
-
-        function filtrarValesPorSucursal() {
-            let sucursalSeleccionada = document.getElementById('filtroSucursalVales').value;
-            if (sucursalSeleccionada === "TODAS") {
-                renderizarTablaVales(listaGlobalVales);
-            } else {
-                let valesFiltrados = listaGlobalVales.filter(v => String(v.sucursal).trim() === sucursalSeleccionada);
-                renderizarTablaVales(valesFiltrados);
-            }
         }
     </script>
 </body>

@@ -132,6 +132,16 @@ function actualizarContadorCarrito() {
         void contador.offsetWidth;
         contador.style.animation = 'badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
     }
+
+    const badgeNav = document.getElementById('badgeNavCart');
+    if (badgeNav) {
+        if (totalItems > 0) {
+            badgeNav.innerText = totalItems;
+            badgeNav.style.display = 'block';
+        } else {
+            badgeNav.style.display = 'none';
+        }
+    }
 }
 
 function agregarAlCarrito(id, nombre, precio, sucursal, imagen = '', talla = null) {
@@ -600,7 +610,7 @@ function inyectarComponentesModernos() {
         document.body.appendChild(speedDial);
     }
 
-    // 3. Barra Móvil Inferior (Sticky Bottom Nav Bar)
+    // 3. Barra Móvil Inferior (Sticky Bottom Nav Bar Unificada)
     if (!document.getElementById('mvrMobileBottomNav')) {
         const pathname = window.location.pathname.toLowerCase();
         const esIndex = pathname.includes('index') || pathname.endsWith('/') || pathname.endsWith('grupomvr');
@@ -624,8 +634,16 @@ function inyectarComponentesModernos() {
             <a href="Marcel.html" class="bottom-nav-item ${esMarcel ? 'activo' : ''}">
                 <span class="bottom-nav-icon">👗</span> Marcel
             </a>
-            <a href="javascript:void(0)" onclick="abrirCarritoGlobal()" class="bottom-nav-item">
+            <a href="javascript:void(0)" onclick="abrirModalFavoritos()" class="bottom-nav-item" style="position: relative;">
+                <span class="bottom-nav-icon">❤️</span> Favs
+                <span class="nav-badge-count" id="badgeNavFavs" style="display: none;">0</span>
+            </a>
+            <a href="javascript:void(0)" onclick="abrirCarritoGlobal()" class="bottom-nav-item" style="position: relative;">
                 <span class="bottom-nav-icon">🛍️</span> Carrito
+                <span class="nav-badge-count" id="badgeNavCart" style="display: none;">0</span>
+            </a>
+            <a href="javascript:void(0)" onclick="toggleSpeedDial()" class="bottom-nav-item" style="color: #25d366;">
+                <span class="bottom-nav-icon">💬</span> Chat
             </a>`;
         document.body.appendChild(nav);
     }
@@ -1251,6 +1269,16 @@ function actualizarBotonFlotanteFavoritos() {
         btnFlotante.style.display = 'inline-flex';
     } else if (btnFlotante) {
         btnFlotante.style.display = 'none';
+    }
+
+    const badgeNavFavs = document.getElementById('badgeNavFavs');
+    if (badgeNavFavs) {
+        if (favs.length > 0) {
+            badgeNavFavs.innerText = favs.length;
+            badgeNavFavs.style.display = 'block';
+        } else {
+            badgeNavFavs.style.display = 'none';
+        }
     }
 }
 
@@ -2002,10 +2030,390 @@ function guardarAbonoModal(folio, cliente, montoTotal, quincenas, promotora, suc
         return;
     }
 
-    registrarAbonoEnStorage(folio, monto, inputNota.value);
+    const abonosPrevios = obtenerHistorialAbonos(folio);
+    const totalAbonadoPrevio = abonosPrevios.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
+    const saldoAnterior = Math.max(0, parseFloat(montoTotal) - totalAbonadoPrevio);
+    const saldoRestante = Math.max(0, saldoAnterior - monto);
+
+    const notaTxt = inputNota.value.trim() || `Abono #${abonosPrevios.length + 1}`;
+    registrarAbonoEnStorage(folio, monto, notaTxt);
     reproducirSonido('cash');
+
+    const folioAbono = `AB-${folio}-${abonosPrevios.length + 1}`;
+    const fechaAbono = new Date().toLocaleDateString('es-MX') + ' ' + new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
     mostrarToast("¡Abono Registrado!", `Se sumó un abono de $${monto} al vale ${folio}.`);
     abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucursal);
+
+    // Modal de confirmación con opciones de comprobante
+    setTimeout(() => {
+        mostrarModalComprobanteAbono(folioAbono, folio, cliente, monto, saldoAnterior, saldoRestante, promotora, sucursal, fechaAbono, notaTxt);
+    }, 400);
+}
+
+function mostrarModalComprobanteAbono(folioAbono, folioVale, cliente, montoAbono, saldoAnterior, saldoRestante, promotora, sucursal, fecha, nota) {
+    const modalId = 'modalComprobanteAbonoExito';
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.style.zIndex = '3000';
+        document.body.appendChild(modal);
+    }
+
+    const brand = obtenerBrandingSucursal(sucursal);
+    const montoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoAbono);
+    const saldoRestFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldoRestante);
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 420px; padding: 1.5rem; text-align: center; border-top: 5px solid ${brand.colorPrimario};">
+            <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+            <div style="font-size: 2.2rem; margin-bottom: 6px;">💵✨</div>
+            <h3 style="margin: 0; color: ${brand.colorPrimario};">¡Abono Exitoso!</h3>
+            <p style="margin: 4px 0 1rem 0; color: #64748b; font-size: 0.88rem;">Comprobante generado: <strong>${folioAbono}</strong></p>
+
+            <div class="ticket-abono-card" style="border-color: ${brand.colorPrimario}; background: ${brand.fondoSuave};">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed ${brand.bordeColor}; padding-bottom: 6px; margin-bottom: 6px;">
+                    <span>Vale Origen: <strong>${folioVale}</strong></span>
+                    <span style="color: ${brand.colorPrimario}; font-weight: bold;">${brand.nombre}</span>
+                </div>
+                <div style="font-size: 0.85rem; line-height: 1.6;">
+                    <strong>Cliente:</strong> ${cliente}<br>
+                    <strong>Monto Abonado:</strong> <span style="font-size: 1.1rem; font-weight: 900; color: #16a34a;">${montoFmt} MXN</span><br>
+                    <strong>Saldo Restante:</strong> <span style="font-weight: bold; color: ${saldoRestante === 0 ? '#16a34a' : '#dc2626'};">${saldoRestFmt} MXN</span><br>
+                    <strong>Concepto:</strong> ${nota}<br>
+                    <small style="color: #64748b;">${fecha}</small>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 1.2rem; justify-content: center;">
+                <button onclick="imprimirReciboAbono('${folioAbono}', '${folioVale}', '${cliente}', ${montoAbono}, ${saldoAnterior}, ${saldoRestante}, '${promotora}', '${sucursal}', '${fecha}', '${nota}')" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">🖨️ Imprimir Recibo PDF</button>
+                <button onclick="compartirReciboAbonoWhatsApp('${folioAbono}', '${folioVale}', '${cliente}', ${montoAbono}, ${saldoRestante}, '${promotora}', '${sucursal}')" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">📲 WhatsApp</button>
+            </div>
+        </div>`;
+
+    modal.style.display = 'flex';
+}
+
+function imprimirReciboAbono(folioAbono, folioVale, cliente, montoAbono, saldoAnterior, saldoRestante, promotora, sucursal, fecha, nota) {
+    const brand = obtenerBrandingSucursal(sucursal);
+    const montoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoAbono);
+    const saldoAntFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldoAnterior);
+    const saldoRestFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldoRestante);
+
+    const qrData = encodeURIComponent(`GRUPO MVR | COMPROBANTE DE ABONO\nRecibo: ${folioAbono}\nVale: ${folioVale}\nCliente: ${cliente}\nAbono: ${montoFmt}\nSaldo Restante: ${saldoRestFmt}\nFecha: ${fecha}`);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${qrData}&margin=2`;
+
+    const htmlDoc = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <base href="${window.location.href}">
+            <title>Comprobante de Abono - ${folioAbono}</title>
+            <style>
+                @page { size: 80mm 180mm; margin: 4mm; }
+                body { font-family: 'Segoe UI', sans-serif; width: 300px; margin: 0 auto; padding: 10px; color: #1e293b; font-size: 13px; }
+                .ticket-box { border: 2px solid ${brand.colorPrimario}; border-radius: 8px; padding: 12px; }
+                .header { text-align: center; border-bottom: 2px dashed ${brand.bordeColor}; padding-bottom: 8px; margin-bottom: 10px; }
+                .logo { height: 48px; width: auto; object-fit: contain; margin-bottom: 4px; }
+                .badge-recibo { background: ${brand.colorGradiente}; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 900; font-size: 1rem; display: inline-block; margin: 6px 0; }
+                table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+                td { padding: 4px 2px; border-bottom: 1px dotted #e2e8f0; }
+                .qr-box { text-align: center; margin: 10px 0; background: ${brand.fondoSuave}; padding: 6px; border-radius: 6px; }
+                @media print { body { width: 100%; padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <div class="ticket-box">
+                <div class="header">
+                    <img src="${brand.logo}" onerror="this.onerror=null; this.src='${brand.logoAlt}';" class="logo" alt="${brand.nombre}">
+                    <h3 style="margin: 0; color: ${brand.colorPrimario}; text-transform: uppercase;">${brand.nombre}</h3>
+                    <div style="font-size: 0.75rem; color: #64748b;">COMPROBANTE OFICIAL DE PAGO / ABONO</div>
+                    <div class="badge-recibo">${folioAbono}</div>
+                </div>
+                <table>
+                    <tr><td style="color:#64748b;">Vale de Origen:</td><td style="text-align:right; font-weight:bold;">${folioVale}</td></tr>
+                    <tr><td style="color:#64748b;">Cliente:</td><td style="text-align:right; font-weight:bold;">${cliente}</td></tr>
+                    <tr><td style="color:#64748b;">Promotora:</td><td style="text-align:right;">${promotora}</td></tr>
+                    <tr><td style="color:#64748b;">Saldo Anterior:</td><td style="text-align:right;">${saldoAntFmt}</td></tr>
+                    <tr style="background: ${brand.fondoSuave};"><td style="color:${brand.colorPrimario}; font-weight:bold;">MONTO ABONADO:</td><td style="text-align:right; font-size:1.05rem; font-weight:900; color:#16a34a;">+${montoFmt}</td></tr>
+                    <tr><td style="color:#64748b; font-weight:bold;">SALDO RESTANTE:</td><td style="text-align:right; font-weight:bold; color:${saldoRestante === 0 ? '#16a34a' : '#dc2626'};">${saldoRestFmt}</td></tr>
+                    <tr><td style="color:#64748b;">Concepto / Nota:</td><td style="text-align:right;">${nota}</td></tr>
+                    <tr><td style="color:#64748b;">Fecha y Hora:</td><td style="text-align:right; font-size:0.75rem;">${fecha}</td></tr>
+                </table>
+                <div class="qr-box">
+                    <img src="${qrUrl}" style="width: 100px; height: 100px; background: white; padding: 2px;">
+                    <p style="margin: 2px 0 0 0; font-size: 0.7rem; color: #64748b;">Comprobante de abono registrado en sistema</p>
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <div style="border-top: 1px solid ${brand.colorPrimario}; width: 140px; margin: 0 auto 3px auto;"></div>
+                    <small style="color: #64748b; font-size: 0.72rem;">Firma de Conformidad</small>
+                </div>
+                <div style="font-size: 0.7rem; color: #94a3b8; text-align: center; margin-top: 8px;">
+                    ¡Gracias por tu pago puntual! ✨ Grupo MVR
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+
+    imprimirHTMLSeguro(htmlDoc, `Recibo_Abono_${folioAbono}`);
+}
+
+function compartirReciboAbonoWhatsApp(folioAbono, folioVale, cliente, montoAbono, saldoRestante, promotora, sucursal) {
+    const brand = obtenerBrandingSucursal(sucursal);
+    const montoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoAbono);
+    const saldoRestFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldoRestante);
+
+    const msj = encodeURIComponent(`🧾 *COMPROBANTE DE ABONO — ${brand.nombre.toUpperCase()}*\n\n• *Recibo:* ${folioAbono}\n• *Vale:* ${folioVale}\n• *Cliente:* ${cliente}\n• *Monto Abonado:* ${montoFmt} MXN ✅\n• *Saldo Restante:* ${saldoRestFmt} MXN\n• *Promotora:* ${promotora}\n• *Fecha:* ${new Date().toLocaleDateString('es-MX')}\n\n¡Muchas gracias por tu abono puntual con Grupo MVR! ✨`);
+    window.open(`https://wa.me/?text=${msj}`, '_blank');
+}
+
+/* --------------------------------------------------------------------------
+   MÓDULO DE EDICIÓN RÁPIDA DE INVENTARIO Y CARGA MASIVA
+   -------------------------------------------------------------------------- */
+function abrirModalEditarProducto(id) {
+    reproducirSonido('click');
+    const p = (window.inventarioGlobalCache && window.inventarioGlobalCache[id]) ? window.inventarioGlobalCache[id] : null;
+    if (!p) {
+        alert("No se encontró el producto en memoria.");
+        return;
+    }
+
+    const modalId = 'modalEditarProductoAdmin';
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 500px; padding: 1.5rem; text-align: left;">
+            <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+            <h3 style="margin: 0 0 1rem 0; color: #002b55;">✏️ Edición Rápida de Producto</h3>
+            
+            <form onsubmit="guardarEdicionProducto(event, '${id}')">
+                <div style="display: flex; gap: 12px; margin-bottom: 1rem; align-items: center;">
+                    <img src="${p.imagen || 'mvr.jpg'}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;" onerror="this.src='mvr.jpg';">
+                    <div>
+                        <strong>SKU / ID:</strong> ${id}<br>
+                        <small style="color: #64748b;">Modifica los valores y guarda los cambios inmediatamente.</small>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0.8rem;">
+                    <label style="font-weight: bold; font-size: 0.85rem;">Nombre del Producto:</label>
+                    <input type="text" id="editNombreProd" value="${p.nombre || ''}" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0.8rem;">
+                    <div class="form-group">
+                        <label style="font-weight: bold; font-size: 0.85rem;">Sucursal:</label>
+                        <select id="editSucursalProd" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <option value="Óptica D'villa" ${p.sucursal === "Óptica D'villa" ? 'selected' : ''}>Óptica D'villa</option>
+                            <option value="Óptica Ravali" ${p.sucursal === "Óptica Ravali" ? 'selected' : ''}>Óptica Ravali</option>
+                            <option value="Marcel Boutique" ${p.sucursal === "Marcel Boutique" ? 'selected' : ''}>Marcel Boutique</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight: bold; font-size: 0.85rem;">Tallas (si aplica):</label>
+                        <input type="text" id="editTallasProd" value="${p.tallas || ''}" placeholder="Ej. CH, M, G" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.2rem;">
+                    <div class="form-group">
+                        <label style="font-weight: bold; font-size: 0.85rem;">Precio de Contado ($):</label>
+                        <input type="number" step="0.01" min="0" id="editPrecioProd" value="${p.precio || 0}" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight: bold; font-size: 0.85rem;">Stock / Existencias:</label>
+                        <input type="number" min="0" id="editStockProd" value="${p.stock || 0}" required style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 0.75rem; font-weight: bold;">💾 Guardar Cambios</button>
+                    <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #e2e8f0; color: #1e293b; padding: 0.75rem;">Cancelar</button>
+                </div>
+            </form>
+        </div>`;
+
+    modal.style.display = 'flex';
+}
+
+async function guardarEdicionProducto(event, id) {
+    event.preventDefault();
+    const nombre = document.getElementById('editNombreProd').value.trim();
+    const sucursal = document.getElementById('editSucursalProd').value;
+    const tallas = document.getElementById('editTallasProd').value.trim();
+    const precio = parseFloat(document.getElementById('editPrecioProd').value) || 0;
+    const stock = parseInt(document.getElementById('editStockProd').value) || 0;
+    const p = window.inventarioGlobalCache ? window.inventarioGlobalCache[id] : {};
+
+    try {
+        await fetch(API_URL, {
+            method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ 
+                accion: "actualizarStock", 
+                inventario: { id: id, sucursal: sucursal, nombre: nombre, tallas: tallas, stock: stock, precio: precio, imagen: p.imagen || "" } 
+            })
+        });
+
+        // Actualizar caché local de inmediato
+        if (window.inventarioGlobalCache && window.inventarioGlobalCache[id]) {
+            window.inventarioGlobalCache[id].nombre = nombre;
+            window.inventarioGlobalCache[id].sucursal = sucursal;
+            window.inventarioGlobalCache[id].tallas = tallas;
+            window.inventarioGlobalCache[id].precio = precio;
+            window.inventarioGlobalCache[id].stock = stock;
+        }
+
+        reproducirSonido('success');
+        mostrarToast("¡Producto Actualizado!", `Se guardaron los cambios para ${nombre}.`);
+        document.getElementById('modalEditarProductoAdmin').style.display = 'none';
+        if (typeof cargarTodoDesdeLaNube === 'function') cargarTodoDesdeLaNube();
+    } catch (e) {
+        alert("Ocurrió un error al guardar los cambios en la nube.");
+    }
+}
+
+function abrirModalCargaMasiva() {
+    reproducirSonido('click');
+    const modalId = 'modalCargaMasivaAdmin';
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 600px; padding: 1.5rem; text-align: left;">
+            <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+            <h3 style="margin: 0; color: #002b55;">📁 Carga Masiva de Productos (Excel / .CSV)</h3>
+            <p style="margin: 4px 0 1rem 0; color: #64748b; font-size: 0.88rem;">Sube un archivo .csv para agregar o actualizar decenas de productos automáticamente.</p>
+
+            <div style="background: #f8fafc; border: 1.5px dashed #0059b3; border-radius: 8px; padding: 1.2rem; text-align: center; margin-bottom: 1rem;">
+                <input type="file" id="inputArchivoCsvMasivo" accept=".csv" onchange="analizarArchivoCSVPrevisualizacion(event)" style="display: block; margin: 0 auto 10px auto;">
+                <button type="button" onclick="descargarPlantillaCSV()" class="btn" style="background: #eff6ff; color: #0059b3; border: 1px solid #bfdbfe; font-size: 0.8rem; padding: 4px 10px; border-radius: 4px; cursor: pointer;">
+                    📥 Descargar Plantilla Modelo CSV
+                </button>
+            </div>
+
+            <div id="previewCargaMasivaBox" style="display: none; margin-bottom: 1rem;">
+                <h4 style="margin: 0 0 6px 0; font-size: 0.9rem; color: #002b55;">Vista Previa de Productos Detectados:</h4>
+                <div style="max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px;">
+                    <table class="tabla-admin" style="font-size: 0.8rem; margin: 0;">
+                        <thead><tr><th>SKU</th><th>Sucursal</th><th>Nombre</th><th>Precio</th><th>Stock</th></tr></thead>
+                        <tbody id="cuerpoPreviewCsv"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button id="btnConfirmarCargaMasiva" onclick="ejecutarCargaMasivaNube()" disabled class="btn btn-primary" style="flex: 1; padding: 0.75rem; font-weight: bold; opacity: 0.6;">🚀 Subir Productos a la Nube</button>
+                <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #e2e8f0; color: #1e293b; padding: 0.75rem;">Cerrar</button>
+            </div>
+        </div>`;
+
+    modal.style.display = 'flex';
+}
+
+let productosPendientesCargaMasiva = [];
+
+function analizarArchivoCSVPrevisualizacion(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const lineas = e.target.result.split(/\r\n|\n/);
+        productosPendientesCargaMasiva = [];
+        const cuerpo = document.getElementById('cuerpoPreviewCsv');
+        if (cuerpo) cuerpo.innerHTML = '';
+
+        for (let i = 1; i < lineas.length; i++) {
+            const l = lineas[i].trim();
+            if (!l) continue;
+            // Parsear CSV respetando comillas
+            const cols = l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+            if (cols.length >= 4) {
+                const sku = cols[0] || `PROD-${i}`;
+                const suc = cols[1] || "Óptica D'villa";
+                const nom = cols[2] || "Producto";
+                const pre = parseFloat(cols[3]) || 0;
+                const stk = parseInt(cols[4]) || 1;
+                const tal = cols[5] || "";
+
+                productosPendientesCargaMasiva.push({ id: sku, sucursal: suc, nombre: nom, precio: pre, stock: stk, tallas: tal, imagen: "" });
+
+                if (cuerpo) {
+                    cuerpo.innerHTML += `
+                        <tr>
+                            <td><strong>${sku}</strong></td>
+                            <td>${suc}</td>
+                            <td>${nom}</td>
+                            <td style="color:#0059b3; font-weight:bold;">$${pre}</td>
+                            <td>${stk} pzas</td>
+                        </tr>`;
+                }
+            }
+        }
+
+        const previewBox = document.getElementById('previewCargaMasivaBox');
+        const btnSubir = document.getElementById('btnConfirmarCargaMasiva');
+        if (productosPendientesCargaMasiva.length > 0) {
+            if (previewBox) previewBox.style.display = 'block';
+            if (btnSubir) {
+                btnSubir.disabled = false;
+                btnSubir.style.opacity = '1';
+                btnSubir.innerText = `🚀 Subir ${productosPendientesCargaMasiva.length} Productos a la Nube`;
+            }
+        } else {
+            alert("No se detectaron filas válidas en el archivo CSV. Revisa el formato.");
+        }
+    };
+    reader.readAsText(file, 'UTF-8');
+}
+
+async function ejecutarCargaMasivaNube() {
+    if (productosPendientesCargaMasiva.length === 0) return;
+    const btn = document.getElementById('btnConfirmarCargaMasiva');
+    if (btn) { btn.disabled = true; btn.innerText = "⏳ Guardando lote..."; }
+
+    try {
+        for (let p of productosPendientesCargaMasiva) {
+            await fetch(API_URL, {
+                method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ accion: "actualizarStock", inventario: p })
+            });
+        }
+
+        reproducirSonido('cash');
+        mostrarToast("¡Carga Masiva Exitosa!", `Se cargaron ${productosPendientesCargaMasiva.length} productos correctamente.`);
+        document.getElementById('modalCargaMasivaAdmin').style.display = 'none';
+        if (typeof cargarTodoDesdeLaNube === 'function') cargarTodoDesdeLaNube();
+    } catch (e) {
+        alert("Ocurrió un error al procesar la carga masiva.");
+    }
+}
+
+function descargarPlantillaCSV() {
+    const plantilla = "\uFEFFSKU,Sucursal,Nombre del Producto,Precio Contado,Stock,Tallas\r\n" +
+                      "DV-101,Óptica D'villa,Armazón Aviador Titanium,1450,5,\r\n" +
+                      "RV-202,Óptica Ravali,Lente Solar Cat Eye Black,1890,3,\r\n" +
+                      "MB-303,Marcel Boutique,Vestido Casual Floral,850,8,CH, M, G\r\n";
+    const blob = new Blob([plantilla], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Plantilla_Inventario_GrupoMVR.csv`;
+    link.click();
 }
 
 /* --------------------------------------------------------------------------
