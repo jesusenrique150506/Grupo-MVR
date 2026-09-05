@@ -2701,8 +2701,28 @@ footer p {
         display: none !important;
     }
 
-    /* Padding extra inferior para que el dock no tape contenido */
-    body {
+    /* Mostrar exclusivamente el botón moderno de WhatsApp en el panel de Promotoras */
+    body.pagina-promotoras .speed-dial-container,
+    body.pagina-promotoras #mvrSpeedDial {
+        display: flex !important;
+        bottom: 20px !important;
+        right: 20px !important;
+    }
+
+    /* Ocultar la barra inferior de catálogo en Promotoras y Admin */
+    body.pagina-promotoras .mobile-bottom-nav,
+    body.pagina-admin .mobile-bottom-nav {
+        display: none !important;
+    }
+
+    /* Padding inferior normal en Promotoras y Admin */
+    body.pagina-promotoras,
+    body.pagina-admin {
+        padding-bottom: 20px !important;
+    }
+
+    /* Padding extra inferior en catálogos para que el dock no tape contenido */
+    body:not(.pagina-promotoras):not(.pagina-admin) {
         padding-bottom: 75px !important;
     }
 

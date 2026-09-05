@@ -563,6 +563,10 @@ function cerrarVistaRapida() {
    9. INYECCIÓN AUTOMÁTICA DE COMPONENTES MODERNOS
    -------------------------------------------------------------------------- */
 function inyectarComponentesModernos() {
+    const pathname = window.location.pathname.toLowerCase();
+    const esPromotora = pathname.includes('promotora') || document.body.classList.contains('pagina-promotoras');
+    const esAdmin = pathname.includes('admin') || document.body.classList.contains('pagina-admin');
+
     // 1. Marquesina Infinita Superior (Ticker Tape)
     if (!document.getElementById('mvrTickerTape')) {
         const ticker = document.createElement('div');
@@ -584,35 +588,34 @@ function inyectarComponentesModernos() {
         document.body.insertAdjacentElement('afterbegin', ticker);
     }
 
-    // 2. Speed Dial Multicanal de WhatsApp
-    if (!document.getElementById('mvrSpeedDial')) {
+    // 2. Botón Flotante / Speed Dial de WhatsApp EXCLUSIVAMENTE en el Panel de Promotoras
+    if (esPromotora && !document.getElementById('mvrSpeedDial')) {
         const speedDial = document.createElement('div');
         speedDial.id = 'mvrSpeedDial';
         speedDial.className = 'speed-dial-container';
         speedDial.innerHTML = `
             <div class="speed-dial-menu" id="mvrSpeedDialMenu">
-                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Óptica D'villa, me gustaría recibir atención y cotización personalizada.")}" target="_blank" class="speed-dial-item">
-                    <span class="speed-dial-dot" style="background: #0059b3;"></span> Óptica D'villa 👓
+                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Grupo MVR, solicito atención y soporte para Promotora.")}" target="_blank" class="speed-dial-item">
+                    <span class="speed-dial-dot" style="background: #25d366;"></span> 🎟️ Soporte Promotoras
                 </a>
-                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Óptica Ravali, me gustaría recibir informes sobre armazones y micas.")}" target="_blank" class="speed-dial-item">
-                    <span class="speed-dial-dot" style="background: #a80f14;"></span> Óptica Ravali 🕶️
+                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Óptica D'villa, consulta de promotora sobre existencia de armazones.")}" target="_blank" class="speed-dial-item">
+                    <span class="speed-dial-dot" style="background: #0059b3;"></span> 👓 Óptica D'villa
                 </a>
-                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Marcel Boutique, me gustaría información sobre prendas y tallas disponibles.")}" target="_blank" class="speed-dial-item">
-                    <span class="speed-dial-dot" style="background: #880e4f;"></span> Marcel Boutique 👗
+                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Óptica Ravali, consulta de promotora sobre armazones y micas.")}" target="_blank" class="speed-dial-item">
+                    <span class="speed-dial-dot" style="background: #a80f14;"></span> 🕶️ Óptica Ravali
                 </a>
-                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Grupo MVR, solicito información sobre Vales y Crédito para Promotoras.")}" target="_blank" class="speed-dial-item">
-                    <span class="speed-dial-dot" style="background: #ff8c00;"></span> Vales y Promotoras 🎟️
+                <a href="https://wa.me/528332854129?text=${encodeURIComponent("Hola Marcel Boutique, consulta de promotora sobre prendas y tallas.")}" target="_blank" class="speed-dial-item">
+                    <span class="speed-dial-dot" style="background: #880e4f;"></span> 👗 Marcel Boutique
                 </a>
             </div>
-            <button class="speed-dial-main-btn" id="mvrSpeedDialBtn" onclick="toggleSpeedDial()" title="Atención por WhatsApp">
+            <button class="speed-dial-main-btn" id="mvrSpeedDialBtn" onclick="toggleSpeedDial()" title="Atención y Soporte por WhatsApp">
                 💬
             </button>`;
         document.body.appendChild(speedDial);
     }
 
-    // 3. Barra Móvil Inferior (Sticky Bottom Nav Bar Unificada)
-    if (!document.getElementById('mvrMobileBottomNav')) {
-        const pathname = window.location.pathname.toLowerCase();
+    // 3. Barra Móvil Inferior (Sticky Bottom Nav Bar para Tienda/Catálogo)
+    if (!esPromotora && !esAdmin && !document.getElementById('mvrMobileBottomNav')) {
         const esIndex = pathname.includes('index') || pathname.endsWith('/') || pathname.endsWith('grupomvr');
         const esDvilla = pathname.includes('d%c2%b4villa') || pathname.includes('dvilla');
         const esRavali = pathname.includes('ravali');
@@ -641,9 +644,6 @@ function inyectarComponentesModernos() {
             <a href="javascript:void(0)" onclick="abrirCarritoGlobal()" class="bottom-nav-item" style="position: relative;">
                 <span class="bottom-nav-icon">🛍️</span> Carrito
                 <span class="nav-badge-count" id="badgeNavCart" style="display: none;">0</span>
-            </a>
-            <a href="javascript:void(0)" onclick="toggleSpeedDial()" class="bottom-nav-item" style="color: #25d366;">
-                <span class="bottom-nav-icon">💬</span> Chat
             </a>`;
         document.body.appendChild(nav);
     }
