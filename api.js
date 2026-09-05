@@ -1,8 +1,42 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbxKALUYq0h--u8J121LOA7utUZLzrxWIbuxvGskE7_lC52ppFjJ7zCeUio5Bd62VIJw1Q/exec";
 
 /* --------------------------------------------------------------------------
-   1. CONSUMO DE API (GOOGLE APPS SCRIPT)
+   1. CONSUMO DE API (GOOGLE APPS SCRIPT) Y GESTIÓN DE CACHÉ DE TALLAS
    -------------------------------------------------------------------------- */
+function guardarTallasLocal(id, tallasStr) {
+    if (!id) return;
+    try {
+        localStorage.setItem('mvr_tallas_' + id, String(tallasStr || '').trim());
+    } catch(e) {}
+}
+
+function obtenerTallasLocal(id) {
+    if (!id) return '';
+    try {
+        return localStorage.getItem('mvr_tallas_' + id) || '';
+    } catch(e) {
+        return '';
+    }
+}
+
+function sincronizarInventarioConCacheLocal(data) {
+    if (!data || typeof data !== 'object') return data;
+    for (let id in data) {
+        if (data[id]) {
+            let tallasCloud = (data[id].tallas && String(data[id].tallas).trim() !== '') ? String(data[id].tallas).trim() : '';
+            if (tallasCloud !== '') {
+                guardarTallasLocal(id, tallasCloud);
+            } else {
+                let localT = obtenerTallasLocal(id);
+                if (localT !== '') {
+                    data[id].tallas = localT;
+                }
+            }
+        }
+    }
+    return data;
+}
+
 async function consumirAPI(accion, datosExtra = null) {
     try {
         if (datosExtra) {
@@ -15,7 +49,11 @@ async function consumirAPI(accion, datosExtra = null) {
             return respuesta;
         } else {
             let res = await fetch(`${API_URL}?accion=${accion}&nocache=${new Date().getTime()}`);
-            return await res.json();
+            let data = await res.json();
+            if (accion === 'obtenerInventario' && data) {
+                sincronizarInventarioConCacheLocal(data);
+            }
+            return data;
         }
     } catch (error) {
         console.error("Error en la conexión con la API:", error);
@@ -480,9 +518,10 @@ function descontarStockPorTalla(id, talla, cantidad = 1) {
         }).join(', ');
     }
 
-    // 3. Actualizar memoria local
+    // 3. Actualizar memoria local y caché persistente
     prod.stock = nuevoStockTotal;
     prod.tallas = nuevasTallasStr;
+    guardarTallasLocal(id, nuevasTallasStr);
 
     if (window.inventarioGlobalCache && window.inventarioGlobalCache[id]) {
         window.inventarioGlobalCache[id].stock = nuevoStockTotal;
@@ -2534,11 +2573,17 @@ function abrirModalEditarProducto(id) {
         p = listaGlobalProductos.find(item => item.id === id);
     }
 
+    if (p && (!p.tallas || String(p.tallas).trim() === '')) {
+        let localT = obtenerTallasLocal(id);
+        if (localT) p.tallas = localT;
+    }
+
     if (!p) {
         if (typeof mostrarToast === 'function') mostrarToast("Sincronizando...", "Cargando datos del producto...");
         fetch(`${API_URL}?accion=obtenerInventario&nocache=${Date.now()}`)
             .then(res => res.json())
             .then(data => {
+                if (typeof sincronizarInventarioConCacheLocal === 'function') sincronizarInventarioConCacheLocal(data);
                 window.inventarioGlobalCache = data || {};
                 if (data && data[id]) {
                     abrirModalEditarProducto(id);
@@ -2558,6 +2603,8 @@ function abrirModalEditarProducto(id) {
         modal.className = 'modal-overlay';
         document.body.appendChild(modal);
     }
+
+    let tallasVal = (p.tallas && String(p.tallas).trim() !== '') ? p.tallas : obtenerTallasLocal(id);
 
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 500px; padding: 1.5rem; text-align: left;">
@@ -2589,7 +2636,7 @@ function abrirModalEditarProducto(id) {
                     </div>
                     <div class="form-group">
                         <label style="font-weight: bold; font-size: 0.85rem;">Tallas (Moda / Boutique):</label>
-                        <input type="text" id="editTallasProd" value="${p.tallas || ''}" oninput="let c = calcularStockDesdeTallasInput(this.value); if (c !== null) document.getElementById('editStockProd').value = c;" placeholder="Ej. CH:5, M:0, G:3 o CH, M, G" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
+                        <input type="text" id="editTallasProd" value="${tallasVal || ''}" oninput="let c = calcularStockDesdeTallasInput(this.value); if (c !== null) document.getElementById('editStockProd').value = c;" placeholder="Ej. CH:5, M:0, G:3 o CH, M, G" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
                         <small style="color:#64748b; font-size:0.72rem; display:block; margin-top:2px;">Tip: Usa <strong>M:0</strong> o <strong>M (Agotada)</strong> para agotarla.</small>
                     </div>
                 </div>
@@ -2624,6 +2671,9 @@ async function guardarEdicionProducto(event, id) {
     const stock = parseInt(document.getElementById('editStockProd').value) || 0;
     const p = window.inventarioGlobalCache ? window.inventarioGlobalCache[id] : {};
 
+    // Guardar inmediatamente en caché local
+    guardarTallasLocal(id, tallas);
+
     try {
         await fetch(API_URL, {
             method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -2633,7 +2683,7 @@ async function guardarEdicionProducto(event, id) {
             })
         });
 
-        // Actualizar caché local de inmediato
+        // Actualizar caché en memoria de inmediato
         if (window.inventarioGlobalCache && window.inventarioGlobalCache[id]) {
             window.inventarioGlobalCache[id].nombre = nombre;
             window.inventarioGlobalCache[id].sucursal = sucursal;

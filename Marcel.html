@@ -267,7 +267,8 @@
                 let stock = parseInt(p.stock) || 0;
 
                 // Definición y Parseo de Tallas para Marcel Boutique (Ropa / Moda)
-                let tallasDef = (p.tallas && String(p.tallas).trim() !== '') ? p.tallas : 'CH, M, G, XG, Unitalla';
+                let tallasDef = (p.tallas && String(p.tallas).trim() !== '') ? p.tallas : (typeof obtenerTallasLocal === 'function' ? obtenerTallasLocal(p.id) : '');
+                if (!tallasDef || tallasDef.trim() === '') tallasDef = 'CH, M, G, XG, Unitalla';
                 let tallasEstructuradas = (typeof parsearEstructuraTallas === 'function') 
                     ? parsearEstructuraTallas(tallasDef, stock)
                     : ['CH', 'M', 'G', 'XG', 'Unitalla'].map(t => ({ nombre: t, agotada: stock <= 0, cantidad: null }));

@@ -608,7 +608,7 @@
 
             const reader = new FileReader();
             reader.onload = async function(uploadEvent) {
-                try {
+                    if (typeof guardarTallasLocal === 'function') guardarTallasLocal(id, tallas);
                     await fetch(API_URL, {
                         method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({ accion: "actualizarStock", inventario: { id: id, sucursal: sucursal, nombre: nombre, tallas: tallas, stock: stock, precio: precio, imagen: uploadEvent.target.result } })
@@ -658,6 +658,9 @@
                 // 1. INVENTARIO
                 let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
                 const dataInv = await resInv.json();
+                if (typeof sincronizarInventarioConCacheLocal === 'function') {
+                    sincronizarInventarioConCacheLocal(dataInv);
+                }
                 inventarioGlobalCache = dataInv;
                 window.inventarioGlobalCache = dataInv;
                 const cuerpoInv = document.getElementById('cuerpoTablaInventarioAdmin');
@@ -674,10 +677,11 @@
                         let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'mvr.jpg';
                         let estadoStock = stock > 0 ? `<span style="color:#28a745; font-weight:bold;">🟢 ${stock} pzas</span>` : `<span style="color:#d32f2f; font-weight:bold;">🔴 Agotado</span>`;
 
+                        let tallasVal = (p.tallas && String(p.tallas).trim() !== '') ? p.tallas : (typeof obtenerTallasLocal === 'function' ? obtenerTallasLocal(id) : '');
                         let desgloseTallasHtml = '';
-                        if (p.tallas && String(p.tallas).trim() !== '') {
+                        if (tallasVal && String(tallasVal).trim() !== '') {
                             let tallasArr = (typeof parsearEstructuraTallas === 'function')
-                                ? parsearEstructuraTallas(p.tallas, stock)
+                                ? parsearEstructuraTallas(tallasVal, stock)
                                 : [];
                             if (tallasArr.length > 0) {
                                 desgloseTallasHtml = `<div style="display:flex; flex-wrap:wrap; gap:3px; margin-top:4px;">` +
