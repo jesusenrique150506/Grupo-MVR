@@ -1,8 +1,42 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbxKALUYq0h--u8J121LOA7utUZLzrxWIbuxvGskE7_lC52ppFjJ7zCeUio5Bd62VIJw1Q/exec";
 
 /* --------------------------------------------------------------------------
-   1. CONSUMO DE API (GOOGLE APPS SCRIPT)
+   1. CONSUMO DE API (GOOGLE APPS SCRIPT) Y GESTIÓN DE CACHÉ DE TALLAS
    -------------------------------------------------------------------------- */
+function guardarTallasLocal(id, tallasStr) {
+    if (!id) return;
+    try {
+        localStorage.setItem('mvr_tallas_' + id, String(tallasStr || '').trim());
+    } catch(e) {}
+}
+
+function obtenerTallasLocal(id) {
+    if (!id) return '';
+    try {
+        return localStorage.getItem('mvr_tallas_' + id) || '';
+    } catch(e) {
+        return '';
+    }
+}
+
+function sincronizarInventarioConCacheLocal(data) {
+    if (!data || typeof data !== 'object') return data;
+    for (let id in data) {
+        if (data[id]) {
+            let tallasCloud = (data[id].tallas && String(data[id].tallas).trim() !== '') ? String(data[id].tallas).trim() : '';
+            if (tallasCloud !== '') {
+                guardarTallasLocal(id, tallasCloud);
+            } else {
+                let localT = obtenerTallasLocal(id);
+                if (localT !== '') {
+                    data[id].tallas = localT;
+                }
+            }
+        }
+    }
+    return data;
+}
+
 async function consumirAPI(accion, datosExtra = null) {
     try {
         if (datosExtra) {
@@ -15,7 +49,11 @@ async function consumirAPI(accion, datosExtra = null) {
             return respuesta;
         } else {
             let res = await fetch(`${API_URL}?accion=${accion}&nocache=${new Date().getTime()}`);
-            return await res.json();
+            let data = await res.json();
+            if (accion === 'obtenerInventario' && data) {
+                sincronizarInventarioConCacheLocal(data);
+            }
+            return data;
         }
     } catch (error) {
         console.error("Error en la conexión con la API:", error);
@@ -480,9 +518,10 @@ function descontarStockPorTalla(id, talla, cantidad = 1) {
         }).join(', ');
     }
 
-    // 3. Actualizar memoria local
+    // 3. Actualizar memoria local y caché persistente
     prod.stock = nuevoStockTotal;
     prod.tallas = nuevasTallasStr;
+    guardarTallasLocal(id, nuevasTallasStr);
 
     if (window.inventarioGlobalCache && window.inventarioGlobalCache[id]) {
         window.inventarioGlobalCache[id].stock = nuevoStockTotal;
