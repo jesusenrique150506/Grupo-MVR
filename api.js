@@ -1007,6 +1007,7 @@ function mostrarTicketValeModal(vale) {
         modal.id = modalId;
         modal.className = 'modal-overlay';
         modal.style.display = 'none';
+        modal.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
         document.body.appendChild(modal);
     }
 
@@ -1018,10 +1019,10 @@ function mostrarTicketValeModal(vale) {
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${qrData}&margin=4`;
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 440px; max-height: 92vh; overflow-y: auto; padding: 1.2rem; text-align: center; border-top: 5px solid ${brand.colorPrimario}; box-sizing: border-box;">
-            <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+        <div class="modal-content" style="max-width: 440px; max-height: 92vh; overflow-y: auto; padding: 1.2rem; text-align: center; border-top: 5px solid ${brand.colorPrimario}; box-sizing: border-box; position: relative;">
+            <button type="button" aria-label="Cerrar modal" onclick="document.getElementById('${modalId}').style.display = 'none'" style="position: absolute; top: 12px; right: 12px; z-index: 50; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.55); color: #ffffff; border: 1.5px solid rgba(255,255,255,0.8); font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: transform 0.2s ease;">&times;</button>
             <div class="ticket-digital-card">
-                <div class="ticket-header" style="background: ${brand.colorGradiente}; color: white; padding: 0.8rem; border-radius: 8px 8px 0 0; margin: -1.2rem -1.2rem 0.8rem -1.2rem;">
+                <div class="ticket-header" style="background: ${brand.colorGradiente}; color: white; padding: 0.8rem; border-radius: 8px 8px 0 0; margin: -1.2rem -1.2rem 0.8rem -1.2rem; position: relative;">
                     <img src="${brand.logo}" onerror="this.onerror=null; this.src='${brand.logoAlt}';" style="height: 44px; width: auto; object-fit: contain; background: white; padding: 2px; border-radius: 4px; margin-bottom: 4px;">
                     <span style="font-size: 0.72rem; font-weight: 800; color: #fff; text-transform: uppercase; display: block; opacity: 0.9;">Vale Oficial de Crédito</span>
                     <h3 style="margin: 2px 0 4px 0; font-size: 1.2rem; color: white;">${brand.nombre}</h3>
@@ -1047,9 +1048,14 @@ function mostrarTicketValeModal(vale) {
                 </div>
             </div>
 
-            <div style="display: flex; gap: 8px; margin-top: 1rem; justify-content: center; position: sticky; bottom: 0; background: white; padding-top: 6px;">
-                <button onclick="imprimirTicketValeDirectoDesdeSeleccion()" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">🖨️ Imprimir Recibo PDF</button>
-                <button onclick="compartirValeWhatsAppDesdeSeleccion()" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">📲 WhatsApp</button>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 1rem; position: sticky; bottom: 0; background: white; padding-top: 6px;">
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="imprimirTicketValeDirectoDesdeSeleccion()" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">🖨️ Imprimir Recibo PDF</button>
+                    <button onclick="compartirValeWhatsAppDesdeSeleccion()" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">📲 WhatsApp</button>
+                </div>
+                <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; width: 100%; padding: 0.6rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer;">
+                    🔙 Cerrar y Volver a la Cartera
+                </button>
             </div>
         </div>`;
 
@@ -1790,6 +1796,7 @@ function mostrarPassbookModal(vale) {
         modal.id = modalId;
         modal.className = 'modal-overlay';
         modal.style.display = 'none';
+        modal.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
         document.body.appendChild(modal);
     }
 
@@ -1802,8 +1809,8 @@ function mostrarPassbookModal(vale) {
     const claseWallet = String(vale.sucursal).includes('Ravali') ? 'ravali' : (String(vale.sucursal).includes('Marcel') ? 'marcel' : '');
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 440px; max-height: 92vh; overflow-y: auto; padding: 1.2rem; text-align: center; background: transparent; box-shadow: none;">
-            <span class="cerrar-modal" style="color: white; font-size: 2rem;" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+        <div class="modal-content" style="max-width: 440px; max-height: 92vh; overflow-y: auto; padding: 1.2rem; text-align: center; background: transparent; box-shadow: none; position: relative;">
+            <button type="button" aria-label="Cerrar modal" onclick="document.getElementById('${modalId}').style.display = 'none'" style="position: absolute; top: 12px; right: 12px; z-index: 50; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.65); color: #ffffff; border: 1.5px solid rgba(255,255,255,0.8); font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4);">&times;</button>
             <div class="passbook-wallet ${claseWallet}" id="passbookCardExportTarget">
                 <div class="passbook-top">
                     <div>
@@ -1845,12 +1852,17 @@ function mostrarPassbookModal(vale) {
                 </div>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 1.2rem; justify-content: center;">
-                <button onclick="descargarPassbookDesdeSeleccion()" class="btn btn-primary" style="padding: 0.8rem; font-size: 0.9rem; flex: 1; cursor: pointer;">
-                    📥 Guardar en Galería (PNG)
-                </button>
-                <button onclick="compartirValeWhatsAppDesdeSeleccion()" class="btn" style="background: #25d366; color: white; padding: 0.8rem; font-size: 0.9rem; font-weight: bold; flex: 1; cursor: pointer;">
-                    📲 Enviar WhatsApp
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 1.2rem;">
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <button onclick="descargarPassbookDesdeSeleccion()" class="btn btn-primary" style="padding: 0.8rem; font-size: 0.9rem; flex: 1; cursor: pointer;">
+                        📥 Guardar en Galería (PNG)
+                    </button>
+                    <button onclick="compartirValeWhatsAppDesdeSeleccion()" class="btn" style="background: #25d366; color: white; padding: 0.8rem; font-size: 0.9rem; font-weight: bold; flex: 1; cursor: pointer;">
+                        📲 Enviar WhatsApp
+                    </button>
+                </div>
+                <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: rgba(255,255,255,0.9); color: #1e293b; border: 1px solid #cbd5e1; width: 100%; padding: 0.6rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer;">
+                    🔙 Cerrar y Volver
                 </button>
             </div>
         </div>`;
@@ -2051,58 +2063,98 @@ function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucu
     }
 
     const montoNum = parseFloat(montoTotal) || 0;
+    const numQ = parseInt(quincenas) || 8;
+    const mesesAprox = (numQ / 2).toFixed(1).replace('.0', '');
+    const cuotaQuincenal = numQ > 0 ? (montoNum / numQ) : 0;
+    const cuotaFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cuotaQuincenal);
+
     const abonos = obtenerHistorialAbonos(folio);
     const totalAbonado = abonos.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
     const saldoRestante = Math.max(0, montoNum - totalAbonado);
     const porcentajePagado = montoNum > 0 ? Math.min(100, Math.round((totalAbonado / montoNum) * 100)) : 0;
+    const qAbonadas = cuotaQuincenal > 0 ? Math.floor(totalAbonado / cuotaQuincenal) : 0;
+    const siguienteQuincenaNum = Math.min(numQ, qAbonadas + 1);
 
     let filasAbonos = '';
     if (abonos.length === 0) {
-        filasAbonos = `<tr><td colspan="3" style="text-align:center; color:#888;">No se han registrado abonos aún.</td></tr>`;
+        filasAbonos = `<tr><td colspan="4" style="text-align:center; color:#888; padding: 1rem;">No se han registrado abonos aún.</td></tr>`;
     } else {
         abonos.forEach((a, idx) => {
+            const folioAbonoItem = `AB-${folio}-${idx + 1}`;
+            const fechaFmt = new Date(a.fecha).toLocaleDateString('es-MX') + ' ' + new Date(a.fecha).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
             filasAbonos += `
                 <tr>
-                    <td>#${idx + 1} - ${new Date(a.fecha).toLocaleDateString('es-MX')}</td>
-                    <td style="font-weight: bold; color: #28a745;">+$${parseFloat(a.monto).toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
-                    <td>${a.nota}</td>
+                    <td><strong>#${idx + 1}</strong><br><small style="color:#64748b;">${new Date(a.fecha).toLocaleDateString('es-MX')}</small></td>
+                    <td style="font-weight: bold; color: #16a34a;">+$${parseFloat(a.monto).toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
+                    <td>${a.nota || 'Abono'}</td>
+                    <td style="text-align: center;">
+                        <button onclick="imprimirReciboAbono('${folioAbonoItem}', '${folio}', '${String(cliente).replace(/'/g, "")}', ${a.monto}, 0, ${saldoRestante}, '${promotora}', '${sucursal}', '${fechaFmt}', '${a.nota || "Abono"}')" class="btn" style="padding: 2px 6px; font-size: 0.72rem; background: #0059b3; color: white; border-radius: 4px;" title="Reimprimir comprobante">🖨️ Recibo</button>
+                    </td>
                 </tr>`;
         });
     }
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 500px; padding: 1.5rem; text-align: center;">
+        <div class="modal-content" style="max-width: 520px; padding: 1.5rem; text-align: center;">
             <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
-            <h3 style="margin: 0; color: #002b55;">💵 Control de Abonos y Amortizaciones</h3>
-            <p style="margin: 4px 0 1rem 0; color: #64748b; font-size: 0.9rem;">Folio: <strong>${folio}</strong> • Cliente: <strong>${cliente}</strong></p>
+            <h3 style="margin: 0; color: #002b55;">💵 Control de Abonos y Plan de Pagos</h3>
+            <p style="margin: 4px 0 0.8rem 0; color: #64748b; font-size: 0.9rem;">Folio: <strong>${folio}</strong> • Cliente: <strong>${cliente}</strong></p>
 
-            <div class="modal-abonos-card">
-                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
-                    <span>Monto Total: <strong>$${montoNum.toLocaleString('es-MX')}</strong></span>
-                    <span>Total Abonado: <strong style="color: #28a745;">$${totalAbonado.toLocaleString('es-MX')}</strong></span>
+            <!-- Resumen del Plan de Pagos Quincenales -->
+            <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.8rem; display: flex; justify-content: space-around; text-align: center; flex-wrap: wrap; gap: 8px;">
+                <div>
+                    <div style="font-size: 0.75rem; color: #1e40af; font-weight: bold; text-transform: uppercase;">Plazo Acordado</div>
+                    <div style="font-weight: 900; color: #1e3a8a; font-size: 1rem;">${numQ} Quincenas <small style="font-weight: normal; color: #64748b;">(~${mesesAprox} meses)</small></div>
                 </div>
-                <div class="abono-progreso-bar">
-                    <div class="abono-progreso-fill" style="width: ${porcentajePagado}%;"></div>
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: bold;">
-                    <span>Amortización: ${porcentajePagado}%</span>
-                    <span style="color: ${saldoRestante === 0 ? '#28a745' : '#d32f2f'};">Saldo Restante: $${saldoRestante.toLocaleString('es-MX')}</span>
+                <div style="border-left: 1px solid #bfdbfe; padding-left: 12px;">
+                    <div style="font-size: 0.75rem; color: #15803d; font-weight: bold; text-transform: uppercase;">Pago por Quincena</div>
+                    <div style="font-weight: 900; color: #166534; font-size: 1.15rem;">${cuotaFmt} <small style="font-size: 0.75rem; font-weight: bold;">/ Q</small></div>
                 </div>
             </div>
 
-            <div style="overflow-y: auto; max-height: 180px; margin-bottom: 1rem;">
-                <table class="tabla-admin" style="font-size: 0.85rem;">
-                    <thead><tr><th>Fecha</th><th>Abono</th><th>Nota</th></tr></thead>
+            <div class="modal-abonos-card" style="margin-bottom: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.88rem;">
+                    <span>Monto Original: <strong>$${montoNum.toLocaleString('es-MX', {minimumFractionDigits: 2})}</strong></span>
+                    <span>Total Abonado: <strong style="color: #16a34a;">$${totalAbonado.toLocaleString('es-MX', {minimumFractionDigits: 2})}</strong></span>
+                </div>
+                <div class="abono-progreso-bar" style="margin: 8px 0;">
+                    <div class="abono-progreso-fill" style="width: ${porcentajePagado}%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.92rem; font-weight: bold;">
+                    <span style="color: #475569;">Avance: ${porcentajePagado}% (${abonos.length} pagos)</span>
+                    <span style="color: ${saldoRestante === 0 ? '#16a34a' : '#dc2626'};">Saldo Restante: $${saldoRestante.toLocaleString('es-MX', {minimumFractionDigits: 2})}</span>
+                </div>
+            </div>
+
+            <div style="overflow-y: auto; max-height: 140px; margin-bottom: 0.8rem; border: 1px solid #e2e8f0; border-radius: 6px;">
+                <table class="tabla-admin" style="font-size: 0.82rem; margin: 0;">
+                    <thead><tr><th>Pago</th><th>Abono</th><th>Concepto</th><th>Comprobante</th></tr></thead>
                     <tbody>${filasAbonos}</tbody>
                 </table>
             </div>
 
-            <div style="background: #f1f5f9; padding: 1rem; border-radius: 6px; text-align: left;">
-                <h4 style="margin: 0 0 8px 0; font-size: 0.9rem; color: #002b55;">➕ Registrar Nuevo Abono</h4>
-                <div style="display: flex; gap: 8px;">
-                    <input type="number" id="inputMontoAbono" placeholder="Monto ($)" min="1" max="${saldoRestante}" style="flex: 1; padding: 0.5rem; border-radius: 4px; border: 1px solid #cbd5e1;">
-                    <input type="text" id="inputNotaAbono" placeholder="Nota (Ej. Quincena 1)" style="flex: 1.5; padding: 0.5rem; border-radius: 4px; border: 1px solid #cbd5e1;">
-                    <button onclick="guardarAbonoModal('${folio}', '${cliente}', ${montoNum}, '${quincenas}', '${promotora}', '${sucursal}')" class="btn btn-primary" style="padding: 0.5rem 1rem;">Guardar</button>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 8px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <h4 style="margin: 0; font-size: 0.88rem; color: #002b55;">➕ Registrar Nuevo Abono</h4>
+                    <span style="font-size: 0.78rem; color: #64748b;">Sugerencia: <strong>${cuotaFmt}</strong> (Q${siguienteQuincenaNum})</span>
+                </div>
+
+                <!-- Botones de atajo rápido -->
+                <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                    <button type="button" onclick="document.getElementById('inputMontoAbono').value = '${cuotaQuincenal.toFixed(2)}'; document.getElementById('inputNotaAbono').value = 'Pago Quincena ${siguienteQuincenaNum} de ${numQ}';" class="btn" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        ⚡ 1 Quincena (${cuotaFmt})
+                    </button>
+                    <button type="button" onclick="document.getElementById('inputMontoAbono').value = '${saldoRestante.toFixed(2)}'; document.getElementById('inputNotaAbono').value = 'Liquidación Total';" class="btn" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                        🏁 Liquidar ($${saldoRestante.toFixed(2)})
+                    </button>
+                </div>
+
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <input type="number" id="inputMontoAbono" value="${saldoRestante > 0 ? (saldoRestante < cuotaQuincenal ? saldoRestante.toFixed(2) : cuotaQuincenal.toFixed(2)) : '0'}" placeholder="Monto ($)" min="1" max="${saldoRestante}" step="0.01" style="flex: 1; min-width: 100px; padding: 0.55rem; border-radius: 4px; border: 1px solid #cbd5e1; font-weight: bold; color: #002b55;">
+                    <input type="text" id="inputNotaAbono" value="Pago Quincena ${siguienteQuincenaNum} de ${numQ}" placeholder="Nota (Ej. Quincena 1)" style="flex: 1.5; min-width: 140px; padding: 0.55rem; border-radius: 4px; border: 1px solid #cbd5e1;">
+                    <button onclick="guardarAbonoModal('${folio}', '${String(cliente).replace(/'/g, "")}', ${montoNum}, '${numQ}', '${promotora}', '${sucursal}')" ${saldoRestante <= 0 ? 'disabled' : ''} class="btn btn-primary" style="padding: 0.55rem 1rem; font-weight: bold;">
+                        ${saldoRestante <= 0 ? 'Liquidado' : 'Guardar'}
+                    </button>
                 </div>
             </div>
         </div>`;
@@ -2732,4 +2784,15 @@ window.addEventListener('DOMContentLoaded', () => {
     actualizarBotonFlotanteFavoritos();
     actualizarBarraComparadorUI();
     inicializarPWA();
+});
+
+// Cerrar modales con tecla Escape
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay').forEach(m => {
+            if (m.style.display === 'flex' || m.style.display === 'block') {
+                m.style.display = 'none';
+            }
+        });
+    }
 });
