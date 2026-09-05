@@ -6,7 +6,7 @@
     <title>Grupo MVR | Óptica Ravali</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4a0508">
-    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.4">
+    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.5">
 </head>
 <body class="pagina-ravali">
 
@@ -137,7 +137,7 @@
     </footer>
 
     <!-- SCRIPT CENTRALIZADO Y LÓGICA DE RAVALI -->
-    <script src="js/api.js?v=3.4"></script>
+    <script src="js/api.js?v=3.5"></script>
     <script>
         let listaGlobalProductos = [];
         let filtroActual = 'todos';
@@ -230,11 +230,11 @@
 
                 if (stock <= 0) {
                     claseAgotado = 'producto-agotado';
-                    ribbonHtml = `<div class="ribbon-agotado">🏷️ Agotado · Próximo Resurtido</div>`;
+                    ribbonHtml = `<div class="ribbon-agotado">🏷️ Agotado</div>`;
                     badgeStockHtml = `<span class="badge-stock-agotado">🔴 Agotado</span>`;
                     botonHtml = `
-                        <button type="button" class="btn-solicitar-resurtido" onclick="solicitarResurtidoWhatsApp('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', 'Óptica Ravali')">
-                            📲 Solicitar Resurtido / Apartar
+                        <button type="button" class="btn" style="width: 100%; background: #e2e8f0; color: #94a3b8; border: 1px solid #cbd5e1; font-weight: bold; cursor: not-allowed; padding: 0.75rem;" disabled>
+                            🚫 Producto Agotado
                         </button>
                     `;
                 } else {

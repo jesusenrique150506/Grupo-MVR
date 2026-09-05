@@ -515,15 +515,6 @@ function descontarStockPorTalla(id, talla, cantidad = 1) {
 }
 
 /* --------------------------------------------------------------------------
-   5. SOLICITUD DE RESURTIDO Y APARTADO DE PRODUCTOS AGOTADOS
-   -------------------------------------------------------------------------- */
-function solicitarResurtidoWhatsApp(id, nombre, sucursal, talla = null) {
-    let tallaTxt = talla ? ` en talla *${talla}*` : '';
-    let mensaje = `Hola Grupo MVR, estoy muy interesado(a) en el producto *${nombre}* (ID: ${id})${tallaTxt} de la sucursal *${sucursal}*, que actualmente aparece agotado en el catálogo.\n\n¿Podrían informarme cuándo tendrán resurtido o cómo puedo apartarlo? ¡Muchas gracias!`;
-    window.open(`https://wa.me/528332854129?text=${encodeURIComponent(mensaje)}`, '_blank');
-}
-
-/* --------------------------------------------------------------------------
    6. MODO OSCURO / DARK MODE LUXURY
    -------------------------------------------------------------------------- */
 function inicializarTema() {
@@ -664,7 +655,7 @@ function abrirVistaRapidaProducto(id, nombre, precio, sucursal, imagen, stock = 
                         const esActiva = t.nombre === tallaSeleccionadaInicial;
                         const claseActiva = esActiva ? (t.agotada ? 'activo activo-agotada' : 'activo') : '';
                         const claseAgotada = t.agotada ? 'agotada' : 'disponible';
-                        const titleTxt = t.agotada ? `${t.nombre} (Agotada - Clic para pedir resurtido)` : `${t.nombre} (Disponible)`;
+                        const titleTxt = t.agotada ? `${t.nombre} (Agotada)` : `${t.nombre} (Disponible)`;
                         return `
                             <button type="button" class="btn-talla ${claseAgotada} ${claseActiva}" title="${titleTxt}" onclick="seleccionarTallaQuickView('${t.nombre}', ${t.agotada}, this, '${id}', '${String(nombre).replace(/'/g, "\\'")}', ${precioNum}, '${sucursal}', '${imagen}')">
                                 ${t.nombre}${t.agotada ? ' ✕' : ''}
@@ -699,8 +690,8 @@ function abrirVistaRapidaProducto(id, nombre, precio, sucursal, imagen, stock = 
 
                 <div id="quickViewActionContainer" style="margin-top: 1.5rem; display: flex; gap: 10px; flex-wrap: wrap;">
                     ${esAgotadaInicial ? `
-                        <button onclick="cerrarVistaRapida(); solicitarResurtidoWhatsApp('${id}', '${String(nombre).replace(/'/g, "")}', '${sucursal}', '${tallaSeleccionadaInicial || ''}')" class="btn-solicitar-resurtido" style="flex: 1;">
-                            📲 Solicitar Resurtido Talla ${tallaSeleccionadaInicial || ''} por WhatsApp
+                        <button type="button" class="btn" style="flex: 1; background: #e2e8f0; color: #94a3b8; border: 1px solid #cbd5e1; font-weight: 800; padding: 0.85rem; border-radius: var(--radius-sm); cursor: not-allowed;" disabled>
+                            🚫 ${tallasEstructuradas.length > 0 ? `Talla ${tallaSeleccionadaInicial || ''} Agotada` : 'Producto Agotado'}
                         </button>
                     ` : `
                         <button onclick="cerrarVistaRapida(); agregarAlCarritoGlobal('${id}', '${String(nombre).replace(/'/g, "")}', ${precioNum}, '${sucursal}', '${imagen}', '${tallaSeleccionadaInicial || ''}')" class="btn btn-shimmer-shine" style="flex: 1; padding: 0.85rem; font-weight: 800; border-radius: var(--radius-sm);">
@@ -730,15 +721,15 @@ function seleccionarTallaQuickView(talla, esAgotada, btn, id, nombre, precioNum,
     const estadoTxt = document.getElementById('quickViewTallaEstadoTxt');
     if (estadoTxt) {
         estadoTxt.className = `talla-estado-indicador ${esAgotada ? 'agotada' : 'disponible'}`;
-        estadoTxt.innerText = esAgotada ? `🔴 Talla ${talla} Agotada (Pedir Resurtido)` : `🟢 Talla ${talla} Disponible`;
+        estadoTxt.innerText = esAgotada ? `🔴 Talla ${talla} Agotada` : `🟢 Talla ${talla} Disponible`;
     }
 
     const actionContainer = document.getElementById('quickViewActionContainer');
     if (actionContainer) {
         if (esAgotada) {
             actionContainer.innerHTML = `
-                <button onclick="cerrarVistaRapida(); solicitarResurtidoWhatsApp('${id}', '${String(nombre).replace(/'/g, "")}', '${sucursal}', '${talla}')" class="btn-solicitar-resurtido" style="flex: 1;">
-                    📲 Solicitar Resurtido Talla ${talla} por WhatsApp
+                <button type="button" class="btn" style="flex: 1; background: #e2e8f0; color: #94a3b8; border: 1px solid #cbd5e1; font-weight: 800; padding: 0.85rem; border-radius: var(--radius-sm); cursor: not-allowed;" disabled>
+                    🔴 Talla ${talla} Agotada
                 </button>
             `;
         } else {

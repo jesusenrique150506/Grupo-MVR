@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#880e4f">
     
     <!-- Enlace a la hoja de estilos global -->
-    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.4">
+    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.5">
     
 </head>
 <body class="pagina-marcel">
@@ -140,7 +140,7 @@
     </footer>
 
     <!-- SCRIPT CENTRALIZADO Y LÓGICA DE MARCEL BOUTIQUE -->
-    <script src="js/api.js?v=3.4"></script>
+    <script src="js/api.js?v=3.5"></script>
     <script>
         let listaGlobalProductos = [];
         let filtroActual = 'todos';
@@ -230,8 +230,8 @@
                 if (botonesCont) {
                     if (esAgotada) {
                         botonesCont.innerHTML = `
-                            <button type="button" class="btn-solicitar-resurtido" style="width: 100%;" onclick="solicitarResurtidoMarcel('${prodId}', '${nombre}', '${talla}')">
-                                📲 Solicitar Resurtido Talla ${talla} por WhatsApp
+                            <button type="button" class="btn" style="width: 100%; background: #e2e8f0; color: #94a3b8; border: 1px solid #cbd5e1; font-weight: bold; cursor: not-allowed; padding: 0.75rem;" disabled>
+                                🔴 Talla Agotada
                             </button>
                         `;
                     } else {
@@ -297,7 +297,7 @@
                                 const esActivo = t.nombre === tallaActual;
                                 const claseActiva = esActivo ? (t.agotada ? 'activo activo-agotada' : 'activo') : '';
                                 const claseAgotada = t.agotada ? 'agotada' : 'disponible';
-                                const titleTxt = t.agotada ? `${t.nombre} (Agotada - Toca para pedir resurtido)` : `${t.nombre} (Disponible)`;
+                                const titleTxt = t.agotada ? `${t.nombre} (Agotada)` : `${t.nombre} (Disponible)`;
                                 return `
                                     <button type="button" class="btn-talla ${claseAgotada} ${claseActiva}" title="${titleTxt}" onclick="seleccionarTalla('${p.id}', '${t.nombre}', ${t.agotada}, this, '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio || 0}, '${imgSrc}')">
                                         ${t.nombre}${t.agotada ? ' ✕' : ''}
@@ -317,11 +317,11 @@
 
                 if (todasAgotadas) {
                     claseAgotado = 'producto-agotado';
-                    ribbonHtml = `<div class="ribbon-agotado">🏷️ Agotado · Próximo Resurtido</div>`;
+                    ribbonHtml = `<div class="ribbon-agotado">🏷️ Agotado</div>`;
                     badgeStockHtml = `<span class="badge-stock-agotado">🔴 Agotado</span>`;
                     botonHtml = `
-                        <button type="button" class="btn-solicitar-resurtido" onclick="solicitarResurtidoMarcel('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', '${tallaActual}')">
-                            📲 Solicitar Resurtido / Apartar
+                        <button type="button" class="btn" style="width: 100%; background: #e2e8f0; color: #94a3b8; border: 1px solid #cbd5e1; font-weight: bold; cursor: not-allowed; padding: 0.75rem;" disabled>
+                            🚫 Producto Agotado
                         </button>
                     `;
                 } else {
@@ -333,8 +333,8 @@
 
                     if (estaAgotadaSeleccion) {
                         botonHtml = `
-                            <button type="button" class="btn-solicitar-resurtido" style="width: 100%;" onclick="solicitarResurtidoMarcel('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', '${tallaActual}')">
-                                📲 Solicitar Resurtido Talla ${tallaActual} por WhatsApp
+                            <button type="button" class="btn" style="width: 100%; background: #e2e8f0; color: #94a3b8; border: 1px solid #cbd5e1; font-weight: bold; cursor: not-allowed; padding: 0.75rem;" disabled>
+                                🔴 Talla Agotada
                             </button>
                         `;
                     } else {
@@ -384,11 +384,6 @@
         function agregarProductoMarcel(id, nombre, precio, imagen, tallaDirecta = null) {
             const talla = tallaDirecta || window.tallaSeleccionadaPorProducto[id] || 'M';
             agregarAlCarrito(id, nombre, precio, 'Marcel Boutique', imagen, talla);
-        }
-
-        function solicitarResurtidoMarcel(id, nombre, tallaDirecta = null) {
-            const talla = tallaDirecta || window.tallaSeleccionadaPorProducto[id] || 'M';
-            solicitarResurtidoWhatsApp(id, nombre, 'Marcel Boutique', talla);
         }
 
         function manejarInputBusqueda() {

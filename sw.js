@@ -1,4 +1,4 @@
-const CACHE_NAME = 'grupomvr-v2026-09-04-v5';
+const CACHE_NAME = 'grupomvr-v2026-09-04-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
