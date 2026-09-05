@@ -521,6 +521,7 @@
         }
 
         let listaValesPromotoraCache = [];
+        let listaValesFiltradosPromotoraMemoria = [];
 
         async function buscarCartera() {
             reiniciarTemporizadorInactividad();
@@ -575,10 +576,12 @@
             let clientesSet = new Set();
 
             if (filtrados.length === 0) {
+                listaValesFiltradosPromotoraMemoria = [];
                 cuerpo.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#888; padding: 2rem;">🔍 No se encontraron vales que coincidan con la búsqueda.</td></tr>`;
             } else {
+                listaValesFiltradosPromotoraMemoria = filtrados.slice().reverse();
                 cuerpo.innerHTML = "";
-                filtrados.slice().reverse().forEach(v => {
+                listaValesFiltradosPromotoraMemoria.forEach((v, idx) => {
                     const esRavali = v.sucursal === "Óptica Ravali";
                     const esMarcel = v.sucursal === "Marcel Boutique";
                     const claseBadge = esRavali ? "badge-ravali" : (esMarcel ? "badge-marcel" : "badge-dvilla");
