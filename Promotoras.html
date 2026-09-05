@@ -6,7 +6,7 @@
     <title>Grupo MVR | Portal de Promotoras y Vales</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#002b55">
-    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.3">
+    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.4">
 
     <style>
         #panelProtegido { display: none; }
@@ -261,7 +261,7 @@
     </footer>
 
     <!-- SCRIPT CENTRALIZADO Y LÓGICA DE PROMOTORAS -->
-    <script src="js/api.js?v=3.3"></script>
+    <script src="js/api.js?v=3.4"></script>
     <script>
         let temporizadorInactividad;
         const TIEMPO_LIMITE_INACTIVIDAD = 10 * 60 * 1000; // 10 minutos en milisegundos
@@ -636,8 +636,6 @@
                         mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos de Grupo MVR (*${v.sucursal}*).\n\nTe recordamos cordialmente que tu pago quincenal correspondiente al vale *${v.folio}* por un monto de *${cuotaFmt} MXN* está próximo a vencer.\n\n¡Agradecemos mucho tu puntualidad y preferencia con Grupo MVR! ✨`);
                     }
 
-                    const linkCobroWsp = `https://api.whatsapp.com/send?phone=52${telLimpo}&text=${mensajeCobro}`;
-
                     cuerpo.innerHTML += `
                         <tr class="${esRavali ? 'row-ravali' : (esMarcel ? 'row-marcel' : 'row-dvilla')}">
                             <td><strong>${v.folio}</strong></td>
@@ -648,16 +646,15 @@
                             <td>${badgeStatusHtml}</td>
                             <td style="text-align: center;">
                                 <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
-                                    <button onclick="mostrarPassbookPromotora(${idx})" class="btn btn-primary" style="padding: 3px 6px; font-size: 0.72rem; border-radius: 4px; cursor: pointer;">📱 Passbook</button>
-                                    <button onclick="mostrarTicketQRPromotora(${idx})" class="btn" style="background: #0059b3; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px; cursor: pointer;">🎟️ QR</button>
-                                    <button onclick="abrirModalAbonosPromotora(${idx})" class="btn" style="background: #28a745; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px; cursor: pointer;">💵 Abonos</button>
+                                    <button onclick="mostrarPassbookPromotora(${idx})" class="btn btn-primary" style="padding: 4px 7px; font-size: 0.75rem; border-radius: 4px; cursor: pointer;">📱 Passbook</button>
+                                    <button onclick="mostrarTicketQRPromotora(${idx})" class="btn" style="background: #0059b3; color: white; padding: 4px 7px; font-size: 0.75rem; border-radius: 4px; cursor: pointer;">🎟️ QR</button>
+                                    <button onclick="abrirModalAbonosPromotora(${idx})" class="btn" style="background: #28a745; color: white; padding: 4px 7px; font-size: 0.75rem; border-radius: 4px; cursor: pointer;">💵 Abonos</button>
                                 </div>
                             </td>
                             <td style="text-align: center;">
-                                ${telLimpo.length >= 10 ? `
-                                    <a href="${linkCobroWsp}" target="_blank" class="btn-wsp-recordatorio" title="Enviar recordatorio cordial de pago">
-                                        🔔 Recordar Pago
-                                    </a>` : `<small style="color: #999;">Sin WhatsApp</small>`}
+                                <button onclick="enviarRecordatorioPromotora(${idx})" class="btn-wsp-recordatorio" title="Enviar recordatorio cordial de pago por WhatsApp a ${v.cliente}">
+                                    🔔 Recordar Pago
+                                </button>
                             </td>
                         </tr>`;
                 });
@@ -690,6 +687,37 @@
                 const v = listaValesFiltradosPromotoraMemoria[idx];
                 abrirModalAbonos(v.folio, v.cliente, v.monto, v.quincenas, v.promotora, v.sucursal);
             }
+        }
+
+        function enviarRecordatorioPromotora(idx) {
+            if (!listaValesFiltradosPromotoraMemoria || !listaValesFiltradosPromotoraMemoria[idx]) return;
+            const v = listaValesFiltradosPromotoraMemoria[idx];
+            let telLimpo = String(v.telefono || '').replace(/\D/g, '');
+            
+            if (telLimpo.length < 10) {
+                let nuevoTel = prompt(`Ingresa el número de WhatsApp de ${v.cliente} (10 dígitos):`, v.telefono || "");
+                if (nuevoTel === null) return;
+                telLimpo = String(nuevoTel).replace(/\D/g, '');
+                if (telLimpo.length < 10) {
+                    alert("Por favor ingresa un número de teléfono válido de 10 dígitos.");
+                    return;
+                }
+            }
+
+            const montoNum = parseFloat(v.monto) || 0;
+            const numQ = parseInt(v.quincenas) || 8;
+            const cuota = montoNum > 0 ? (montoNum / numQ) : 0;
+            const cuotaFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cuota);
+            const estatus = String(v.estatusPago || v.estadoPago || v.estatus || 'Al Corriente').toLowerCase();
+
+            let mensajeCobro = '';
+            if (estatus.includes('vencid') || estatus.includes('atras') || estatus.includes('mora')) {
+                mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos cordialmente de Grupo MVR (*${v.sucursal}*).\n\nTe informamos que tu cuenta correspondiente al vale *${v.folio}* presenta un pago quincenal pendiente de *${cuotaFmt} MXN*.\n\nPor favor comunícate a la brevedad con tu promotora (${v.promotora}) para regularizar tu saldo y mantener tu crédito activo. ¡Muchas gracias!`);
+            } else {
+                mensajeCobro = encodeURIComponent(`Hola *${v.cliente}*, te saludamos cordialmente de Grupo MVR (*${v.sucursal}*).\n\nTe recordamos que tu pago quincenal correspondiente al vale *${v.folio}* por un monto de *${cuotaFmt} MXN* está próximo a vencer.\n\n¡Agradecemos mucho tu puntualidad y preferencia con Grupo MVR! ✨`);
+            }
+
+            window.open(`https://api.whatsapp.com/send?phone=52${telLimpo}&text=${mensajeCobro}`, '_blank');
         }
 
         async function exportarCarteraPromotora(formato) {

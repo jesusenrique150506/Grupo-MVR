@@ -402,6 +402,9 @@ function enviarPedidoWhatsApp() {
         mensaje += `${i + 1}. *${item.nombre}*${tallaTxt}\n`;
         mensaje += `   📍 Sucursal: ${item.sucursal}\n`;
         mensaje += `   📦 Cantidad: ${cant} | Subtotal: ${subFmt}\n\n`;
+
+        // Descontar automáticamente inventario por talla y general en tiempo real
+        descontarStockPorTalla(item.id, item.talla, cant);
     });
 
     let totalFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(total);
@@ -416,6 +419,99 @@ function enviarPedidoWhatsApp() {
     mensaje += `Quedo a la espera de la confirmación de existencias y datos de pago/entrega. ¡Muchas gracias!`;
 
     window.open(`https://wa.me/528332854129?text=${encodeURIComponent(mensaje)}`, '_blank');
+}
+
+/* --------------------------------------------------------------------------
+   4.5 DESCUENTO AUTOMÁTICO DE INVENTARIO Y TALLAS EN TIEMPO REAL
+   -------------------------------------------------------------------------- */
+function descontarStockPorTalla(id, talla, cantidad = 1) {
+    if (!id) return;
+    const cantNum = parseInt(cantidad) || 1;
+    
+    // 1. Obtener producto de memoria o cache
+    let prod = null;
+    if (window.inventarioGlobalCache && window.inventarioGlobalCache[id]) {
+        prod = window.inventarioGlobalCache[id];
+    } else if (typeof listaGlobalProductos !== 'undefined' && Array.isArray(listaGlobalProductos)) {
+        prod = listaGlobalProductos.find(p => p.id === id);
+    }
+    
+    if (!prod) return;
+
+    let stockActual = parseInt(prod.stock) || 0;
+    let nuevoStockTotal = Math.max(0, stockActual - cantNum);
+    let nuevasTallasStr = prod.tallas || '';
+
+    // 2. Si tiene desglose de tallas
+    if (prod.tallas && String(prod.tallas).trim() !== '') {
+        let tallasObj = parsearEstructuraTallas(prod.tallas, stockActual);
+        
+        if (talla) {
+            let tallaEncontrada = tallasObj.find(t => t.nombre.toUpperCase() === String(talla).trim().toUpperCase());
+            if (tallaEncontrada) {
+                if (tallaEncontrada.cantidad !== null && tallaEncontrada.cantidad !== undefined) {
+                    tallaEncontrada.cantidad = Math.max(0, tallaEncontrada.cantidad - cantNum);
+                    if (tallaEncontrada.cantidad === 0) {
+                        tallaEncontrada.agotada = true;
+                    }
+                } else {
+                    if (nuevoStockTotal <= 0) {
+                        tallaEncontrada.agotada = true;
+                    }
+                }
+            }
+        }
+
+        // Si todas las tallas tienen cantidades numéricas, el nuevo stock total es la suma
+        let todasConCantidades = tallasObj.every(t => t.cantidad !== null && t.cantidad !== undefined);
+        if (todasConCantidades && tallasObj.length > 0) {
+            nuevoStockTotal = tallasObj.reduce((acc, t) => acc + (parseInt(t.cantidad) || 0), 0);
+        }
+
+        // Reconstruir string de tallas
+        nuevasTallasStr = tallasObj.map(t => {
+            if (t.cantidad !== null && t.cantidad !== undefined) {
+                return `${t.nombre}:${t.cantidad}`;
+            } else if (t.agotada) {
+                return `${t.nombre} (Agotada)`;
+            } else {
+                return t.nombre;
+            }
+        }).join(', ');
+    }
+
+    // 3. Actualizar memoria local
+    prod.stock = nuevoStockTotal;
+    prod.tallas = nuevasTallasStr;
+
+    if (window.inventarioGlobalCache && window.inventarioGlobalCache[id]) {
+        window.inventarioGlobalCache[id].stock = nuevoStockTotal;
+        window.inventarioGlobalCache[id].tallas = nuevasTallasStr;
+    }
+
+    // 4. Sincronizar con backend en la nube
+    try {
+        if (typeof consumirAPI === 'function') {
+            consumirAPI('actualizarStock', {
+                inventario: {
+                    id: id,
+                    sucursal: prod.sucursal || "",
+                    nombre: prod.nombre || "",
+                    tallas: nuevasTallasStr,
+                    stock: nuevoStockTotal,
+                    precio: prod.precio || 0,
+                    imagen: prod.imagen || ""
+                }
+            }).catch(err => console.warn("Sincronización en segundo plano de stock:", err));
+        }
+    } catch (e) {
+        console.warn("Error enviando actualización de stock:", e);
+    }
+
+    // 5. Si la página actual tiene renderizarCatalogo (ej. Marcel Boutique), refrescar en vivo
+    if (typeof renderizarCatalogo === 'function' && typeof listaGlobalProductos !== 'undefined') {
+        renderizarCatalogo(listaGlobalProductos);
+    }
 }
 
 /* --------------------------------------------------------------------------
@@ -2244,12 +2340,26 @@ function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucu
                 </div>
             </div>
 
-            <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; width: 100%; padding: 0.6rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 0.8rem;">
-                🔙 Cerrar y Volver a la Cartera
-            </button>
+            <div style="display: flex; gap: 8px; margin-top: 0.8rem;">
+                <button type="button" onclick="enviarRecordatorioPagoWhatsAppModal('${folio}', '${String(cliente).replace(/'/g, "")}', '${cuotaFmt}', '${saldoRestante.toFixed(2)}', '${promotora}', '${sucursal}')" class="btn btn-wsp-recordatorio" style="flex: 1; padding: 0.65rem; font-size: 0.85rem; border-radius: 6px;" title="Enviar recordatorio cordial de pago por WhatsApp">
+                    🔔 Recordar Pago por WhatsApp
+                </button>
+                <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.65rem 1rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer;">
+                    🔙 Volver
+                </button>
+            </div>
         </div>`;
 
     modal.style.display = 'flex';
+}
+
+function enviarRecordatorioPagoWhatsAppModal(folio, cliente, cuotaFmt, saldoRestante, promotora, sucursal) {
+    let tel = prompt(`Ingresa el número de WhatsApp de ${cliente} (10 dígitos):`, "");
+    if (tel === null) return;
+    let telLimpo = String(tel).replace(/\D/g, '');
+    let saldoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(parseFloat(saldoRestante) || 0);
+    let msj = encodeURIComponent(`Hola *${cliente}*, te saludamos cordialmente de Grupo MVR (*${sucursal}*).\n\nTe recordamos que tu cuenta correspondiente al vale *${folio}* tiene un saldo actual de *${saldoFmt} MXN* (cuota quincenal de *${cuotaFmt} MXN*).\n\nPor favor comunícate con tu promotora (${promotora}) para registrar tu abono y mantener tu crédito al corriente. ¡Muchas gracias por tu preferencia! ✨`);
+    window.open(`https://api.whatsapp.com/send?phone=52${telLimpo}&text=${msj}`, '_blank');
 }
 
 function guardarAbonoModal(folio, cliente, montoTotal, quincenas, promotora, sucursal) {
@@ -2409,6 +2519,16 @@ function compartirReciboAbonoWhatsApp(folioAbono, folioVale, cliente, montoAbono
     window.open(`https://wa.me/?text=${msj}`, '_blank');
 }
 
+function calcularStockDesdeTallasInput(tallasStr) {
+    if (!tallasStr) return null;
+    let tallas = parsearEstructuraTallas(tallasStr, 1);
+    let tieneNumeros = tallas.some(t => t.cantidad !== null && t.cantidad !== undefined);
+    if (tieneNumeros) {
+        return tallas.reduce((acc, t) => acc + (parseInt(t.cantidad) || 0), 0);
+    }
+    return null;
+}
+
 /* --------------------------------------------------------------------------
    MÓDULO DE EDICIÓN RÁPIDA DE INVENTARIO Y CARGA MASIVA
    -------------------------------------------------------------------------- */
@@ -2459,7 +2579,7 @@ function abrirModalEditarProducto(id) {
                     </div>
                     <div class="form-group">
                         <label style="font-weight: bold; font-size: 0.85rem;">Tallas (Moda / Boutique):</label>
-                        <input type="text" id="editTallasProd" value="${p.tallas || ''}" placeholder="Ej. CH:5, M:0, G:3 o CH, M, G" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
+                        <input type="text" id="editTallasProd" value="${p.tallas || ''}" oninput="let c = calcularStockDesdeTallasInput(this.value); if (c !== null) document.getElementById('editStockProd').value = c;" placeholder="Ej. CH:5, M:0, G:3 o CH, M, G" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
                         <small style="color:#64748b; font-size:0.72rem; display:block; margin-top:2px;">Tip: Usa <strong>M:0</strong> o <strong>M (Agotada)</strong> para agotarla.</small>
                     </div>
                 </div>

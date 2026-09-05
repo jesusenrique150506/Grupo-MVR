@@ -1964,22 +1964,54 @@ footer p {
     background: #25d366;
     color: #ffffff;
     border: none;
-    padding: 0.4rem 0.75rem;
+    padding: 0.45rem 0.85rem;
     border-radius: var(--radius-sm);
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 700;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    gap: 6px;
     text-decoration: none;
-    transition: transform var(--duration-fast) var(--ease-spring), background var(--duration-fast);
+    transition: transform var(--duration-fast) var(--ease-spring), background var(--duration-fast), box-shadow var(--duration-fast);
+    box-shadow: 0 2px 6px rgba(37, 211, 102, 0.25);
+    white-space: nowrap;
 }
 
 .btn-wsp-recordatorio:hover {
     background: #1eb956;
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.35);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+    color: #ffffff;
+}
+
+.btn-wsp-recordatorio:active {
+    transform: translateY(0);
+}
+
+.badge-talla-admin {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 4px;
+    margin: 1px;
+}
+
+.badge-talla-admin.disponible {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.badge-talla-admin.agotada {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px dashed #fca5a5;
+    text-decoration: line-through;
+    opacity: 0.85;
 }
 
 /* --------------------------------------------------------------------------

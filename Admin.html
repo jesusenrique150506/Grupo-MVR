@@ -6,7 +6,7 @@
     <title>Grupo MVR | Panel de Administración</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#002b55">
-    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.3">
+    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.4">
     <!-- Chart.js para Business Intelligence y Gráficas Interactivas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -167,12 +167,13 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
                         <div class="form-group"><label>ID / Código:</label><input type="text" id="nuevoId" placeholder="Ej. DV-001" required></div>
                         <div class="form-group"><label>Sucursal:</label><select id="nuevaSucursal" required><option value="Óptica D'villa">Óptica D'villa</option><option value="Óptica Ravali">Óptica Ravali</option><option value="Marcel Boutique">Marcel Boutique</option></select></div>
+                        <div class="form-group"><label>Nombre del Producto:</label><input type="text" id="nuevoNombre" placeholder="Ej. Vestido Gala Esmeralda" required></div>
                         <div class="form-group">
-                            <label>Tallas (Marcel/Moda):</label>
-                            <input type="text" id="nuevoTallas" placeholder="Ej. CH:4, M:0, G:2 o CH, M, G">
-                            <small style="color: #64748b; font-size: 0.72rem; display: block; margin-top: 2px;">Tip: Usa <strong>M:0</strong> o <strong>M (Agotada)</strong> para agotarla.</small>
+                            <label>Tallas (Moda / Boutique):</label>
+                            <input type="text" id="nuevoTallas" oninput="let c = (typeof calcularStockDesdeTallasInput === 'function') ? calcularStockDesdeTallasInput(this.value) : null; if (c !== null) document.getElementById('nuevoStock').value = c;" placeholder="Ej. CH:4, M:0, G:2 o CH, M, G">
+                            <small style="color: #64748b; font-size: 0.72rem; display: block; margin-top: 2px;">Tip: Usa <strong>M:0</strong> para agotarla. Cantidades suman el stock.</small>
                         </div>
-                        <div class="form-group"><label>Stock:</label><input type="number" id="nuevoStock" min="0" required></div>
+                        <div class="form-group"><label>Stock Total:</label><input type="number" id="nuevoStock" min="0" required></div>
                         <div class="form-group"><label>Precio ($):</label><input type="number" id="nuevoPrecio" step="0.01" min="0" required></div>
                         <div class="form-group" style="grid-column: 1 / -1; background: #f8f9fa; padding: 1rem; border: 1px dashed #0059b3; border-radius: 6px;">
                             <label style="color: #0059b3;">📸 Imagen:</label><input type="file" id="nuevoImagenFile" accept="image/*" required style="width: 100%;">
@@ -326,7 +327,7 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
     </footer>
 
-    <script src="js/api.js?v=3.3"></script>
+    <script src="js/api.js?v=3.4"></script>
     <script>
         let listaGlobalVales = []; // Almacena temporalmente los vales para el filtro
 
@@ -670,6 +671,25 @@
                         let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'mvr.jpg';
                         let estadoStock = stock > 0 ? `<span style="color:#28a745; font-weight:bold;">🟢 ${stock} pzas</span>` : `<span style="color:#d32f2f; font-weight:bold;">🔴 Agotado</span>`;
 
+                        let desgloseTallasHtml = '';
+                        if (p.tallas && String(p.tallas).trim() !== '') {
+                            let tallasArr = (typeof parsearEstructuraTallas === 'function')
+                                ? parsearEstructuraTallas(p.tallas, stock)
+                                : [];
+                            if (tallasArr.length > 0) {
+                                desgloseTallasHtml = `<div style="display:flex; flex-wrap:wrap; gap:3px; margin-top:4px;">` +
+                                    tallasArr.map(t => {
+                                        if (t.agotada) {
+                                            return `<span class="badge-talla-admin agotada" title="Talla ${t.nombre}: Agotada">${t.nombre}: 0 ✕</span>`;
+                                        } else {
+                                            let cantTxt = (t.cantidad !== null && t.cantidad !== undefined) ? `${t.nombre}: ${t.cantidad}` : t.nombre;
+                                            return `<span class="badge-talla-admin disponible" title="Talla ${t.nombre}: Disponible">${cantTxt}</span>`;
+                                        }
+                                    }).join('') +
+                                `</div>`;
+                            }
+                        }
+
                         cuerpoInv.innerHTML += `
                             <tr>
                                 <td><img src="${imgSrc}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px;" onerror="this.src='mvr.jpg';"></td>
@@ -677,7 +697,10 @@
                                 <td>${p.sucursal}</td>
                                 <td><strong>${p.nombre}</strong></td>
                                 <td>${precioFmt}</td>
-                                <td>${estadoStock}</td>
+                                <td>
+                                    ${estadoStock}
+                                    ${desgloseTallasHtml}
+                                </td>
                                 <td style="text-align: center;">
                                     <button onclick="abrirModalEditarProducto('${id}')" style="background-color: #0059b3; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 4px;">✏️ Editar</button>
                                     <button onclick="eliminarProductoInventario('${id}', '${String(p.nombre).replace(/'/g, "")}')" style="background-color: #a80f14; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Eliminar</button>
