@@ -137,7 +137,7 @@
     </footer>
 
     <!-- SCRIPT CENTRALIZADO Y LÓGICA DE RAVALI -->
-    <script src="js/api.js?v=4.0"></script>
+    <script src="js/api.js?v=4.2"></script>
     <script>
         let listaGlobalProductos = [];
         let filtroActual = 'todos';
@@ -221,7 +221,9 @@
 
             productosOrdenados.forEach(p => {
                 let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.precio || 0);
-                let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'ravali.jpg';
+                let imgSrc = (typeof resolverImagenProducto === 'function') 
+                    ? resolverImagenProducto(p.id, p.sucursal || "Óptica Ravali", p.imagen) 
+                    : ((p.imagen && p.imagen.trim() !== "") ? p.imagen : 'imagenes/ravali/lente1.jpg');
                 let stock = parseInt(p.stock) || 0;
                 let botonHtml = '';
                 let badgeStockHtml = '';

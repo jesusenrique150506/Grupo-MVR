@@ -327,7 +327,7 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
     </footer>
 
-    <script src="js/api.js?v=4.0"></script>
+    <script src="js/api.js?v=4.2"></script>
     <script>
         let listaGlobalVales = []; // Almacena temporalmente los vales para el filtro
 
@@ -676,7 +676,9 @@
                         let stock = parseInt(p.stock) || 0;
                         let precio = parseFloat(p.precio) || 0;
                         let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(precio);
-                        let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'mvr.jpg';
+                        let imgSrc = (typeof resolverImagenProducto === 'function') 
+                            ? resolverImagenProducto(id, p.sucursal, p.imagen) 
+                            : ((p.imagen && p.imagen.trim() !== "") ? p.imagen : 'mvr.jpg');
                         let estadoStock = stock > 0 ? `<span style="color:#28a745; font-weight:bold;">🟢 ${stock} pzas</span>` : `<span style="color:#d32f2f; font-weight:bold;">🔴 Agotado</span>`;
 
                         let tallasVal = (p.tallas && String(p.tallas).trim() !== '') ? p.tallas : (typeof obtenerTallasLocal === 'function' ? obtenerTallasLocal(id) : '');

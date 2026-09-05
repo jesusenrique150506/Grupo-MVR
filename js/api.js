@@ -1,6 +1,48 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbzqBjoatKj5hhWVMCecWTAEoUDjICBU135gCG9Ev-X8nF3RHvCSs7u4q72CVxe4gd0YWg/exec";
 
 /* --------------------------------------------------------------------------
+   0. MAPEO Y RESOLUCIÓN INTELIGENTE DE IMÁGENES DE PRODUCTOS
+   -------------------------------------------------------------------------- */
+const MAPA_IMAGENES_POR_DEFECTO = {
+    'MARCEL1': 'imagenes/marcel/ropa1.jpg',
+    'MARCEL2': 'imagenes/marcel/ropa2.jpg',
+    'MARCEL3': 'imagenes/marcel/ropa3.jpg',
+    'MARCEL4': 'imagenes/marcel/ropa4.jpg',
+    'DVILLA1': 'imagenes/dvilla/lente1.jpg',
+    'DVILLA2': 'imagenes/dvilla/lente2.jpg',
+    'DVILLA3': 'imagenes/dvilla/lente3.jpg',
+    'DVILLA4': 'imagenes/dvilla/lente4.jpg',
+    'RAVALI1': 'imagenes/ravali/lente1.jpg',
+    'RAVALI2': 'imagenes/ravali/lente2.jpg',
+    'RAVALI3': 'imagenes/ravali/lente3.jpg',
+    'RAVALI4': 'imagenes/ravali/lente4.jpg'
+};
+
+function resolverImagenProducto(id, sucursal = '', imagenActual = '') {
+    if (imagenActual && typeof imagenActual === 'string' && imagenActual.trim() !== '' && imagenActual !== 'null' && imagenActual !== 'undefined') {
+        let img = imagenActual.trim();
+        // Si no es un placeholder genérico viejo como 'mvr.jpg', 'dvilla.jpg', 'ravali.jpg', 'marcel.png', o si es una URL/ruta personalizada válida
+        if (!['mvr.jpg', 'dvilla.jpg', 'ravali.jpg', 'marcel.png', 'mvr.png'].includes(img.toLowerCase())) {
+            return img;
+        }
+    }
+
+    let cleanId = String(id || '').trim().toUpperCase().replace(/[\s\-_]+/g, '');
+    if (MAPA_IMAGENES_POR_DEFECTO[cleanId]) {
+        return MAPA_IMAGENES_POR_DEFECTO[cleanId];
+    }
+
+    // Fallback por sucursal / tipo de producto
+    let suc = String(sucursal || '').toLowerCase();
+    let idLower = String(id || '').toLowerCase();
+    if (idLower.includes('marcel') || suc.includes('marcel')) return 'imagenes/marcel/ropa1.jpg';
+    if (idLower.includes('dvilla') || idLower.includes("d'villa") || suc.includes('villa')) return 'imagenes/dvilla/lente1.jpg';
+    if (idLower.includes('ravali') || suc.includes('ravali')) return 'imagenes/ravali/lente1.jpg';
+
+    return 'mvr.jpg';
+}
+
+/* --------------------------------------------------------------------------
    1. CONSUMO DE API (GOOGLE APPS SCRIPT) Y GESTIÓN DE CACHÉ DE TALLAS
    -------------------------------------------------------------------------- */
 function guardarTallasLocal(id, tallasStr) {
@@ -23,6 +65,7 @@ function sincronizarInventarioConCacheLocal(data) {
     if (!data || typeof data !== 'object') return data;
     for (let id in data) {
         if (data[id]) {
+            // Sincronizar tallas con almacenamiento local
             let tallasCloud = (data[id].tallas && String(data[id].tallas).trim() !== '') ? String(data[id].tallas).trim() : '';
             if (tallasCloud !== '') {
                 guardarTallasLocal(id, tallasCloud);
@@ -32,6 +75,8 @@ function sincronizarInventarioConCacheLocal(data) {
                     data[id].tallas = localT;
                 }
             }
+            // Resolver y asociar imagen de alta calidad automáticamente
+            data[id].imagen = resolverImagenProducto(id, data[id].sucursal, data[id].imagen);
         }
     }
     return data;
@@ -320,8 +365,10 @@ function abrirCarritoGlobal() {
             totalMxn += subtotal;
             let subtotalFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(subtotal);
             let precioUnitFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(item.precio || 0);
-            let imgDefault = item.sucursal.includes('Marcel') ? 'marcel.png' : (item.sucursal.includes('Ravali') ? 'ravali.jpg' : 'dvilla.jpg');
-            let imgThumb = (item.imagen && item.imagen.trim() !== '') ? item.imagen : imgDefault;
+            let imgDefault = item.sucursal && item.sucursal.includes('Marcel') ? 'imagenes/marcel/ropa1.jpg' : ((item.sucursal && item.sucursal.includes('Ravali')) ? 'imagenes/ravali/lente1.jpg' : 'imagenes/dvilla/lente1.jpg');
+            let imgThumb = (typeof resolverImagenProducto === 'function')
+                ? resolverImagenProducto(item.id, item.sucursal, item.imagen)
+                : ((item.imagen && item.imagen.trim() !== '') ? item.imagen : imgDefault);
 
             let badgeTallaHtml = item.talla ? `<span class="badge-talla">Talla: ${item.talla}</span>` : '';
 
@@ -1548,14 +1595,15 @@ function abrirModalFavoritos() {
         cuerpoItems = `<div style="max-height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin: 1rem 0;">`;
         favs.forEach(p => {
             const precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.precio || 0);
+            const imgFav = (typeof resolverImagenProducto === 'function') ? resolverImagenProducto(p.id, p.sucursal, p.imagen) : (p.imagen || 'mvr.jpg');
             cuerpoItems += `
                 <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; gap: 10px;">
-                    <img src="${p.imagen}" style="width: 55px; height: 55px; object-fit: cover; border-radius: 6px;" onerror="this.src='mvr.jpg';">
+                    <img src="${imgFav}" style="width: 55px; height: 55px; object-fit: cover; border-radius: 6px;" onerror="this.src='mvr.jpg';">
                     <div style="flex: 1; text-align: left;">
                         <h4 style="margin: 0; font-size: 0.95rem; color: #002b55;">${p.nombre}</h4>
                         <small style="color: #64748b;">${p.sucursal || 'Grupo MVR'} • <strong>${precioFmt}</strong></small>
                     </div>
-                    <button onclick="toggleFavorito('${p.id}', '${p.nombre}', ${p.precio}, '${p.imagen}', '${p.sucursal}'); abrirModalFavoritos();" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #e11d48;" title="Quitar de favoritos">🗑️</button>
+                    <button onclick="toggleFavorito('${p.id}', '${p.nombre}', ${p.precio}, '${imgFav}', '${p.sucursal}'); abrirModalFavoritos();" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #e11d48;" title="Quitar de favoritos">🗑️</button>
                 </div>`;
         });
         cuerpoItems += `</div>`;
@@ -1904,7 +1952,10 @@ function actualizarBarraComparadorUI() {
             bar.className = 'floating-compare-bar';
             document.body.appendChild(bar);
         }
-        let thumbs = comp.map(p => `<img src="${p.imagen}" class="compare-item-thumb" title="${p.nombre}" onerror="this.src='mvr.jpg';">`).join('');
+        let thumbs = comp.map(p => {
+            let imgComp = (typeof resolverImagenProducto === 'function') ? resolverImagenProducto(p.id, p.sucursal, p.imagen) : (p.imagen || 'mvr.jpg');
+            return `<img src="${imgComp}" class="compare-item-thumb" title="${p.nombre}" onerror="this.src='mvr.jpg';">`;
+        }).join('');
         bar.innerHTML = `
             <div style="display: flex; align-items: center; gap: 8px;">
                 ${thumbs}
@@ -1952,15 +2003,16 @@ function abrirModalComparador() {
         const precioNum = parseFloat(p.precio) || 0;
         const precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(precioNum);
         const cuota8Q = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(precioNum / 8);
+        const imgComp = (typeof resolverImagenProducto === 'function') ? resolverImagenProducto(p.id, p.sucursal, p.imagen) : (p.imagen || 'mvr.jpg');
 
         filasHeader += `<th>${p.nombre}</th>`;
-        filasFotos += `<td><img src="${p.imagen}" style="width: 100px; height: 75px; object-fit: contain; border-radius: 6px;" onerror="this.src='mvr.jpg';"><br><strong>${p.nombre}</strong></td>`;
+        filasFotos += `<td><img src="${imgComp}" style="width: 100px; height: 75px; object-fit: contain; border-radius: 6px;" onerror="this.src='mvr.jpg';"><br><strong>${p.nombre}</strong></td>`;
         filasPrecio += `<td style="font-size: 1.1rem; font-weight: 900; color: #0059b3;">${precioFmt}</td>`;
         filasQuincenal += `<td style="font-weight: bold; color: #28a745;">${cuota8Q} / quincena</td>`;
         filasSucursal += `<td><span class="badge-optica">${p.sucursal || 'Grupo MVR'}</span></td>`;
         filasAcciones += `
             <td>
-                <button onclick="agregarAlCarrito('${p.id}', '${String(p.nombre).replace(/'/g, "")}', ${p.precio}, '${p.sucursal}', '${p.imagen}'); document.getElementById('${modalId}').style.display='none';" class="btn btn-primary" style="padding: 6px 10px; font-size: 0.8rem; width: 100%;">
+                <button onclick="agregarAlCarrito('${p.id}', '${String(p.nombre).replace(/'/g, "")}', ${p.precio}, '${p.sucursal}', '${imgComp}'); document.getElementById('${modalId}').style.display='none';" class="btn btn-primary" style="padding: 6px 10px; font-size: 0.8rem; width: 100%;">
                     🛒 Carrito
                 </button>
             </td>`;
@@ -2852,6 +2904,7 @@ function abrirModalEditarProducto(id) {
     }
 
     let tallasVal = (p.tallas && String(p.tallas).trim() !== '') ? p.tallas : obtenerTallasLocal(id);
+    let imgEdit = (typeof resolverImagenProducto === 'function') ? resolverImagenProducto(id, p.sucursal, p.imagen) : (p.imagen || 'mvr.jpg');
 
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 500px; padding: 1.5rem; text-align: left;">
@@ -2860,7 +2913,7 @@ function abrirModalEditarProducto(id) {
             
             <form onsubmit="guardarEdicionProducto(event, '${id}')">
                 <div style="display: flex; gap: 12px; margin-bottom: 1rem; align-items: center;">
-                    <img src="${p.imagen || 'mvr.jpg'}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;" onerror="this.src='mvr.jpg';">
+                    <img src="${imgEdit}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1;" onerror="this.src='mvr.jpg';">
                     <div>
                         <strong>SKU / ID:</strong> ${id}<br>
                         <small style="color: #64748b;">Modifica los valores y guarda los cambios inmediatamente.</small>

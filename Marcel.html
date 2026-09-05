@@ -140,7 +140,7 @@
     </footer>
 
     <!-- SCRIPT CENTRALIZADO Y LÓGICA DE MARCEL BOUTIQUE -->
-    <script src="js/api.js?v=4.0"></script>
+    <script src="js/api.js?v=4.2"></script>
     <script>
         let listaGlobalProductos = [];
         let filtroActual = 'todos';
@@ -263,7 +263,9 @@
 
             productosOrdenados.forEach(p => {
                 let precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(p.precio || 0);
-                let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'marcel.png';
+                let imgSrc = (typeof resolverImagenProducto === 'function') 
+                    ? resolverImagenProducto(p.id, p.sucursal || 'Marcel Boutique', p.imagen) 
+                    : ((p.imagen && p.imagen.trim() !== "") ? p.imagen : 'imagenes/marcel/ropa1.jpg');
                 let stock = parseInt(p.stock) || 0;
 
                 // Definición y Parseo de Tallas para Marcel Boutique (Ropa / Moda)

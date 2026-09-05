@@ -1,4 +1,4 @@
-const CACHE_NAME = 'grupomvr-v2026-09-04-v11';
+const CACHE_NAME = 'grupomvr-v2026-09-04-v12';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -9,8 +9,24 @@ const ASSETS_TO_CACHE = [
   './Admin.html',
   './CSS/opticas-styles.css',
   './js/api.js',
+  './api.js',
   './manifest.json',
-  './mvr.jpg'
+  './mvr.jpg',
+  './marcel.png',
+  './dvilla.jpg',
+  './ravali.jpg',
+  './imagenes/marcel/ropa1.jpg',
+  './imagenes/marcel/ropa2.jpg',
+  './imagenes/marcel/ropa3.jpg',
+  './imagenes/marcel/ropa4.jpg',
+  './imagenes/dvilla/lente1.jpg',
+  './imagenes/dvilla/lente2.jpg',
+  './imagenes/dvilla/lente3.jpg',
+  './imagenes/dvilla/lente4.jpg',
+  './imagenes/ravali/lente1.jpg',
+  './imagenes/ravali/lente2.jpg',
+  './imagenes/ravali/lente3.jpg',
+  './imagenes/ravali/lente4.jpg'
 ];
 
 self.addEventListener('install', event => {
