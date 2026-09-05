@@ -3504,7 +3504,232 @@ body.pagina-promotoras #mvrSpeedDial {
 }
 
 /* --------------------------------------------------------------------------
-   16. ESTILOS DE IMPRESIÓN (PRINT)
+   38. SISTEMA RESPONSIVE MULTI-DISPOSITIVO (MÓVILES, TABLETS & PC)
+   -------------------------------------------------------------------------- */
+
+/* TABLETS Y PANTALLAS MEDIANAS (<= 1024px) */
+@media (max-width: 1024px) {
+    .main-header {
+        padding: 0.8rem 1.2rem;
+    }
+    .catalogo-grid {
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)) !important;
+        gap: 1.2rem;
+    }
+    .dashboard-analytics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.2rem;
+    }
+    .cards-kpi-grid, .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .form-container, .cartera-container, .admin-container {
+        padding: 1.5rem;
+        margin: 1rem auto;
+    }
+}
+
+/* SMARTPHONES Y PANTALLAS TÁCTILES (<= 768px) */
+@media (max-width: 768px) {
+    /* 1. Header & Navegación Táctil */
+    .main-header {
+        flex-direction: column;
+        gap: 10px;
+        padding: 0.8rem 1rem;
+        text-align: center;
+    }
+    .logo a {
+        justify-content: center;
+    }
+    .main-nav {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 4px;
+    }
+    .main-nav::-webkit-scrollbar {
+        display: none;
+    }
+    .main-nav ul {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        justify-content: flex-start;
+        padding: 2px 4px;
+        margin: 0;
+    }
+    .main-nav a {
+        font-size: 0.82rem;
+        padding: 0.5rem 0.85rem;
+        white-space: nowrap;
+        border-radius: 20px;
+    }
+
+    /* 2. Formularios e Inputs Móviles (Previene auto-zoom molesto en iOS) */
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="date"],
+    select,
+    textarea {
+        font-size: 16px !important;
+        padding: 0.75rem 0.9rem !important;
+        border-radius: 8px !important;
+    }
+
+    /* 3. Hero y Encabezados */
+    .hero {
+        padding: 1.5rem 1rem !important;
+    }
+    .hero h2 {
+        font-size: 1.35rem !important;
+    }
+    .hero p {
+        font-size: 0.88rem !important;
+    }
+
+    /* 4. Grillas de Productos */
+    .catalogo-grid {
+        grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)) !important;
+        gap: 0.8rem !important;
+        padding: 0.5rem !important;
+    }
+    .producto-card {
+        padding: 0.85rem !important;
+        border-radius: 12px !important;
+    }
+    .producto-card img {
+        height: 135px !important;
+    }
+    .producto-card h3 {
+        font-size: 0.92rem !important;
+    }
+    .producto-card .precio {
+        font-size: 1.05rem !important;
+    }
+    .cuota-quincenal-tag {
+        font-size: 0.75rem !important;
+    }
+    .btn-comprar, .btn-agregar-carrito {
+        padding: 0.65rem 0.75rem !important;
+        font-size: 0.82rem !important;
+    }
+
+    /* 5. KPIs y Métricas en Tarjetas Móviles 2x2 */
+    .cards-kpi-grid, .kpi-grid, .kpi-promotora-container {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+    .kpi-card, .card-kpi {
+        padding: 0.85rem !important;
+    }
+    .kpi-card strong, .card-kpi strong {
+        font-size: 1.1rem !important;
+    }
+
+    /* 6. Tablas con Scroll Táctil e Inercia */
+    .tabla-cartera-responsive-wrap, 
+    #tablaCarteraResultado, 
+    .tabla-admin-wrap, 
+    div[style*="overflow-x: auto"] {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        border-radius: 8px !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    .tabla-cartera, .tabla-admin, .admin-table {
+        min-width: 650px !important;
+        font-size: 0.8rem !important;
+    }
+    .tabla-cartera th, .tabla-cartera td,
+    .tabla-admin th, .tabla-admin td {
+        padding: 0.6rem 0.5rem !important;
+    }
+
+    /* 7. Barra de Herramientas y Filtros de Cartera */
+    .export-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+    }
+    .export-btn-group {
+        display: flex !important;
+        width: 100% !important;
+        gap: 6px !important;
+    }
+    .export-btn-group button, .btn-export {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 0.65rem 0.5rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* 8. Dashboard de Gráficas en Admin (Apiladas verticalmente) */
+    .dashboard-analytics-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    .chart-card-box {
+        padding: 1rem !important;
+    }
+    .chart-container-inner {
+        height: 240px !important;
+    }
+
+    /* 9. Ventanas Modales y Popups Adaptables */
+    .modal-overlay {
+        padding: 0.6rem !important;
+        align-items: flex-end !important;
+    }
+    .modal-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        max-height: 88dvh !important;
+        border-radius: 20px 20px 0 0 !important;
+        padding: 1.2rem 1rem !important;
+    }
+
+    /* 10. Passbook y Ticket Digital */
+    .passbook-wallet {
+        max-width: 100% !important;
+        border-radius: 14px !important;
+    }
+    .passbook-qr-box img {
+        width: 120px !important;
+        height: 120px !important;
+    }
+
+    /* 11. Botón Flotante SpeedDial para Promotoras */
+    #mvrSpeedDial {
+        bottom: 20px !important;
+        right: 18px !important;
+    }
+
+    /* 12. Padding inferior de seguridad en catálogos por el dock inferior */
+    body.pagina-catalogo, body.pagina-inicio {
+        padding-bottom: 75px !important;
+    }
+}
+
+/* SMARTPHONES ULTRA-COMPACTOS (<= 420px) */
+@media (max-width: 420px) {
+    .catalogo-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .cards-kpi-grid, .kpi-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .login-glass-card {
+        padding: 1.2rem 1rem !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   39. ESTILOS DE IMPRESIÓN (PRINT)
    -------------------------------------------------------------------------- */
 @media print {
     body { background: #ffffff !important; color: #000000 !important; animation: none !important; }
