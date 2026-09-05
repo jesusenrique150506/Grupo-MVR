@@ -2201,6 +2201,7 @@ function mostrarModalComprobanteAbono(folioAbono, folioVale, cliente, montoAbono
         modal.id = modalId;
         modal.className = 'modal-overlay';
         modal.style.zIndex = '3000';
+        modal.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
         document.body.appendChild(modal);
     }
 
@@ -2209,13 +2210,13 @@ function mostrarModalComprobanteAbono(folioAbono, folioVale, cliente, montoAbono
     const saldoRestFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldoRestante);
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 420px; padding: 1.5rem; text-align: center; border-top: 5px solid ${brand.colorPrimario};">
-            <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
+        <div class="modal-content" style="max-width: 420px; padding: 1.5rem; text-align: center; border-top: 5px solid ${brand.colorPrimario}; position: relative;">
+            <button type="button" aria-label="Cerrar modal" onclick="document.getElementById('${modalId}').style.display = 'none'" style="position: absolute; top: 12px; right: 12px; z-index: 50; width: 32px; height: 32px; border-radius: 50%; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
             <div style="font-size: 2.2rem; margin-bottom: 6px;">💵✨</div>
             <h3 style="margin: 0; color: ${brand.colorPrimario};">¡Abono Exitoso!</h3>
             <p style="margin: 4px 0 1rem 0; color: #64748b; font-size: 0.88rem;">Comprobante generado: <strong>${folioAbono}</strong></p>
 
-            <div class="ticket-abono-card" style="border-color: ${brand.colorPrimario}; background: ${brand.fondoSuave};">
+            <div class="ticket-abono-card" style="border-color: ${brand.colorPrimario}; background: ${brand.fondoSuave}; padding: 1rem; border-radius: 8px; border: 1.5px solid ${brand.bordeColor}; text-align: left;">
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed ${brand.bordeColor}; padding-bottom: 6px; margin-bottom: 6px;">
                     <span>Vale Origen: <strong>${folioVale}</strong></span>
                     <span style="color: ${brand.colorPrimario}; font-weight: bold;">${brand.nombre}</span>
@@ -2229,9 +2230,14 @@ function mostrarModalComprobanteAbono(folioAbono, folioVale, cliente, montoAbono
                 </div>
             </div>
 
-            <div style="display: flex; gap: 8px; margin-top: 1.2rem; justify-content: center;">
-                <button onclick="imprimirReciboAbono('${folioAbono}', '${folioVale}', '${cliente}', ${montoAbono}, ${saldoAnterior}, ${saldoRestante}, '${promotora}', '${sucursal}', '${fecha}', '${nota}')" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">🖨️ Imprimir Recibo PDF</button>
-                <button onclick="compartirReciboAbonoWhatsApp('${folioAbono}', '${folioVale}', '${cliente}', ${montoAbono}, ${saldoRestante}, '${promotora}', '${sucursal}')" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">📲 WhatsApp</button>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 1.2rem;">
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <button onclick="imprimirReciboAbono('${folioAbono}', '${folioVale}', '${String(cliente).replace(/'/g, "")}', ${montoAbono}, ${saldoAnterior}, ${saldoRestante}, '${promotora}', '${sucursal}', '${fecha}', '${nota}')" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">🖨️ Imprimir Recibo PDF</button>
+                    <button onclick="compartirReciboAbonoWhatsApp('${folioAbono}', '${folioVale}', '${String(cliente).replace(/'/g, "")}', ${montoAbono}, ${saldoRestante}, '${promotora}', '${sucursal}')" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">📲 WhatsApp</button>
+                </div>
+                <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; width: 100%; padding: 0.6rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer;">
+                    🔙 Cerrar y Volver
+                </button>
             </div>
         </div>`;
 
