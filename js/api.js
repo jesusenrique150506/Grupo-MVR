@@ -2237,8 +2237,11 @@ async function guardarCanvasComoArchivo(canvas, nombreArchivo, tituloCompartir =
             console.error("Error al obtener DataURL:", e);
         }
 
-        // 1. Web Share API con File (Especialmente iOS / Android)
-        if (canvas.toBlob) {
+        const esDispositivoMovil = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent) || 
+                                   (navigator.maxTouchPoints > 1 && 'ontouchstart' in window);
+
+        // 1. Web Share API con File (Exclusivo para móviles: iOS / Android para guardar en Fotos / WhatsApp)
+        if (esDispositivoMovil && canvas.toBlob) {
             const blobPromise = new Promise(res => canvas.toBlob(res, 'image/png'));
             const blob = await blobPromise;
 
@@ -2251,15 +2254,21 @@ async function guardarCanvasComoArchivo(canvas, nombreArchivo, tituloCompartir =
                             text: `${tituloCompartir} • Grupo MVR`,
                             files: [file]
                         });
-                        mostrarToast("¡Listo!", "Vale guardado / compartido exitosamente.");
+                        mostrarToast("¡Listo!", "Comprobante guardado / compartido exitosamente.");
                         return;
                     } catch(err) {
                         if (err.name === 'AbortError') return;
-                        console.warn("navigator.share no completado, intentando fallback", err);
+                        console.warn("navigator.share cancelado, procediendo con descarga directa", err);
                     }
                 }
+            }
+        }
 
-                // 2. Descarga por Blob URL
+        // 2. Descarga directa en PC / Escritorio (a la carpeta de Descargas)
+        if (canvas.toBlob) {
+            const blobPromise = new Promise(res => canvas.toBlob(res, 'image/png'));
+            const blob = await blobPromise;
+            if (blob) {
                 try {
                     const blobUrl = URL.createObjectURL(blob);
                     const link = document.createElement('a');
@@ -2271,13 +2280,13 @@ async function guardarCanvasComoArchivo(canvas, nombreArchivo, tituloCompartir =
                         document.body.removeChild(link);
                         URL.revokeObjectURL(blobUrl);
                     }, 1500);
-                    mostrarToast("¡Vale Guardado!", `Descargado: ${nombreArchivo}`);
+                    mostrarToast("¡Archivo Guardado!", `Descargado con éxito: ${nombreArchivo}`);
                     return;
                 } catch(e) {}
             }
         }
 
-        // 3. Descarga clásica con DataURL
+        // 3. Descarga fallback con DataURL
         if (dataUrl) {
             try {
                 const link = document.createElement('a');
@@ -2286,7 +2295,7 @@ async function guardarCanvasComoArchivo(canvas, nombreArchivo, tituloCompartir =
                 document.body.appendChild(link);
                 link.click();
                 setTimeout(() => document.body.removeChild(link), 1000);
-                mostrarToast("¡Vale Guardado!", `Descargado: ${nombreArchivo}`);
+                mostrarToast("¡Archivo Guardado!", `Descargado: ${nombreArchivo}`);
                 return;
             } catch(e) {}
 
