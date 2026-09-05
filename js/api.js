@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbxKALUYq0h--u8J121LOA7utUZLzrxWIbuxvGskE7_lC52ppFjJ7zCeUio5Bd62VIJw1Q/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzqBjoatKj5hhWVMCecWTAEoUDjICBU135gCG9Ev-X8nF3RHvCSs7u4q72CVxe4gd0YWg/exec";
 
 /* --------------------------------------------------------------------------
    1. CONSUMO DE API (GOOGLE APPS SCRIPT) Y GESTIÓN DE CACHÉ DE TALLAS
