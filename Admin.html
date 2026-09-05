@@ -608,6 +608,7 @@
 
             const reader = new FileReader();
             reader.onload = async function(uploadEvent) {
+                try {
                     if (typeof guardarTallasLocal === 'function') guardarTallasLocal(id, tallas);
                     await fetch(API_URL, {
                         method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -619,7 +620,7 @@
                 } catch (e) {}
             };
             reader.readAsDataURL(inputFile);
-        }
+
 
         async function guardarStockIndividual(id, sucursal, nombre, precio, imagenActual) {
             const nuevoStock = parseInt(document.getElementById(`stock-${id}`).value) || 0;
@@ -1071,6 +1072,7 @@
                 abrirModalAbonos(v.folio, v.cliente, v.monto, v.quincenas, v.promotora, v.sucursal);
             }
         }
-    </script>
+        }
+</script>
 </body>
 </html>
