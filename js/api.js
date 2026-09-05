@@ -2059,9 +2059,11 @@ function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucu
         modal = document.createElement('div');
         modal.id = modalId;
         modal.className = 'modal-overlay';
+        modal.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
         document.body.appendChild(modal);
     }
 
+    const brand = obtenerBrandingSucursal(sucursal);
     const montoNum = parseFloat(montoTotal) || 0;
     const numQ = parseInt(quincenas) || 8;
     const mesesAprox = (numQ / 2).toFixed(1).replace('.0', '');
@@ -2088,37 +2090,45 @@ function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucu
                     <td style="font-weight: bold; color: #16a34a;">+$${parseFloat(a.monto).toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
                     <td>${a.nota || 'Abono'}</td>
                     <td style="text-align: center;">
-                        <button onclick="imprimirReciboAbono('${folioAbonoItem}', '${folio}', '${String(cliente).replace(/'/g, "")}', ${a.monto}, 0, ${saldoRestante}, '${promotora}', '${sucursal}', '${fechaFmt}', '${a.nota || "Abono"}')" class="btn" style="padding: 2px 6px; font-size: 0.72rem; background: #0059b3; color: white; border-radius: 4px;" title="Reimprimir comprobante">🖨️ Recibo</button>
+                        <button onclick="imprimirReciboAbono('${folioAbonoItem}', '${folio}', '${String(cliente).replace(/'/g, "")}', ${a.monto}, 0, ${saldoRestante}, '${promotora}', '${sucursal}', '${fechaFmt}', '${a.nota || "Abono"}')" class="btn" style="padding: 2px 6px; font-size: 0.72rem; background: ${brand.colorPrimario}; color: white; border-radius: 4px; border: none; cursor: pointer;" title="Reimprimir comprobante">🖨️ Recibo</button>
                     </td>
                 </tr>`;
         });
     }
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 520px; padding: 1.5rem; text-align: center;">
-            <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
-            <h3 style="margin: 0; color: #002b55;">💵 Control de Abonos y Plan de Pagos</h3>
-            <p style="margin: 4px 0 0.8rem 0; color: #64748b; font-size: 0.9rem;">Folio: <strong>${folio}</strong> • Cliente: <strong>${cliente}</strong></p>
-
-            <!-- Resumen del Plan de Pagos Quincenales -->
-            <div style="background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.8rem; display: flex; justify-content: space-around; text-align: center; flex-wrap: wrap; gap: 8px;">
-                <div>
-                    <div style="font-size: 0.75rem; color: #1e40af; font-weight: bold; text-transform: uppercase;">Plazo Acordado</div>
-                    <div style="font-weight: 900; color: #1e3a8a; font-size: 1rem;">${numQ} Quincenas <small style="font-weight: normal; color: #64748b;">(~${mesesAprox} meses)</small></div>
-                </div>
-                <div style="border-left: 1px solid #bfdbfe; padding-left: 12px;">
-                    <div style="font-size: 0.75rem; color: #15803d; font-weight: bold; text-transform: uppercase;">Pago por Quincena</div>
-                    <div style="font-weight: 900; color: #166534; font-size: 1.15rem;">${cuotaFmt} <small style="font-size: 0.75rem; font-weight: bold;">/ Q</small></div>
+        <div class="modal-content" style="max-width: 520px; padding: 1.5rem; text-align: center; border-top: 5px solid ${brand.colorPrimario}; position: relative;">
+            <button type="button" aria-label="Cerrar modal" onclick="document.getElementById('${modalId}').style.display = 'none'" style="position: absolute; top: 12px; right: 12px; z-index: 50; width: 32px; height: 32px; border-radius: 50%; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
+                <img src="${brand.logo}" onerror="this.onerror=null; this.src='${brand.logoAlt}';" style="height: 38px; width: auto; object-fit: contain; background: white; padding: 2px; border-radius: 4px; border: 1px solid #cbd5e1;" alt="${brand.nombre}">
+                <div style="text-align: left;">
+                    <h3 style="margin: 0; color: ${brand.colorPrimario}; font-size: 1.25rem;">Control de Abonos</h3>
+                    <span style="background: ${brand.badgeBg}; color: ${brand.badgeText}; border: 1px solid ${brand.bordeColor}; padding: 2px 7px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase;">${brand.nombre}</span>
                 </div>
             </div>
 
-            <div class="modal-abonos-card" style="margin-bottom: 0.8rem;">
+            <p style="margin: 2px 0 0.8rem 0; color: #64748b; font-size: 0.88rem;">Folio: <strong>${folio}</strong> • Cliente: <strong>${cliente}</strong></p>
+
+            <!-- Resumen del Plan de Pagos con Colores Institucionales -->
+            <div style="background: ${brand.fondoSuave}; border: 1.5px solid ${brand.bordeColor}; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.8rem; display: flex; justify-content: space-around; text-align: center; flex-wrap: wrap; gap: 8px;">
+                <div>
+                    <div style="font-size: 0.75rem; color: ${brand.colorSecundario}; font-weight: bold; text-transform: uppercase;">Plazo Acordado</div>
+                    <div style="font-weight: 900; color: ${brand.colorPrimario}; font-size: 1.05rem;">${numQ} Quincenas <small style="font-weight: normal; color: #64748b;">(~${mesesAprox} meses)</small></div>
+                </div>
+                <div style="border-left: 1px solid ${brand.bordeColor}; padding-left: 12px;">
+                    <div style="font-size: 0.75rem; color: #166534; font-weight: bold; text-transform: uppercase;">Pago por Quincena</div>
+                    <div style="font-weight: 900; color: #166534; font-size: 1.2rem;">${cuotaFmt} <small style="font-size: 0.75rem; font-weight: bold;">/ Q</small></div>
+                </div>
+            </div>
+
+            <div class="modal-abonos-card" style="margin-bottom: 0.8rem; border-color: ${brand.bordeColor};">
                 <div style="display: flex; justify-content: space-between; font-size: 0.88rem;">
                     <span>Monto Original: <strong>$${montoNum.toLocaleString('es-MX', {minimumFractionDigits: 2})}</strong></span>
                     <span>Total Abonado: <strong style="color: #16a34a;">$${totalAbonado.toLocaleString('es-MX', {minimumFractionDigits: 2})}</strong></span>
                 </div>
                 <div class="abono-progreso-bar" style="margin: 8px 0;">
-                    <div class="abono-progreso-fill" style="width: ${porcentajePagado}%;"></div>
+                    <div class="abono-progreso-fill" style="width: ${porcentajePagado}%; background: ${brand.colorGradiente};"></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 0.92rem; font-weight: bold;">
                     <span style="color: #475569;">Avance: ${porcentajePagado}% (${abonos.length} pagos)</span>
@@ -2128,20 +2138,27 @@ function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucu
 
             <div style="overflow-y: auto; max-height: 140px; margin-bottom: 0.8rem; border: 1px solid #e2e8f0; border-radius: 6px;">
                 <table class="tabla-admin" style="font-size: 0.82rem; margin: 0;">
-                    <thead><tr><th>Pago</th><th>Abono</th><th>Concepto</th><th>Comprobante</th></tr></thead>
+                    <thead>
+                        <tr style="background: ${brand.colorPrimario}; color: white;">
+                            <th style="background: ${brand.colorPrimario};">Pago</th>
+                            <th style="background: ${brand.colorPrimario};">Abono</th>
+                            <th style="background: ${brand.colorPrimario};">Concepto</th>
+                            <th style="background: ${brand.colorPrimario};">Comprobante</th>
+                        </tr>
+                    </thead>
                     <tbody>${filasAbonos}</tbody>
                 </table>
             </div>
 
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 8px; text-align: left;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <h4 style="margin: 0; font-size: 0.88rem; color: #002b55;">➕ Registrar Nuevo Abono</h4>
+                    <h4 style="margin: 0; font-size: 0.88rem; color: ${brand.colorPrimario};">➕ Registrar Nuevo Abono</h4>
                     <span style="font-size: 0.78rem; color: #64748b;">Sugerencia: <strong>${cuotaFmt}</strong> (Q${siguienteQuincenaNum})</span>
                 </div>
 
-                <!-- Botones de atajo rápido -->
+                <!-- Botones de atajo rápido temáticos -->
                 <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                    <button type="button" onclick="document.getElementById('inputMontoAbono').value = '${cuotaQuincenal.toFixed(2)}'; document.getElementById('inputNotaAbono').value = 'Pago Quincena ${siguienteQuincenaNum} de ${numQ}';" class="btn" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    <button type="button" onclick="document.getElementById('inputMontoAbono').value = '${cuotaQuincenal.toFixed(2)}'; document.getElementById('inputNotaAbono').value = 'Pago Quincena ${siguienteQuincenaNum} de ${numQ}';" class="btn" style="background: ${brand.fondoSuave}; color: ${brand.colorPrimario}; border: 1px solid ${brand.bordeColor}; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;">
                         ⚡ 1 Quincena (${cuotaFmt})
                     </button>
                     <button type="button" onclick="document.getElementById('inputMontoAbono').value = '${saldoRestante.toFixed(2)}'; document.getElementById('inputNotaAbono').value = 'Liquidación Total';" class="btn" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;">
@@ -2150,13 +2167,17 @@ function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucu
                 </div>
 
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                    <input type="number" id="inputMontoAbono" value="${saldoRestante > 0 ? (saldoRestante < cuotaQuincenal ? saldoRestante.toFixed(2) : cuotaQuincenal.toFixed(2)) : '0'}" placeholder="Monto ($)" min="1" max="${saldoRestante}" step="0.01" style="flex: 1; min-width: 100px; padding: 0.55rem; border-radius: 4px; border: 1px solid #cbd5e1; font-weight: bold; color: #002b55;">
+                    <input type="number" id="inputMontoAbono" value="${saldoRestante > 0 ? (saldoRestante < cuotaQuincenal ? saldoRestante.toFixed(2) : cuotaQuincenal.toFixed(2)) : '0'}" placeholder="Monto ($)" min="1" max="${saldoRestante}" step="0.01" style="flex: 1; min-width: 100px; padding: 0.55rem; border-radius: 4px; border: 1.5px solid ${brand.bordeColor}; font-weight: bold; color: ${brand.colorPrimario};">
                     <input type="text" id="inputNotaAbono" value="Pago Quincena ${siguienteQuincenaNum} de ${numQ}" placeholder="Nota (Ej. Quincena 1)" style="flex: 1.5; min-width: 140px; padding: 0.55rem; border-radius: 4px; border: 1px solid #cbd5e1;">
-                    <button onclick="guardarAbonoModal('${folio}', '${String(cliente).replace(/'/g, "")}', ${montoNum}, '${numQ}', '${promotora}', '${sucursal}')" ${saldoRestante <= 0 ? 'disabled' : ''} class="btn btn-primary" style="padding: 0.55rem 1rem; font-weight: bold;">
+                    <button onclick="guardarAbonoModal('${folio}', '${String(cliente).replace(/'/g, "")}', ${montoNum}, '${numQ}', '${promotora}', '${sucursal}')" ${saldoRestante <= 0 ? 'disabled' : ''} class="btn" style="background: ${brand.colorPrimario}; color: white; border: none; padding: 0.55rem 1rem; font-weight: bold; border-radius: 4px; cursor: pointer;">
                         ${saldoRestante <= 0 ? 'Liquidado' : 'Guardar'}
                     </button>
                 </div>
             </div>
+
+            <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; width: 100%; padding: 0.6rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 0.8rem;">
+                🔙 Cerrar y Volver a la Cartera
+            </button>
         </div>`;
 
     modal.style.display = 'flex';
