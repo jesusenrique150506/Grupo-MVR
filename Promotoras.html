@@ -506,7 +506,7 @@
                     </div>
                     <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 1.2rem;">
                         <button onclick='mostrarPassbookModal(${valeJsonSafe})' class="btn btn-primary" style="padding: 0.75rem 1.2rem; font-size: 0.95rem;">📱 Tarjeta Passbook</button>
-                        <button onclick="imprimirTicketValeDirecto('${folio}', '${promotora}', '${String(cliente).replace(/'/g, "")}', '${montoRaw}', '${quincenas}', '${sucursal}', '${telefono}')" style="background-color: ${btnColor}; color: white; border: none; padding: 0.75rem 1.2rem; font-size: 0.95rem; font-weight: bold; border-radius: 5px; cursor: pointer;">🖨️ Recibo Oficial PDF</button>
+                        <button onclick='imprimirTicketValeDirecto(${JSON.stringify(folio)}, ${JSON.stringify(promotora)}, ${JSON.stringify(cliente)}, ${JSON.stringify(montoRaw)}, ${JSON.stringify(quincenas)}, ${JSON.stringify(sucursal)}, ${JSON.stringify(telefono)})' style="background-color: ${btnColor}; color: white; border: none; padding: 0.75rem 1.2rem; font-size: 0.95rem; font-weight: bold; border-radius: 5px; cursor: pointer;">🖨️ Recibo Oficial PDF</button>
                         <a href="${urlWsp}" target="_blank" style="background-color: #25d366; color: white; padding: 0.75rem 1.2rem; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 6px;">💬 WhatsApp</a>
                     </div>`;
                 contenedor.style.display = 'block';

@@ -726,24 +726,29 @@ function abrirVistaRapidaProducto(id, nombre, precio, sucursal, imagen, stock = 
     let tallaSeleccionadaInicial = primeraTallaDisponible ? primeraTallaDisponible.nombre : (tallasEstructuradas[0] ? tallasEstructuradas[0].nombre : null);
     let esAgotadaInicial = primeraTallaDisponible ? false : (tallasEstructuradas[0] ? tallasEstructuradas[0].agotada : agotadoGeneral);
 
+    const sucursalEsc = String(sucursal || '').replace(/'/g, "\\'");
+    const nombreEsc = String(nombre || '').replace(/'/g, "\\'");
+    const idEsc = String(id || '').replace(/'/g, "\\'");
+    const imagenEsc = String(imagen || '').replace(/'/g, "\\'");
+
     let tallasHtml = '';
     if (tallasEstructuradas.length > 0) {
         tallasHtml = `
-            <div style="margin: 1rem 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label style="font-weight: 700; font-size: 0.88rem;">Selecciona tu Talla:</label>
+            <div class="quick-view-tallas-box">
+                <div class="quick-view-tallas-header">
+                    <span class="tallas-label">📏 Selecciona tu Talla:</span>
                     <span id="quickViewTallaEstadoTxt" class="talla-estado-indicador ${esAgotadaInicial ? 'agotada' : 'disponible'}">
-                        ${esAgotadaInicial ? '🔴 Talla Agotada' : '🟢 Talla Disponible'}
+                        ${esAgotadaInicial ? `🔴 Talla ${tallaSeleccionadaInicial || ''} Agotada` : `🟢 Talla ${tallaSeleccionadaInicial || ''} Disponible`}
                     </span>
                 </div>
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="quickViewTallasGroup">
+                <div class="tallas-list" id="quickViewTallasGroup">
                     ${tallasEstructuradas.map(t => {
                         const esActiva = t.nombre === tallaSeleccionadaInicial;
                         const claseActiva = esActiva ? (t.agotada ? 'activo activo-agotada' : 'activo') : '';
                         const claseAgotada = t.agotada ? 'agotada' : 'disponible';
                         const titleTxt = t.agotada ? `${t.nombre} (Agotada)` : `${t.nombre} (Disponible)`;
                         return `
-                            <button type="button" class="btn-talla ${claseAgotada} ${claseActiva}" title="${titleTxt}" onclick="seleccionarTallaQuickView('${t.nombre}', ${t.agotada}, this, '${id}', '${String(nombre).replace(/'/g, "\\'")}', ${precioNum}, '${sucursal}', '${imagen}')">
+                            <button type="button" class="btn-talla ${claseAgotada} ${claseActiva}" title="${titleTxt}" onclick="seleccionarTallaQuickView('${t.nombre}', ${t.agotada}, this, '${idEsc}', '${nombreEsc}', ${precioNum}, '${sucursalEsc}', '${imagenEsc}')">
                                 ${t.nombre}${t.agotada ? ' ✕' : ''}
                             </button>
                         `;
@@ -780,7 +785,7 @@ function abrirVistaRapidaProducto(id, nombre, precio, sucursal, imagen, stock = 
                             🚫 ${tallasEstructuradas.length > 0 ? `Talla ${tallaSeleccionadaInicial || ''} Agotada` : 'Producto Agotado'}
                         </button>
                     ` : `
-                        <button onclick="cerrarVistaRapida(); agregarAlCarritoGlobal('${id}', '${String(nombre).replace(/'/g, "")}', ${precioNum}, '${sucursal}', '${imagen}', '${tallaSeleccionadaInicial || ''}')" class="btn btn-shimmer-shine" style="flex: 1; padding: 0.85rem; font-weight: 800; border-radius: var(--radius-sm);">
+                        <button onclick="cerrarVistaRapida(); agregarAlCarritoGlobal('${idEsc}', '${nombreEsc}', ${precioNum}, '${sucursalEsc}', '${imagenEsc}', '${tallaSeleccionadaInicial || ''}')" class="btn btn-shimmer-shine" style="flex: 1; padding: 0.85rem; font-weight: 800; border-radius: var(--radius-sm);">
                             🛍️ Agregar al Carrito (Talla ${tallaSeleccionadaInicial || ''})
                         </button>
                     `}
@@ -794,6 +799,11 @@ function abrirVistaRapidaProducto(id, nombre, precio, sucursal, imagen, stock = 
 
 function seleccionarTallaQuickView(talla, esAgotada, btn, id, nombre, precioNum, sucursal, imagen) {
     window.quickViewTallaSeleccionada = talla;
+    const sucursalEsc = String(sucursal || '').replace(/'/g, "\\'");
+    const nombreEsc = String(nombre || '').replace(/'/g, "\\'");
+    const idEsc = String(id || '').replace(/'/g, "\\'");
+    const imagenEsc = String(imagen || '').replace(/'/g, "\\'");
+
     const grupo = document.getElementById('quickViewTallasGroup');
     if (grupo) {
         grupo.querySelectorAll('.btn-talla').forEach(b => {
@@ -820,7 +830,7 @@ function seleccionarTallaQuickView(talla, esAgotada, btn, id, nombre, precioNum,
             `;
         } else {
             actionContainer.innerHTML = `
-                <button onclick="cerrarVistaRapida(); agregarAlCarritoGlobal('${id}', '${String(nombre).replace(/'/g, "")}', ${precioNum}, '${sucursal}', '${imagen}', '${talla}')" class="btn btn-shimmer-shine" style="flex: 1; padding: 0.85rem; font-weight: 800; border-radius: var(--radius-sm);">
+                <button onclick="cerrarVistaRapida(); agregarAlCarritoGlobal('${idEsc}', '${nombreEsc}', ${precioNum}, '${sucursalEsc}', '${imagenEsc}', '${talla}')" class="btn btn-shimmer-shine" style="flex: 1; padding: 0.85rem; font-weight: 800; border-radius: var(--radius-sm);">
                     🛍️ Agregar al Carrito (Talla ${talla})
                 </button>
             `;
@@ -2521,7 +2531,7 @@ async function descargarTicketQRComoImagen(folio, promotora, cliente, monto, qui
 }
 
 /* --------------------------------------------------------------------------
-   15. MÓDULO DE REGISTRO DE ABONOS Y PAGOS PARCIALES
+   15. MÓDULO DE REGISTRO DE ABONOS Y PAGOS PARCIALES (MÓVIL & ESCRITORIO)
    -------------------------------------------------------------------------- */
 function obtenerHistorialAbonos(folio) {
     try {
@@ -2547,6 +2557,17 @@ function registrarAbonoEnStorage(folio, montoAbono, nota) {
 
 function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucursal) {
     reproducirSonido('click');
+    
+    // Guardar referencia activa para acceso seguro sin depender de cadenas inline en HTML
+    window._abonoValeActivo = {
+        folio: String(folio || '').trim(),
+        cliente: String(cliente || '').trim(),
+        montoTotal: parseFloat(montoTotal) || 0,
+        quincenas: parseInt(quincenas) || 8,
+        promotora: String(promotora || '').trim(),
+        sucursal: String(sucursal || '').trim()
+    };
+
     const modalId = 'modalAbonosVale';
     let modal = document.getElementById(modalId);
     if (!modal) {
@@ -2565,6 +2586,7 @@ function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucu
     const cuotaFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cuotaQuincenal);
 
     const abonos = obtenerHistorialAbonos(folio);
+    window._abonosHistorialActivo = abonos;
     const totalAbonado = abonos.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
     const saldoRestante = Math.max(0, montoNum - totalAbonado);
     const porcentajePagado = montoNum > 0 ? Math.min(100, Math.round((totalAbonado / montoNum) * 100)) : 0;
@@ -2576,23 +2598,24 @@ function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucu
         filasAbonos = `<tr><td colspan="4" style="text-align:center; color:#888; padding: 1rem;">No se han registrado abonos aún.</td></tr>`;
     } else {
         abonos.forEach((a, idx) => {
-            const folioAbonoItem = `AB-${folio}-${idx + 1}`;
-            const fechaFmt = new Date(a.fecha).toLocaleDateString('es-MX') + ' ' + new Date(a.fecha).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
             filasAbonos += `
                 <tr>
-                    <td><strong>#${idx + 1}</strong><br><small style="color:#64748b;">${new Date(a.fecha).toLocaleDateString('es-MX')}</small></td>
-                    <td style="font-weight: bold; color: #16a34a;">+$${parseFloat(a.monto).toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
-                    <td>${a.nota || 'Abono'}</td>
-                    <td style="text-align: center;">
-                        <button onclick="imprimirReciboAbono('${folioAbonoItem}', '${folio}', '${String(cliente).replace(/'/g, "")}', ${a.monto}, 0, ${saldoRestante}, '${promotora}', '${sucursal}', '${fechaFmt}', '${a.nota || "Abono"}')" class="btn" style="padding: 2px 6px; font-size: 0.72rem; background: ${brand.colorPrimario}; color: white; border-radius: 4px; border: none; cursor: pointer;" title="Reimprimir comprobante">🖨️ Recibo</button>
+                    <td style="padding: 6px;"><strong>#${idx + 1}</strong><br><small style="color:#64748b;">${new Date(a.fecha).toLocaleDateString('es-MX')}</small></td>
+                    <td style="padding: 6px; font-weight: bold; color: #16a34a;">+$${parseFloat(a.monto).toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
+                    <td style="padding: 6px;">${a.nota || 'Abono'}</td>
+                    <td style="padding: 6px; text-align: center;">
+                        <div style="display:flex; gap:3px; justify-content:center;">
+                            <button type="button" onclick="imprimirReciboAbonoPorIndice(${idx})" class="btn" style="padding: 4px 6px; font-size: 0.75rem; background: ${brand.colorPrimario}; color: white; border-radius: 4px; border: none; cursor: pointer;" title="Imprimir PDF">🖨️</button>
+                            <button type="button" onclick="descargarReciboAbonoPorIndice(${idx})" class="btn" style="padding: 4px 6px; font-size: 0.75rem; background: #0059b3; color: white; border-radius: 4px; border: none; cursor: pointer;" title="Descargar Imagen de Comprobante">📥</button>
+                        </div>
                     </td>
                 </tr>`;
         });
     }
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 520px; padding: 1.5rem; text-align: center; border-top: 5px solid ${brand.colorPrimario}; position: relative;">
-            <button type="button" aria-label="Cerrar modal" onclick="document.getElementById('${modalId}').style.display = 'none'" style="position: absolute; top: 12px; right: 12px; z-index: 50; width: 32px; height: 32px; border-radius: 50%; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+        <div class="modal-content" style="max-width: 520px; width: 95%; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; padding: 1.2rem 1rem; text-align: center; border-top: 5px solid ${brand.colorPrimario}; position: relative;">
+            <button type="button" aria-label="Cerrar modal" onclick="document.getElementById('${modalId}').style.display = 'none'" style="position: absolute; top: 10px; right: 10px; z-index: 50; width: 34px; height: 34px; border-radius: 50%; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 1.3rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
             
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
                 <img src="${brand.logo}" onerror="this.onerror=null; this.src='${brand.logoAlt}';" style="height: 38px; width: auto; object-fit: contain; background: white; padding: 2px; border-radius: 4px; border: 1px solid #cbd5e1;" alt="${brand.nombre}">
@@ -2616,64 +2639,73 @@ function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucu
                 </div>
             </div>
 
-            <div class="modal-abonos-card" style="margin-bottom: 0.8rem; border-color: ${brand.bordeColor};">
+            <div class="modal-abonos-card" style="margin-bottom: 0.8rem; border-color: ${brand.bordeColor}; background: #ffffff; padding: 0.85rem; border-radius: 8px; border: 1px solid #e2e8f0;">
                 <div style="display: flex; justify-content: space-between; font-size: 0.88rem;">
                     <span>Monto Original: <strong>$${montoNum.toLocaleString('es-MX', {minimumFractionDigits: 2})}</strong></span>
                     <span>Total Abonado: <strong style="color: #16a34a;">$${totalAbonado.toLocaleString('es-MX', {minimumFractionDigits: 2})}</strong></span>
                 </div>
-                <div class="abono-progreso-bar" style="margin: 8px 0;">
-                    <div class="abono-progreso-fill" style="width: ${porcentajePagado}%; background: ${brand.colorGradiente};"></div>
+                <div class="abono-progreso-bar" style="margin: 8px 0; background: #e2e8f0; border-radius: 10px; height: 12px; overflow: hidden;">
+                    <div class="abono-progreso-fill" style="width: ${porcentajePagado}%; background: ${brand.colorGradiente}; height: 100%; transition: width 0.3s ease;"></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 0.92rem; font-weight: bold;">
                     <span style="color: #475569;">Avance: ${porcentajePagado}% (${abonos.length} pagos)</span>
-                    <span style="color: ${saldoRestante === 0 ? '#16a34a' : '#dc2626'};">Saldo Restante: $${saldoRestante.toLocaleString('es-MX', {minimumFractionDigits: 2})}</span>
+                    <span style="color: ${saldoRestante <= 0 ? '#16a34a' : '#dc2626'};">Saldo: $${saldoRestante.toLocaleString('es-MX', {minimumFractionDigits: 2})}</span>
                 </div>
             </div>
 
             <div style="overflow-y: auto; max-height: 140px; margin-bottom: 0.8rem; border: 1px solid #e2e8f0; border-radius: 6px;">
-                <table class="tabla-admin" style="font-size: 0.82rem; margin: 0;">
+                <table class="tabla-admin" style="font-size: 0.82rem; margin: 0; width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr style="background: ${brand.colorPrimario}; color: white;">
-                            <th style="background: ${brand.colorPrimario};">Pago</th>
-                            <th style="background: ${brand.colorPrimario};">Abono</th>
-                            <th style="background: ${brand.colorPrimario};">Concepto</th>
-                            <th style="background: ${brand.colorPrimario};">Comprobante</th>
+                            <th style="background: ${brand.colorPrimario}; padding: 6px;">Pago</th>
+                            <th style="background: ${brand.colorPrimario}; padding: 6px;">Abono</th>
+                            <th style="background: ${brand.colorPrimario}; padding: 6px;">Concepto</th>
+                            <th style="background: ${brand.colorPrimario}; padding: 6px;">Recibo</th>
                         </tr>
                     </thead>
                     <tbody>${filasAbonos}</tbody>
                 </table>
             </div>
 
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 8px; text-align: left;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <h4 style="margin: 0; font-size: 0.88rem; color: ${brand.colorPrimario};">➕ Registrar Nuevo Abono</h4>
-                    <span style="font-size: 0.78rem; color: #64748b;">Sugerencia: <strong>${cuotaFmt}</strong> (Q${siguienteQuincenaNum})</span>
+            <div style="background: #f8fafc; border: 1.5px solid ${brand.bordeColor}; padding: 1rem; border-radius: 8px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+                    <h4 style="margin: 0; font-size: 0.9rem; color: ${brand.colorPrimario};">➕ Registrar Nuevo Abono</h4>
+                    <span style="font-size: 0.78rem; color: #64748b;">Sugerido: <strong>${cuotaFmt}</strong> (Q${siguienteQuincenaNum})</span>
                 </div>
 
                 <!-- Botones de atajo rápido temáticos -->
                 <div style="display: flex; gap: 6px; margin-bottom: 8px;">
-                    <button type="button" onclick="document.getElementById('inputMontoAbono').value = '${cuotaQuincenal.toFixed(2)}'; document.getElementById('inputNotaAbono').value = 'Pago Quincena ${siguienteQuincenaNum} de ${numQ}';" class="btn" style="background: ${brand.fondoSuave}; color: ${brand.colorPrimario}; border: 1px solid ${brand.bordeColor}; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    <button type="button" onclick="document.getElementById('inputMontoAbono').value = '${cuotaQuincenal.toFixed(2)}'; document.getElementById('inputNotaAbono').value = 'Pago Quincena ${siguienteQuincenaNum} de ${numQ}';" class="btn" style="background: ${brand.fondoSuave}; color: ${brand.colorPrimario}; border: 1px solid ${brand.bordeColor}; font-size: 0.75rem; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; min-height: 36px;">
                         ⚡ 1 Quincena (${cuotaFmt})
                     </button>
-                    <button type="button" onclick="document.getElementById('inputMontoAbono').value = '${saldoRestante.toFixed(2)}'; document.getElementById('inputNotaAbono').value = 'Liquidación Total';" class="btn" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.75rem; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    <button type="button" onclick="document.getElementById('inputMontoAbono').value = '${saldoRestante.toFixed(2)}'; document.getElementById('inputNotaAbono').value = 'Liquidación Total';" class="btn" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.75rem; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; min-height: 36px;">
                         🏁 Liquidar ($${saldoRestante.toFixed(2)})
                     </button>
                 </div>
 
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                    <input type="number" id="inputMontoAbono" value="${saldoRestante > 0 ? (saldoRestante < cuotaQuincenal ? saldoRestante.toFixed(2) : cuotaQuincenal.toFixed(2)) : '0'}" placeholder="Monto ($)" min="1" max="${saldoRestante}" step="0.01" style="flex: 1; min-width: 100px; padding: 0.55rem; border-radius: 4px; border: 1.5px solid ${brand.bordeColor}; font-weight: bold; color: ${brand.colorPrimario};">
-                    <input type="text" id="inputNotaAbono" value="Pago Quincena ${siguienteQuincenaNum} de ${numQ}" placeholder="Nota (Ej. Quincena 1)" style="flex: 1.5; min-width: 140px; padding: 0.55rem; border-radius: 4px; border: 1px solid #cbd5e1;">
-                    <button onclick="guardarAbonoModal('${folio}', '${String(cliente).replace(/'/g, "")}', ${montoNum}, '${numQ}', '${promotora}', '${sucursal}')" ${saldoRestante <= 0 ? 'disabled' : ''} class="btn" style="background: ${brand.colorPrimario}; color: white; border: none; padding: 0.55rem 1rem; font-weight: bold; border-radius: 4px; cursor: pointer;">
-                        ${saldoRestante <= 0 ? 'Liquidado' : 'Guardar'}
+                <div style="display: flex; gap: 6px; flex-direction: column;">
+                    <div style="display: flex; gap: 6px;">
+                        <div style="flex: 1;">
+                            <label style="font-size: 0.72rem; font-weight: bold; color: #64748b; display: block; margin-bottom: 2px;">Monto a Abonar ($):</label>
+                            <input type="number" id="inputMontoAbono" value="${saldoRestante > 0 ? (saldoRestante < cuotaQuincenal ? saldoRestante.toFixed(2) : cuotaQuincenal.toFixed(2)) : '0'}" placeholder="Monto ($)" min="1" max="${saldoRestante}" step="0.01" style="width: 100%; box-sizing: border-box; min-height: 44px; font-size: 16px; padding: 0.55rem; border-radius: 6px; border: 1.5px solid ${brand.bordeColor}; font-weight: bold; color: ${brand.colorPrimario};">
+                        </div>
+                        <div style="flex: 1.4;">
+                            <label style="font-size: 0.72rem; font-weight: bold; color: #64748b; display: block; margin-bottom: 2px;">Nota o Concepto:</label>
+                            <input type="text" id="inputNotaAbono" value="Pago Quincena ${siguienteQuincenaNum} de ${numQ}" placeholder="Nota (Ej. Quincena 1)" style="width: 100%; box-sizing: border-box; min-height: 44px; font-size: 16px; padding: 0.55rem; border-radius: 6px; border: 1px solid #cbd5e1;">
+                        </div>
+                    </div>
+                    
+                    <button type="button" id="btnGuardarAbonoModalAction" onclick="guardarAbonoModal()" ${saldoRestante <= 0 ? 'disabled' : ''} class="btn btn-shimmer-shine" style="background: ${brand.colorPrimario}; color: white; border: none; padding: 0.8rem 1rem; font-size: 1rem; font-weight: 900; border-radius: 6px; cursor: pointer; min-height: 46px; margin-top: 4px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        💾 ${saldoRestante <= 0 ? 'Cuenta Liquidada' : 'Guardar y Generar Comprobante'}
                     </button>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 8px; margin-top: 0.8rem;">
-                <button type="button" onclick="enviarRecordatorioPagoWhatsAppModal('${folio}', '${String(cliente).replace(/'/g, "")}', '${cuotaFmt}', '${saldoRestante.toFixed(2)}', '${promotora}', '${sucursal}')" class="btn btn-wsp-recordatorio" style="flex: 1; padding: 0.65rem; font-size: 0.85rem; border-radius: 6px;" title="Enviar recordatorio cordial de pago por WhatsApp">
+            <div style="display: flex; gap: 8px; margin-top: 0.8rem; flex-wrap: wrap;">
+                <button type="button" onclick="enviarRecordatorioPagoWhatsAppModal()" class="btn btn-wsp-recordatorio" style="flex: 1; min-height: 42px; padding: 0.65rem; font-size: 0.85rem; border-radius: 6px;" title="Enviar recordatorio cordial de pago por WhatsApp">
                     🔔 Recordar Pago por WhatsApp
                 </button>
-                <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.65rem 1rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer;">
+                <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.65rem 1rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer; min-height: 42px;">
                     🔙 Volver
                 </button>
             </div>
@@ -2682,47 +2714,133 @@ function abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucu
     modal.style.display = 'flex';
 }
 
+function imprimirReciboAbonoPorIndice(idx) {
+    const v = window._abonoValeActivo || {};
+    const abonos = window._abonosHistorialActivo || obtenerHistorialAbonos(v.folio);
+    if (!abonos[idx]) return;
+    const a = abonos[idx];
+    const folioAbonoItem = `AB-${v.folio}-${idx + 1}`;
+    const fechaFmt = new Date(a.fecha).toLocaleDateString('es-MX') + ' ' + new Date(a.fecha).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
+    
+    let totalHastaAbono = 0;
+    for (let i = 0; i <= idx; i++) {
+        totalHastaAbono += (parseFloat(abonos[i].monto) || 0);
+    }
+    const saldoAnt = Math.max(0, v.montoTotal - (totalHastaAbono - (parseFloat(a.monto) || 0)));
+    const saldoRest = Math.max(0, v.montoTotal - totalHastaAbono);
+    
+    imprimirReciboAbono(folioAbonoItem, v.folio, v.cliente, a.monto, saldoAnt, saldoRest, v.promotora, v.sucursal, fechaFmt, a.nota || 'Abono');
+}
+
+function descargarReciboAbonoPorIndice(idx) {
+    const v = window._abonoValeActivo || {};
+    const abonos = window._abonosHistorialActivo || obtenerHistorialAbonos(v.folio);
+    if (!abonos[idx]) return;
+    const a = abonos[idx];
+    const folioAbonoItem = `AB-${v.folio}-${idx + 1}`;
+    const fechaFmt = new Date(a.fecha).toLocaleDateString('es-MX') + ' ' + new Date(a.fecha).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
+    
+    let totalHastaAbono = 0;
+    for (let i = 0; i <= idx; i++) {
+        totalHastaAbono += (parseFloat(abonos[i].monto) || 0);
+    }
+    const saldoAnt = Math.max(0, v.montoTotal - (totalHastaAbono - (parseFloat(a.monto) || 0)));
+    const saldoRest = Math.max(0, v.montoTotal - totalHastaAbono);
+    
+    descargarReciboAbonoComoImagen(folioAbonoItem, v.folio, v.cliente, a.monto, saldoAnt, saldoRest, v.promotora, v.sucursal, fechaFmt, a.nota || 'Abono');
+}
+
 function enviarRecordatorioPagoWhatsAppModal(folio, cliente, cuotaFmt, saldoRestante, promotora, sucursal) {
+    const v = window._abonoValeActivo || {};
+    folio = folio || v.folio || '';
+    cliente = cliente || v.cliente || '';
+    promotora = promotora || v.promotora || '';
+    sucursal = sucursal || v.sucursal || '';
+    
+    const abonos = obtenerHistorialAbonos(folio);
+    const totalAbonado = abonos.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
+    const montoNum = parseFloat(v.montoTotal) || 0;
+    const saldo = Math.max(0, montoNum - totalAbonado);
+    const saldoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldo);
+    const numQ = parseInt(v.quincenas) || 8;
+    const cuota = numQ > 0 ? (montoNum / numQ) : 0;
+    const cuotaStr = cuotaFmt || new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(cuota);
+
     let tel = prompt(`Ingresa el número de WhatsApp de ${cliente} (10 dígitos):`, "");
     if (tel === null) return;
     let telLimpo = String(tel).replace(/\D/g, '');
-    let saldoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(parseFloat(saldoRestante) || 0);
-    let msj = encodeURIComponent(`Hola *${cliente}*, te saludamos cordialmente de Grupo MVR (*${sucursal}*).\n\nTe recordamos que tu cuenta correspondiente al vale *${folio}* tiene un saldo actual de *${saldoFmt} MXN* (cuota quincenal de *${cuotaFmt} MXN*).\n\nPor favor comunícate con tu promotora (${promotora}) para registrar tu abono y mantener tu crédito al corriente. ¡Muchas gracias por tu preferencia! ✨`);
+    let msj = encodeURIComponent(`Hola *${cliente}*, te saludamos cordialmente de Grupo MVR (*${sucursal}*).\n\nTe recordamos que tu cuenta correspondiente al vale *${folio}* tiene un saldo actual de *${saldoFmt} MXN* (cuota quincenal de *${cuotaStr} MXN*).\n\nPor favor comunícate con tu promotora (${promotora}) para registrar tu abono y mantener tu crédito al corriente. ¡Muchas gracias por tu preferencia! ✨`);
     window.open(`https://api.whatsapp.com/send?phone=52${telLimpo}&text=${msj}`, '_blank');
 }
 
 function guardarAbonoModal(folio, cliente, montoTotal, quincenas, promotora, sucursal) {
+    const activo = window._abonoValeActivo || {};
+    folio = folio || activo.folio || '';
+    cliente = cliente || activo.cliente || '';
+    montoTotal = (montoTotal !== undefined && montoTotal !== null) ? montoTotal : (activo.montoTotal || 0);
+    quincenas = quincenas || activo.quincenas || 8;
+    promotora = promotora || activo.promotora || '';
+    sucursal = sucursal || activo.sucursal || '';
+
     const inputMonto = document.getElementById('inputMontoAbono');
     const inputNota = document.getElementById('inputNotaAbono');
+    
+    if (!inputMonto) {
+        alert("No se encontró el campo de monto.");
+        return;
+    }
+
     const monto = parseFloat(inputMonto.value);
 
-    if (!monto || monto <= 0) {
-        alert("Por favor ingresa un monto válido de abono.");
+    if (isNaN(monto) || monto <= 0) {
+        alert("Por favor ingresa un monto válido de abono (mayor a $0).");
+        if (inputMonto) inputMonto.focus();
         return;
     }
 
     const abonosPrevios = obtenerHistorialAbonos(folio);
     const totalAbonadoPrevio = abonosPrevios.reduce((acc, a) => acc + (parseFloat(a.monto) || 0), 0);
     const saldoAnterior = Math.max(0, parseFloat(montoTotal) - totalAbonadoPrevio);
-    const saldoRestante = Math.max(0, saldoAnterior - monto);
+    
+    if (saldoAnterior <= 0) {
+        alert("Este vale ya se encuentra completamente liquidado.");
+        return;
+    }
 
-    const notaTxt = inputNota.value.trim() || `Abono #${abonosPrevios.length + 1}`;
+    const saldoRestante = Math.max(0, saldoAnterior - monto);
+    const notaTxt = (inputNota && inputNota.value.trim() !== '') ? inputNota.value.trim() : `Abono #${abonosPrevios.length + 1}`;
+    
     registrarAbonoEnStorage(folio, monto, notaTxt);
     reproducirSonido('cash');
 
     const folioAbono = `AB-${folio}-${abonosPrevios.length + 1}`;
     const fechaAbono = new Date().toLocaleDateString('es-MX') + ' ' + new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
-    mostrarToast("¡Abono Registrado!", `Se sumó un abono de $${monto} al vale ${folio}.`);
+    mostrarToast("¡Abono Registrado!", `Se sumó un abono de $${monto.toLocaleString('es-MX', {minimumFractionDigits: 2})} al vale ${folio}.`);
+    
+    // Re-renderizar modal de control de abonos con datos actualizados
     abrirModalAbonos(folio, cliente, montoTotal, quincenas, promotora, sucursal);
 
-    // Modal de confirmación con opciones de comprobante
+    // Abrir modal de comprobante generado
     setTimeout(() => {
         mostrarModalComprobanteAbono(folioAbono, folio, cliente, monto, saldoAnterior, saldoRestante, promotora, sucursal, fechaAbono, notaTxt);
-    }, 400);
+    }, 350);
 }
 
 function mostrarModalComprobanteAbono(folioAbono, folioVale, cliente, montoAbono, saldoAnterior, saldoRestante, promotora, sucursal, fecha, nota) {
+    window._ultimoAbonoComprobante = {
+        folioAbono,
+        folioVale,
+        cliente,
+        montoAbono: parseFloat(montoAbono) || 0,
+        saldoAnterior: parseFloat(saldoAnterior) || 0,
+        saldoRestante: parseFloat(saldoRestante) || 0,
+        promotora,
+        sucursal,
+        fecha,
+        nota
+    };
+
     const modalId = 'modalComprobanteAbonoExito';
     let modal = document.getElementById(modalId);
     if (!modal) {
@@ -2739,38 +2857,63 @@ function mostrarModalComprobanteAbono(folioAbono, folioVale, cliente, montoAbono
     const saldoRestFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldoRestante);
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 420px; padding: 1.5rem; text-align: center; border-top: 5px solid ${brand.colorPrimario}; position: relative;">
-            <button type="button" aria-label="Cerrar modal" onclick="document.getElementById('${modalId}').style.display = 'none'" style="position: absolute; top: 12px; right: 12px; z-index: 50; width: 32px; height: 32px; border-radius: 50%; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 1.2rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
-            <div style="font-size: 2.2rem; margin-bottom: 6px;">💵✨</div>
-            <h3 style="margin: 0; color: ${brand.colorPrimario};">¡Abono Exitoso!</h3>
-            <p style="margin: 4px 0 1rem 0; color: #64748b; font-size: 0.88rem;">Comprobante generado: <strong>${folioAbono}</strong></p>
+        <div class="modal-content" style="max-width: 440px; width: 95%; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box; padding: 1.3rem 1rem; text-align: center; border-top: 5px solid ${brand.colorPrimario}; position: relative;">
+            <button type="button" aria-label="Cerrar modal" onclick="document.getElementById('${modalId}').style.display = 'none'" style="position: absolute; top: 10px; right: 10px; z-index: 50; width: 34px; height: 34px; border-radius: 50%; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 1.3rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+            <div style="font-size: 2.2rem; margin-bottom: 4px;">💵✨</div>
+            <h3 style="margin: 0; color: ${brand.colorPrimario}; font-size: 1.3rem;">¡Abono Registrado con Éxito!</h3>
+            <p style="margin: 4px 0 0.8rem 0; color: #64748b; font-size: 0.85rem;">Comprobante generado: <strong>${folioAbono}</strong></p>
 
-            <div class="ticket-abono-card" style="border-color: ${brand.colorPrimario}; background: ${brand.fondoSuave}; padding: 1rem; border-radius: 8px; border: 1.5px solid ${brand.bordeColor}; text-align: left;">
+            <div class="ticket-abono-card" style="border-color: ${brand.colorPrimario}; background: ${brand.fondoSuave}; padding: 0.9rem; border-radius: 8px; border: 1.5px solid ${brand.bordeColor}; text-align: left;">
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed ${brand.bordeColor}; padding-bottom: 6px; margin-bottom: 6px;">
                     <span>Vale Origen: <strong>${folioVale}</strong></span>
                     <span style="color: ${brand.colorPrimario}; font-weight: bold;">${brand.nombre}</span>
                 </div>
                 <div style="font-size: 0.85rem; line-height: 1.6;">
                     <strong>Cliente:</strong> ${cliente}<br>
-                    <strong>Monto Abonado:</strong> <span style="font-size: 1.1rem; font-weight: 900; color: #16a34a;">${montoFmt} MXN</span><br>
-                    <strong>Saldo Restante:</strong> <span style="font-weight: bold; color: ${saldoRestante === 0 ? '#16a34a' : '#dc2626'};">${saldoRestFmt} MXN</span><br>
+                    <strong>Monto Abonado:</strong> <span style="font-size: 1.15rem; font-weight: 900; color: #16a34a;">${montoFmt} MXN</span><br>
+                    <strong>Saldo Restante:</strong> <span style="font-weight: bold; color: ${parseFloat(saldoRestante) <= 0 ? '#16a34a' : '#dc2626'};">${saldoRestFmt} MXN</span><br>
                     <strong>Concepto:</strong> ${nota}<br>
-                    <small style="color: #64748b;">${fecha}</small>
+                    <small style="color: #64748b;">📅 ${fecha}</small>
                 </div>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 1.2rem;">
-                <div style="display: flex; gap: 8px; justify-content: center;">
-                    <button onclick="imprimirReciboAbono('${folioAbono}', '${folioVale}', '${String(cliente).replace(/'/g, "")}', ${montoAbono}, ${saldoAnterior}, ${saldoRestante}, '${promotora}', '${sucursal}', '${fecha}', '${nota}')" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">🖨️ Imprimir Recibo PDF</button>
-                    <button onclick="compartirReciboAbonoWhatsApp('${folioAbono}', '${folioVale}', '${String(cliente).replace(/'/g, "")}', ${montoAbono}, ${saldoRestante}, '${promotora}', '${sucursal}')" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">📲 WhatsApp</button>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 1rem;">
+                <button type="button" onclick="descargarUltimoReciboAbonoImagen()" class="btn btn-shimmer-shine" style="background: #0059b3; color: white; width: 100%; padding: 0.75rem; font-size: 0.92rem; font-weight: 900; border-radius: 6px; border: none; cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    📥 Guardar en Fotos / Descargar Imagen
+                </button>
+                <div style="display: flex; gap: 6px;">
+                    <button type="button" onclick="compartirUltimoReciboAbonoWhatsApp()" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.7rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; min-height: 42px;">
+                        📲 WhatsApp
+                    </button>
+                    <button type="button" onclick="imprimirUltimoReciboAbono()" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.7rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; min-height: 42px;">
+                        🖨️ Imprimir PDF
+                    </button>
                 </div>
-                <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; width: 100%; padding: 0.6rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer;">
-                    🔙 Cerrar y Volver
+                <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; width: 100%; padding: 0.6rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer; min-height: 38px;">
+                    🔙 Cerrar y Continuar
                 </button>
             </div>
         </div>`;
 
     modal.style.display = 'flex';
+}
+
+function imprimirUltimoReciboAbono() {
+    const c = window._ultimoAbonoComprobante;
+    if (!c) return;
+    imprimirReciboAbono(c.folioAbono, c.folioVale, c.cliente, c.montoAbono, c.saldoAnterior, c.saldoRestante, c.promotora, c.sucursal, c.fecha, c.nota);
+}
+
+function descargarUltimoReciboAbonoImagen() {
+    const c = window._ultimoAbonoComprobante;
+    if (!c) return;
+    descargarReciboAbonoComoImagen(c.folioAbono, c.folioVale, c.cliente, c.montoAbono, c.saldoAnterior, c.saldoRestante, c.promotora, c.sucursal, c.fecha, c.nota);
+}
+
+function compartirUltimoReciboAbonoWhatsApp() {
+    const c = window._ultimoAbonoComprobante;
+    if (!c) return;
+    compartirReciboAbonoWhatsApp(c.folioAbono, c.folioVale, c.cliente, c.montoAbono, c.saldoRestante, c.promotora, c.sucursal);
 }
 
 function imprimirReciboAbono(folioAbono, folioVale, cliente, montoAbono, saldoAnterior, saldoRestante, promotora, sucursal, fecha, nota) {
@@ -2837,6 +2980,136 @@ function imprimirReciboAbono(folioAbono, folioVale, cliente, montoAbono, saldoAn
     `;
 
     imprimirHTMLSeguro(htmlDoc, `Recibo_Abono_${folioAbono}`);
+}
+
+async function descargarReciboAbonoComoImagen(folioAbono, folioVale, cliente, montoAbono, saldoAnterior, saldoRestante, promotora, sucursal, fecha, nota) {
+    if (typeof mostrarToast === 'function') {
+        mostrarToast("Generando comprobante...", "Preparando recibo oficial de abono en alta resolución.");
+    }
+    const brand = obtenerBrandingSucursal(sucursal);
+    const montoFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(parseFloat(montoAbono) || 0);
+    const saldoAntFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(parseFloat(saldoAnterior) || 0);
+    const saldoRestFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(parseFloat(saldoRestante) || 0);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 600;
+    canvas.height = 920;
+    const ctx = canvas.getContext('2d');
+
+    // Fondo
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 600, 920);
+
+    // Borde exterior estilizado
+    ctx.strokeStyle = brand.colorPrimario;
+    ctx.lineWidth = 8;
+    drawRoundRectSafe(ctx, 16, 16, 568, 888, 20);
+    ctx.stroke();
+
+    // Encabezado con gradiente
+    const grad = ctx.createLinearGradient(16, 16, 584, 150);
+    grad.addColorStop(0, brand.colorPrimario);
+    grad.addColorStop(1, brand.colorSecundario);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(16, 16, 568, 140, [20, 20, 0, 0]) : ctx.rect(16, 16, 568, 140);
+    ctx.fill();
+
+    // Logo o Nombre en Header
+    const imgLogo = await cargarImagenSeguraCanvas(brand.logo);
+    if (imgLogo) {
+        try {
+            ctx.drawImage(imgLogo, 40, 36, 100, 100);
+        } catch(e) {}
+    }
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 24px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(brand.nombre.toUpperCase(), imgLogo ? 155 : 45, 65);
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText('COMPROBANTE OFICIAL DE ABONO / PAGO', imgLogo ? 155 : 45, 95);
+
+    // Badge Recibo
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+    drawRoundRectSafe(ctx, imgLogo ? 155 : 45, 110, 220, 32, 6);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 16px monospace';
+    ctx.fillText(folioAbono, (imgLogo ? 155 : 45) + 12, 132);
+
+    // Tabla de Datos
+    let posY = 195;
+    const dibujarFila = (label, valor, esDestacado = false, colorValor = '#1e293b') => {
+        ctx.fillStyle = '#64748b';
+        ctx.font = 'bold 15px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(label, 45, posY);
+
+        ctx.fillStyle = colorValor;
+        ctx.font = esDestacado ? '900 20px sans-serif' : 'bold 16px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(String(valor), 555, posY);
+        ctx.textAlign = 'left';
+
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.setLineDash([4, 4]);
+        ctx.moveTo(45, posY + 10);
+        ctx.lineTo(555, posY + 10);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        posY += 42;
+    };
+
+    dibujarFila('Sucursal:', sucursal, false, brand.colorPrimario);
+    dibujarFila('Vale de Origen:', folioVale, true, '#002b55');
+    dibujarFila('Cliente:', cliente, true);
+    dibujarFila('Promotora:', promotora);
+    dibujarFila('Saldo Anterior:', saldoAntFmt);
+    dibujarFila('MONTO ABONADO:', `+${montoFmt}`, true, '#16a34a');
+    dibujarFila('SALDO RESTANTE:', saldoRestFmt, true, parseFloat(saldoRestante) <= 0 ? '#16a34a' : '#dc2626');
+    dibujarFila('Concepto / Nota:', nota || 'Abono quincenal');
+    dibujarFila('Fecha y Hora:', fecha || new Date().toLocaleString('es-MX'));
+
+    // Recuadro del QR
+    posY += 10;
+    ctx.fillStyle = brand.fondoSuave || '#f0fdf4';
+    drawRoundRectSafe(ctx, 180, posY, 240, 200, 14);
+    ctx.fill();
+    ctx.strokeStyle = brand.bordeColor || '#cbd5e1';
+    ctx.lineWidth = 1.5;
+    drawRoundRectSafe(ctx, 180, posY, 240, 200, 14);
+    ctx.stroke();
+
+    const qrData = encodeURIComponent(`GRUPO MVR | RECIBO: ${folioAbono} | VALE: ${folioVale} | ABONO: ${montoFmt} | SALDO: ${saldoRestFmt} | CLIENTE: ${cliente} | FECHA: ${fecha}`);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${qrData}&margin=2`;
+
+    const imgQR = await cargarImagenSeguraCanvas(qrUrl);
+    if (imgQR) {
+        try {
+            ctx.drawImage(imgQR, 220, posY + 12, 160, 160);
+        } catch(e) {}
+    }
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Comprobante digital válido de Grupo MVR', 300, posY + 188);
+
+    // Pie
+    posY += 230;
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('Conserva este comprobante para cualquier aclaración de saldo.', 300, posY);
+    ctx.fillText('✨ Grupo MVR — Pasión por tu visión y estilo', 300, posY + 20);
+
+    // Guardar imagen móvil
+    await guardarCanvasComoArchivo(canvas, `Recibo_${folioAbono}.png`, `Comprobante de Abono ${folioAbono}`);
 }
 
 function compartirReciboAbonoWhatsApp(folioAbono, folioVale, cliente, montoAbono, saldoRestante, promotora, sucursal) {
