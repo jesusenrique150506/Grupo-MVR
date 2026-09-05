@@ -645,7 +645,8 @@
         }
 
         // --- SINCRONIZACIÓN MAESTRA Y RENDERIZADO DE VALES CON FILTRO ---
-        let inventarioGlobalCache = {};
+        window.inventarioGlobalCache = window.inventarioGlobalCache || {};
+        var inventarioGlobalCache = window.inventarioGlobalCache;
         let chartSucursalesInst = null;
         let chartSaludInst = null;
         let chartTopPromInst = null;
@@ -656,7 +657,9 @@
             try {
                 // 1. INVENTARIO
                 let resInv = await fetch(`${API_URL}?accion=obtenerInventario&nocache=${new Date().getTime()}`);
-                inventarioGlobalCache = await resInv.json();
+                const dataInv = await resInv.json();
+                inventarioGlobalCache = dataInv;
+                window.inventarioGlobalCache = dataInv;
                 const cuerpoInv = document.getElementById('cuerpoTablaInventarioAdmin');
                 cuerpoInv.innerHTML = "";
                 let ids = Object.keys(inventarioGlobalCache);
