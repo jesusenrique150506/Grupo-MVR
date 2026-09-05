@@ -86,11 +86,6 @@
                 <button type="submit" id="btnAcceso" class="btn-login-submit">
                     <span>🔓</span> <span id="btnAccesoTxt">Ingresar al Portal de Vales</span>
                 </button>
-
-                <div class="login-footer-links">
-                    <span>¿Eres Administrador?</span>
-                    <a href="Admin.html">Panel Maestro &rarr;</a>
-                </div>
             </form>
         </div>
     </main>
@@ -639,7 +634,6 @@
                     }
 
                     const linkCobroWsp = `https://api.whatsapp.com/send?phone=52${telLimpo}&text=${mensajeCobro}`;
-                    const valeJsonSafe = JSON.stringify(v).replace(/'/g, "&apos;");
 
                     cuerpo.innerHTML += `
                         <tr class="${esRavali ? 'row-ravali' : (esMarcel ? 'row-marcel' : 'row-dvilla')}">
@@ -651,9 +645,9 @@
                             <td>${badgeStatusHtml}</td>
                             <td style="text-align: center;">
                                 <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
-                                    <button onclick='mostrarPassbookModal(${valeJsonSafe})' class="btn btn-primary" style="padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">📱 Passbook</button>
-                                    <button onclick='mostrarTicketValeModal(${valeJsonSafe})' class="btn" style="background: #0059b3; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">🎟️ QR</button>
-                                    <button onclick="abrirModalAbonos('${v.folio}', '${String(v.cliente).replace(/'/g, "")}', ${montoNum}, '${v.quincenas}', '${v.promotora}', '${v.sucursal}')" class="btn" style="background: #28a745; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">💵 Abonos</button>
+                                    <button onclick="mostrarPassbookPromotora(${idx})" class="btn btn-primary" style="padding: 3px 6px; font-size: 0.72rem; border-radius: 4px; cursor: pointer;">📱 Passbook</button>
+                                    <button onclick="mostrarTicketQRPromotora(${idx})" class="btn" style="background: #0059b3; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px; cursor: pointer;">🎟️ QR</button>
+                                    <button onclick="abrirModalAbonosPromotora(${idx})" class="btn" style="background: #28a745; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px; cursor: pointer;">💵 Abonos</button>
                                 </div>
                             </td>
                             <td style="text-align: center;">
@@ -674,6 +668,25 @@
             document.getElementById('kpiClientesActivos').innerText = clientesSet.size;
 
             document.getElementById('tablaCarteraResultado').style.display = 'block';
+        }
+
+        function mostrarPassbookPromotora(idx) {
+            if (listaValesFiltradosPromotoraMemoria && listaValesFiltradosPromotoraMemoria[idx]) {
+                mostrarPassbookModal(listaValesFiltradosPromotoraMemoria[idx]);
+            }
+        }
+
+        function mostrarTicketQRPromotora(idx) {
+            if (listaValesFiltradosPromotoraMemoria && listaValesFiltradosPromotoraMemoria[idx]) {
+                mostrarTicketValeModal(listaValesFiltradosPromotoraMemoria[idx]);
+            }
+        }
+
+        function abrirModalAbonosPromotora(idx) {
+            if (listaValesFiltradosPromotoraMemoria && listaValesFiltradosPromotoraMemoria[idx]) {
+                const v = listaValesFiltradosPromotoraMemoria[idx];
+                abrirModalAbonos(v.folio, v.cliente, v.monto, v.quincenas, v.promotora, v.sucursal);
+            }
         }
 
         async function exportarCarteraPromotora(formato) {

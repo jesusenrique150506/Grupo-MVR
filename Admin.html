@@ -822,15 +822,163 @@
             imprimirReporteCartera(listaValesFiltradosMemoria, suc, (prom === 'TODAS' ? '' : prom));
         }
 
+        let listaValesFiltradosRender = [];
+        let chartSucursalesInstancia = null;
+        let chartSaludInstancia = null;
+        let chartTopPromotorasInstancia = null;
+
+        function actualizarGraficasDashboard(vales, promotoras) {
+            if (!vales || !Array.isArray(vales) || typeof Chart === 'undefined') return;
+
+            // 1. Gráfica de Colocación por Sucursal
+            const sucursalTotales = { "Óptica D'villa": 0, "Óptica Ravali": 0, "Marcel Boutique": 0 };
+            vales.forEach(v => {
+                const s = String(v.sucursal || '').trim();
+                const m = parseFloat(v.monto) || 0;
+                if (s.includes("villa") || s.includes("D'villa")) sucursalTotales["Óptica D'villa"] += m;
+                else if (s.includes("Ravali")) sucursalTotales["Óptica Ravali"] += m;
+                else if (s.includes("Marcel")) sucursalTotales["Marcel Boutique"] += m;
+            });
+
+            const ctxSuc = document.getElementById('chartSucursales')?.getContext('2d');
+            if (ctxSuc) {
+                if (chartSucursalesInstancia) chartSucursalesInstancia.destroy();
+                chartSucursalesInstancia = new Chart(ctxSuc, {
+                    type: 'bar',
+                    data: {
+                        labels: ["D'villa", "Ravali", "Marcel"],
+                        datasets: [{
+                            label: 'Colocación ($)',
+                            data: [sucursalTotales["Óptica D'villa"], sucursalTotales["Óptica Ravali"], sucursalTotales["Marcel Boutique"]],
+                            backgroundColor: ['#0059b3', '#a80f14', '#880e4f'],
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => ` $${Number(ctx.raw || 0).toLocaleString('es-MX')} MXN`
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: {
+                                    callback: (val) => `$${Number(val).toLocaleString('es-MX')}`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Gráfica de Salud de Cartera
+            let countAlCorriente = 0, countPorVencer = 0, countVencido = 0, countLiquidado = 0;
+            vales.forEach(v => {
+                const est = String(v.estatusPago || 'Al Corriente').toLowerCase();
+                if (est.includes('liquid') || est.includes('pagad')) countLiquidado++;
+                else if (est.includes('vencid') || est.includes('atras') || est.includes('mora')) countVencido++;
+                else {
+                    let dias = 0;
+                    if (v.fecha) {
+                        const f = new Date(v.fecha);
+                        if (!isNaN(f.getTime())) dias = Math.floor((Date.now() - f.getTime()) / (1000 * 60 * 60 * 24));
+                    }
+                    const diasParaQ = 15 - (dias % 15);
+                    if (diasParaQ <= 3 && dias > 0) countPorVencer++;
+                    else countAlCorriente++;
+                }
+            });
+
+            const ctxSalud = document.getElementById('chartSaludCartera')?.getContext('2d');
+            if (ctxSalud) {
+                if (chartSaludInstancia) chartSaludInstancia.destroy();
+                chartSaludInstancia = new Chart(ctxSalud, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Al Corriente', 'Por Vencer', 'Vencido', 'Liquidado'],
+                        datasets: [{
+                            data: [countAlCorriente, countPorVencer, countVencido, countLiquidado],
+                            backgroundColor: ['#28a745', '#ffc107', '#d32f2f', '#0059b3'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                        }
+                    }
+                });
+            }
+
+            // 3. Gráfica Top Promotoras
+            const promMap = {};
+            vales.forEach(v => {
+                const p = String(v.promotora || 'Sin Asignar').trim().toUpperCase();
+                const m = parseFloat(v.monto) || 0;
+                promMap[p] = (promMap[p] || 0) + m;
+            });
+
+            const topSorted = Object.entries(promMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const promLabels = topSorted.map(item => item[0]);
+            const promData = topSorted.map(item => item[1]);
+
+            const ctxTop = document.getElementById('chartTopPromotoras')?.getContext('2d');
+            if (ctxTop) {
+                if (chartTopPromotorasInstancia) chartTopPromotorasInstancia.destroy();
+                chartTopPromotorasInstancia = new Chart(ctxTop, {
+                    type: 'bar',
+                    indexAxis: 'y',
+                    data: {
+                        labels: promLabels.length > 0 ? promLabels : ['Sin datos'],
+                        datasets: [{
+                            label: 'Venta Total ($)',
+                            data: promData.length > 0 ? promData : [0],
+                            backgroundColor: '#ff8c00',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => ` $${Number(ctx.raw || 0).toLocaleString('es-MX')} MXN`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    callback: (val) => `$${Number(val).toLocaleString('es-MX')}`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
         function renderizarTablaVales(vales) {
             const cuerpoVales = document.getElementById('cuerpoTablaAdmin');
             cuerpoVales.innerHTML = "";
             let totalVales = 0, montoTotal = 0;
 
             if (!vales || vales.length === 0) {
+                listaValesFiltradosRender = [];
                 cuerpoVales.innerHTML = `<tr><td colspan="13" style="text-align:center; color:#888; padding: 2rem;">🔍 No se encontraron vales con los filtros seleccionados.</td></tr>`;
             } else {
-                vales.slice().reverse().forEach(v => {
+                listaValesFiltradosRender = vales.slice().reverse();
+                listaValesFiltradosRender.forEach((v, idx) => {
                     let monto = parseFloat(v.monto) || 0;
                     let montoVentaNum = parseFloat(v.montoVenta) || 0;
                     totalVales++;
@@ -842,8 +990,6 @@
                     let pagoColor = String(v.estatusPago).toLowerCase().includes("vencid") ? "#d32f2f" : "#28a745";
                     let canjeColor = String(v.estatusCanje).toLowerCase().includes("canjeado") ? "#0059b3" : "#888";
                     let fechaFmt = v.fecha ? new Date(v.fecha).toLocaleDateString('es-MX') : '-';
-
-                    let valeJsonSafe = JSON.stringify(v).replace(/'/g, "&apos;");
 
                     cuerpoVales.innerHTML += `
                         <tr>
@@ -861,9 +1007,9 @@
                             <td><strong style="color: ${canjeColor};">${v.estatusCanje || 'Pendiente'}</strong></td>
                             <td style="text-align: center;">
                                 <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
-                                    <button onclick='mostrarPassbookModal(${valeJsonSafe})' class="btn btn-primary" style="padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">📱 Passbook</button>
-                                    <button onclick='mostrarTicketValeModal(${valeJsonSafe})' class="btn" style="background: #0059b3; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">🎟️ QR</button>
-                                    <button onclick="abrirModalAbonos('${v.folio}', '${String(v.cliente).replace(/'/g, "")}', ${monto}, '${v.quincenas}', '${v.promotora}', '${v.sucursal}')" class="btn" style="background: #28a745; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px;">💵 Abonos</button>
+                                    <button onclick="mostrarPassbookAdmin(${idx})" class="btn btn-primary" style="padding: 3px 6px; font-size: 0.72rem; border-radius: 4px; cursor: pointer;">📱 Passbook</button>
+                                    <button onclick="mostrarTicketQRAdmin(${idx})" class="btn" style="background: #0059b3; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px; cursor: pointer;">🎟️ QR</button>
+                                    <button onclick="abrirModalAbonosAdmin(${idx})" class="btn" style="background: #28a745; color: white; padding: 3px 6px; font-size: 0.72rem; border-radius: 4px; cursor: pointer;">💵 Abonos</button>
                                 </div>
                             </td>
                         </tr>`;
@@ -872,6 +1018,25 @@
 
             document.getElementById('resumenTotalVales').innerText = totalVales;
             document.getElementById('resumenMontoTotal').innerText = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(montoTotal);
+        }
+
+        function mostrarPassbookAdmin(idx) {
+            if (listaValesFiltradosRender && listaValesFiltradosRender[idx]) {
+                mostrarPassbookModal(listaValesFiltradosRender[idx]);
+            }
+        }
+
+        function mostrarTicketQRAdmin(idx) {
+            if (listaValesFiltradosRender && listaValesFiltradosRender[idx]) {
+                mostrarTicketValeModal(listaValesFiltradosRender[idx]);
+            }
+        }
+
+        function abrirModalAbonosAdmin(idx) {
+            if (listaValesFiltradosRender && listaValesFiltradosRender[idx]) {
+                const v = listaValesFiltradosRender[idx];
+                abrirModalAbonos(v.folio, v.cliente, v.monto, v.quincenas, v.promotora, v.sucursal);
+            }
         }
     </script>
 </body>

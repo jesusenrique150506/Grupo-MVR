@@ -564,8 +564,18 @@ function cerrarVistaRapida() {
    -------------------------------------------------------------------------- */
 function inyectarComponentesModernos() {
     const pathname = window.location.pathname.toLowerCase();
-    const esPromotora = pathname.includes('promotora') || document.body.classList.contains('pagina-promotoras');
-    const esAdmin = pathname.includes('admin') || document.body.classList.contains('pagina-admin');
+    const esPromotora = document.body.classList.contains('pagina-promotoras') || 
+                        pathname.endsWith('promotoras.html') || 
+                        pathname.includes('promotoras.html');
+    const esAdmin = document.body.classList.contains('pagina-admin') || 
+                    pathname.endsWith('admin.html') || 
+                    pathname.includes('admin.html');
+
+    // Limpieza de seguridad: si no es página de promotoras, eliminar cualquier speed dial residual
+    const speedDialExistente = document.getElementById('mvrSpeedDial');
+    if (!esPromotora && speedDialExistente) {
+        speedDialExistente.remove();
+    }
 
     // 1. Marquesina Infinita Superior (Ticker Tape)
     if (!document.getElementById('mvrTickerTape')) {
@@ -986,7 +996,10 @@ function imprimirReporteCartera(vales, filtroSucursal = 'TODAS', filtroPromotora
     imprimirHTMLSeguro(htmlDoc, `Reporte_Cartera_${tituloSucursal}`);
 }
 
+window.ultimoValeSeleccionado = null;
+
 function mostrarTicketValeModal(vale) {
+    window.ultimoValeSeleccionado = vale;
     const modalId = 'modalTicketValeDigital';
     let modal = document.getElementById(modalId);
     if (!modal) {
@@ -1005,42 +1018,56 @@ function mostrarTicketValeModal(vale) {
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${qrData}&margin=4`;
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 440px; padding: 1.5rem; text-align: center; border-top: 5px solid ${brand.colorPrimario};">
+        <div class="modal-content" style="max-width: 440px; max-height: 92vh; overflow-y: auto; padding: 1.2rem; text-align: center; border-top: 5px solid ${brand.colorPrimario}; box-sizing: border-box;">
             <span class="cerrar-modal" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
             <div class="ticket-digital-card">
-                <div class="ticket-header" style="background: ${brand.colorGradiente}; color: white; padding: 1rem; border-radius: 8px 8px 0 0; margin: -1rem -1rem 1rem -1rem;">
-                    <img src="${brand.logo}" onerror="this.onerror=null; this.src='${brand.logoAlt}';" style="height: 48px; width: auto; object-fit: contain; background: white; padding: 2px; border-radius: 4px; margin-bottom: 6px;">
-                    <span style="font-size: 0.75rem; font-weight: 800; color: #fff; text-transform: uppercase; display: block; opacity: 0.9;">Vale Oficial de Crédito</span>
-                    <h3 style="margin: 2px 0 6px 0; font-size: 1.3rem; color: white;">${brand.nombre}</h3>
-                    <span class="ticket-folio-badge" style="background: white; color: ${brand.colorPrimario}; font-weight: 900; font-size: 1.1rem; padding: 4px 12px; border-radius: 20px; display: inline-block;">${vale.folio}</span>
+                <div class="ticket-header" style="background: ${brand.colorGradiente}; color: white; padding: 0.8rem; border-radius: 8px 8px 0 0; margin: -1.2rem -1.2rem 0.8rem -1.2rem;">
+                    <img src="${brand.logo}" onerror="this.onerror=null; this.src='${brand.logoAlt}';" style="height: 44px; width: auto; object-fit: contain; background: white; padding: 2px; border-radius: 4px; margin-bottom: 4px;">
+                    <span style="font-size: 0.72rem; font-weight: 800; color: #fff; text-transform: uppercase; display: block; opacity: 0.9;">Vale Oficial de Crédito</span>
+                    <h3 style="margin: 2px 0 4px 0; font-size: 1.2rem; color: white;">${brand.nombre}</h3>
+                    <span class="ticket-folio-badge" style="background: white; color: ${brand.colorPrimario}; font-weight: 900; font-size: 1.05rem; padding: 3px 10px; border-radius: 20px; display: inline-block;">${vale.folio}</span>
                 </div>
                 
                 <div class="ticket-row"><strong>Sucursal:</strong> <span style="font-weight: bold; color: ${brand.colorPrimario};">${vale.sucursal}</span></div>
                 <div class="ticket-row"><strong>Promotora:</strong> <span>${vale.promotora}</span></div>
                 <div class="ticket-row"><strong>Cliente:</strong> <span>${vale.cliente}</span></div>
                 <div class="ticket-row"><strong>Teléfono:</strong> <span>${vale.telefono || '-'}</span></div>
-                <div class="ticket-row"><strong>Monto Autorizado:</strong> <span style="font-size: 1.15rem; font-weight: 900; color: ${brand.colorPrimario};">$${montoNum.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN</span></div>
+                <div class="ticket-row"><strong>Monto Autorizado:</strong> <span style="font-size: 1.1rem; font-weight: 900; color: ${brand.colorPrimario};">$${montoNum.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN</span></div>
                 <div class="ticket-row"><strong>Plazo:</strong> <span>${vale.quincenas}</span></div>
                 <div class="ticket-row"><strong>Pago Quincenal Aprox.:</strong> <span style="font-weight: bold; color: #28a745;">$${cuotaQuincenal.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN</span></div>
                 <div class="ticket-row"><strong>Estatus Pago:</strong> <span style="font-weight: bold;">${vale.estatusPago || 'Al Corriente'}</span></div>
 
-                <div class="ticket-qr-container" style="margin-top: 12px; padding: 10px; background: ${brand.fondoSuave}; border: 1px dashed ${brand.bordeColor}; border-radius: 8px;">
-                    <img src="${qrUrl}" alt="QR de Validación de Vale" style="border: 2px solid ${brand.colorPrimario}; border-radius: 6px; padding: 4px; background: white;">
-                    <p style="margin: 6px 0 0 0; font-size: 0.75rem; color: #64748b;">Escanea en caja para validar y canjear</p>
+                <div class="ticket-qr-container" style="margin-top: 8px; padding: 8px; background: ${brand.fondoSuave}; border: 1px dashed ${brand.bordeColor}; border-radius: 8px;">
+                    <img src="${qrUrl}" alt="QR de Validación de Vale" style="border: 2px solid ${brand.colorPrimario}; border-radius: 6px; padding: 4px; background: white; width: 125px; height: 125px;">
+                    <p style="margin: 4px 0 0 0; font-size: 0.72rem; color: #64748b;">Escanea en caja para validar y canjear</p>
                 </div>
 
-                <div style="font-size: 0.72rem; color: #64748b; line-height: 1.3; margin-top: 10px; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+                <div style="font-size: 0.7rem; color: #64748b; line-height: 1.25; margin-top: 8px; border-top: 1px dashed #cbd5e1; padding-top: 6px;">
                     * Válido únicamente en sucursales oficiales de Grupo MVR (${brand.nombre}). Indispensable presentar identificación oficial al canjear.
                 </div>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-top: 1.2rem; justify-content: center;">
-                <button onclick="imprimirTicketValeDirecto('${vale.folio}', '${vale.promotora}', '${String(vale.cliente).replace(/'/g, "")}', '${montoNum}', '${vale.quincenas}', '${vale.sucursal}', '${vale.telefono || ''}')" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.8rem; font-size: 0.9rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">🖨️ Imprimir Recibo PDF</button>
-                <button onclick="compartirValeWhatsApp('${vale.folio}', '${vale.cliente}', '${montoNum}', '${vale.quincenas}', '${vale.sucursal}', '${vale.telefono}')" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.8rem; font-size: 0.9rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">📲 WhatsApp</button>
+            <div style="display: flex; gap: 8px; margin-top: 1rem; justify-content: center; position: sticky; bottom: 0; background: white; padding-top: 6px;">
+                <button onclick="imprimirTicketValeDirectoDesdeSeleccion()" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">🖨️ Imprimir Recibo PDF</button>
+                <button onclick="compartirValeWhatsAppDesdeSeleccion()" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">📲 WhatsApp</button>
             </div>
         </div>`;
 
     modal.style.display = 'flex';
+}
+
+function imprimirTicketValeDirectoDesdeSeleccion() {
+    if (window.ultimoValeSeleccionado) {
+        const v = window.ultimoValeSeleccionado;
+        imprimirTicketValeDirecto(v.folio, v.promotora, v.cliente, v.monto, v.quincenas, v.sucursal, v.telefono);
+    }
+}
+
+function compartirValeWhatsAppDesdeSeleccion() {
+    if (window.ultimoValeSeleccionado) {
+        const v = window.ultimoValeSeleccionado;
+        compartirValeWhatsApp(v.folio, v.cliente, v.monto, v.quincenas, v.sucursal, v.telefono);
+    }
 }
 
 function imprimirTicketValeDirecto(folio, promotora, cliente, monto, quincenas, sucursal, telefono) {
@@ -1755,12 +1782,14 @@ function abrirModalComparador() {
    -------------------------------------------------------------------------- */
 function mostrarPassbookModal(vale) {
     reproducirSonido('click');
+    window.ultimoValeSeleccionado = vale;
     const modalId = 'modalPassbookDigital';
     let modal = document.getElementById(modalId);
     if (!modal) {
         modal = document.createElement('div');
         modal.id = modalId;
         modal.className = 'modal-overlay';
+        modal.style.display = 'none';
         document.body.appendChild(modal);
     }
 
@@ -1773,7 +1802,7 @@ function mostrarPassbookModal(vale) {
     const claseWallet = String(vale.sucursal).includes('Ravali') ? 'ravali' : (String(vale.sucursal).includes('Marcel') ? 'marcel' : '');
 
     modal.innerHTML = `
-        <div class="modal-content" style="max-width: 440px; padding: 1.5rem; text-align: center; background: transparent; box-shadow: none;">
+        <div class="modal-content" style="max-width: 440px; max-height: 92vh; overflow-y: auto; padding: 1.2rem; text-align: center; background: transparent; box-shadow: none;">
             <span class="cerrar-modal" style="color: white; font-size: 2rem;" onclick="document.getElementById('${modalId}').style.display = 'none'">&times;</span>
             <div class="passbook-wallet ${claseWallet}" id="passbookCardExportTarget">
                 <div class="passbook-top">
@@ -1817,10 +1846,10 @@ function mostrarPassbookModal(vale) {
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 1.2rem; justify-content: center;">
-                <button onclick="descargarPassbookComoImagen('${vale.folio}', '${vale.cliente}', '${montoNum}', '${vale.sucursal}', '${vale.promotora}', '${vale.quincenas}')" class="btn btn-primary" style="padding: 0.8rem; font-size: 0.9rem; flex: 1;">
+                <button onclick="descargarPassbookDesdeSeleccion()" class="btn btn-primary" style="padding: 0.8rem; font-size: 0.9rem; flex: 1; cursor: pointer;">
                     📥 Guardar en Galería (PNG)
                 </button>
-                <button onclick="compartirValeWhatsApp('${vale.folio}', '${vale.cliente}', '${montoNum}', '${vale.quincenas}', '${vale.sucursal}', '${vale.telefono}')" class="btn" style="background: #25d366; color: white; padding: 0.8rem; font-size: 0.9rem; font-weight: bold; flex: 1;">
+                <button onclick="compartirValeWhatsAppDesdeSeleccion()" class="btn" style="background: #25d366; color: white; padding: 0.8rem; font-size: 0.9rem; font-weight: bold; flex: 1; cursor: pointer;">
                     📲 Enviar WhatsApp
                 </button>
             </div>
@@ -1829,24 +1858,50 @@ function mostrarPassbookModal(vale) {
     modal.style.display = 'flex';
 }
 
+function descargarPassbookDesdeSeleccion() {
+    if (window.ultimoValeSeleccionado) {
+        const v = window.ultimoValeSeleccionado;
+        descargarPassbookComoImagen(v.folio, v.cliente, v.monto, v.sucursal, v.promotora, v.quincenas);
+    }
+}
+
+function drawRoundRectSafe(ctx, x, y, width, height, radius) {
+    if (ctx.roundRect) {
+        ctx.roundRect(x, y, width, height, radius);
+    } else {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+    }
+}
+
 function descargarPassbookComoImagen(folio, cliente, monto, sucursal, promotora, quincenas) {
     reproducirSonido('cash');
     const canvas = document.createElement('canvas');
     canvas.width = 600;
     canvas.height = 800;
     const ctx = canvas.getContext('2d');
+    const sucStr = String(sucursal || 'Grupo MVR');
 
     // Fondo degradado elegante
     const grad = ctx.createLinearGradient(0, 0, 600, 800);
-    if (sucursal.includes('Ravali')) {
+    if (sucStr.includes('Ravali')) {
         grad.addColorStop(0, '#4a0508'); grad.addColorStop(1, '#8b0000');
-    } else if (sucursal.includes('Marcel')) {
+    } else if (sucStr.includes('Marcel')) {
         grad.addColorStop(0, '#2b0938'); grad.addColorStop(1, '#5a189a');
     } else {
         grad.addColorStop(0, '#001f3f'); grad.addColorStop(1, '#003366');
     }
     ctx.fillStyle = grad;
-    ctx.roundRect(0, 0, 600, 800, 24);
+    drawRoundRectSafe(ctx, 0, 0, 600, 800, 24);
     ctx.fill();
 
     // Encabezado
@@ -1857,7 +1912,7 @@ function descargarPassbookComoImagen(folio, cliente, monto, sucursal, promotora,
     ctx.fillStyle = 'rgba(255,255,255,0.7)';
     ctx.fillText('VALE DE CRÉDITO DIGITAL', 40, 95);
     ctx.textAlign = 'right';
-    ctx.fillText(sucursal, 560, 65);
+    ctx.fillText(sucStr, 560, 65);
     ctx.textAlign = 'left';
 
     // Línea divisoria
@@ -1876,9 +1931,9 @@ function descargarPassbookComoImagen(folio, cliente, monto, sucursal, promotora,
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 24px sans-serif';
-    ctx.fillText(cliente, 40, 195);
+    ctx.fillText(String(cliente || ''), 40, 195);
     ctx.font = 'bold 36px sans-serif';
-    ctx.fillText(`$${parseFloat(monto).toLocaleString('es-MX')}`, 360, 200);
+    ctx.fillText(`$${parseFloat(monto || 0).toLocaleString('es-MX')}`, 360, 200);
 
     // Detalles secundarios
     ctx.fillStyle = 'rgba(255,255,255,0.7)';
@@ -1889,39 +1944,74 @@ function descargarPassbookComoImagen(folio, cliente, monto, sucursal, promotora,
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 20px sans-serif';
-    ctx.fillText(folio, 40, 290);
-    ctx.fillText(quincenas, 220, 290);
-    ctx.fillText(promotora, 380, 290);
+    ctx.fillText(String(folio || ''), 40, 290);
+    ctx.fillText(String(quincenas || ''), 220, 290);
+    ctx.fillText(String(promotora || ''), 380, 290);
 
     // Recuadro blanco para el QR
     ctx.fillStyle = '#ffffff';
-    ctx.roundRect(160, 340, 280, 340, 16);
+    drawRoundRectSafe(ctx, 160, 340, 280, 340, 16);
     ctx.fill();
 
-    // Cargar y pintar QR
-    const qrImg = new Image();
-    qrImg.crossOrigin = 'anonymous';
-    const qrData = encodeURIComponent(`GRUPO MVR | ${folio} | $${monto} | ${cliente}`);
-    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrData}`;
-
-    qrImg.onload = function() {
-        ctx.drawImage(qrImg, 180, 360, 240, 240);
+    const ejecutarDescargaFinal = () => {
         ctx.fillStyle = '#002b55';
         ctx.font = 'bold 14px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText('Escanear en sucursal al pagar', 300, 640);
 
-        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
         ctx.font = '13px sans-serif';
         ctx.fillText('Presentar folio o identificación oficial al canjear.', 300, 740);
 
-        // Descarga
-        const link = document.createElement('a');
-        link.download = `Vale_MVR_${folio}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-        mostrarToast("¡Vale Guardado!", `El vale ${folio} se descargó como imagen.`);
+        try {
+            const link = document.createElement('a');
+            link.download = `Vale_MVR_${folio}.png`;
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            mostrarToast("¡Vale Guardado!", `El vale ${folio} se descargó como imagen.`);
+        } catch (e) {
+            console.error("Error al descargar passbook", e);
+            imprimirTicketValeDirecto(folio, promotora, cliente, monto, quincenas, sucStr, '');
+        }
     };
+
+    const qrImg = new Image();
+    qrImg.crossOrigin = 'anonymous';
+    const qrData = encodeURIComponent(`GRUPO MVR | ${folio} | $${monto} | ${cliente}`);
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrData}`;
+
+    let descargado = false;
+    qrImg.onload = function() {
+        if (descargado) return;
+        descargado = true;
+        try {
+            ctx.drawImage(qrImg, 180, 360, 240, 240);
+        } catch(e) {}
+        ejecutarDescargaFinal();
+    };
+
+    qrImg.onerror = function() {
+        if (descargado) return;
+        descargado = true;
+        ctx.fillStyle = '#002b55';
+        ctx.font = 'bold 22px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`FOLIO: ${folio}`, 300, 480);
+        ejecutarDescargaFinal();
+    };
+
+    setTimeout(() => {
+        if (!descargado) {
+            descargado = true;
+            ctx.fillStyle = '#002b55';
+            ctx.font = 'bold 22px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`FOLIO: ${folio}`, 300, 480);
+            ejecutarDescargaFinal();
+        }
+    }, 1200);
 }
 
 /* --------------------------------------------------------------------------

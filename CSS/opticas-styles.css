@@ -2521,17 +2521,24 @@ footer p {
 }
 
 /* --------------------------------------------------------------------------
-   26. SPEED DIAL FLOTANTE MULTICANAL DE WHATSAPP
+   26. SPEED DIAL FLOTANTE MULTICANAL DE WHATSAPP (EXCLUSIVO PROMOTORAS)
    -------------------------------------------------------------------------- */
-.speed-dial-container {
+.speed-dial-container,
+#mvrSpeedDial {
     position: fixed;
     bottom: 24px;
     right: 24px;
     z-index: 990;
-    display: flex;
+    display: none !important; /* Oculto por defecto en todos los sitios */
     flex-direction: column;
     align-items: flex-end;
     gap: 10px;
+}
+
+/* MOSTRAR ÚNICA Y EXCLUSIVAMENTE EN EL PORTAL DE PROMOTORAS */
+body.pagina-promotoras .speed-dial-container,
+body.pagina-promotoras #mvrSpeedDial {
+    display: flex !important;
 }
 
 .speed-dial-main-btn {
