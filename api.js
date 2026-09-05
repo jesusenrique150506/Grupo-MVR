@@ -471,6 +471,65 @@ function toggleSpeedDial() {
 }
 
 /* --------------------------------------------------------------------------
+   7.5 PARSEADOR INTELIGENTE DE TALLAS Y DISPONIBILIDAD
+   -------------------------------------------------------------------------- */
+function parsearEstructuraTallas(tallasInput, stockTotal = 1) {
+    if (!tallasInput) return [];
+    
+    let items = [];
+    if (Array.isArray(tallasInput)) {
+        items = tallasInput;
+    } else if (typeof tallasInput === 'string') {
+        items = tallasInput.split(',').map(t => t.trim()).filter(Boolean);
+    }
+
+    const stockNum = parseInt(stockTotal) || 0;
+
+    return items.map(item => {
+        let nombre = String(item).trim();
+        let agotada = false;
+        let cant = null;
+
+        // Formato 1: "CH:5" o "M:0"
+        if (nombre.includes(':')) {
+            const partes = nombre.split(':');
+            nombre = partes[0].trim();
+            const val = partes[1].trim().toLowerCase();
+            if (val === '0' || val === 'agotado' || val === 'agotada' || val === 'sin stock') {
+                agotada = true;
+                cant = 0;
+            } else {
+                const parsedCant = parseInt(val);
+                if (!isNaN(parsedCant)) {
+                    cant = parsedCant;
+                    agotada = parsedCant <= 0;
+                }
+            }
+        }
+        // Formato 2: "M (Agotada)" o "M (0)" o "M-Agotada"
+        else if (nombre.toLowerCase().includes('agotad') || nombre.toLowerCase().includes('(0)')) {
+            nombre = nombre.replace(/\s*\([^)]*agotad[^)]*\)/gi, '')
+                           .replace(/\s*\(0\)/gi, '')
+                           .replace(/-agotad[ao]/gi, '')
+                           .trim();
+            agotada = true;
+            cant = 0;
+        } 
+        // Formato 3: Solo nombre (CH, M, G). Si el stock general del producto es 0, todas se consideran agotadas
+        else if (stockNum <= 0) {
+            agotada = true;
+            cant = 0;
+        }
+
+        return {
+            nombre: nombre,
+            agotada: agotada,
+            cantidad: cant
+        };
+    });
+}
+
+/* --------------------------------------------------------------------------
    8. MODAL DE VISTA RÁPIDA / ZOOM DE PRODUCTO (QUICK VIEW)
    -------------------------------------------------------------------------- */
 function abrirVistaRapidaProducto(id, nombre, precio, sucursal, imagen, stock = 1, tallas = null) {
@@ -485,22 +544,37 @@ function abrirVistaRapidaProducto(id, nombre, precio, sucursal, imagen, stock = 
     const precioNum = parseFloat(precio) || 0;
     const precioFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(precioNum);
     const quincena8 = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(precioNum / 8);
-    const agotado = parseInt(stock) <= 0;
+    const agotadoGeneral = parseInt(stock) <= 0;
 
-    let tallasArray = [];
-    if (tallas) {
-        tallasArray = typeof tallas === 'string' ? tallas.split(',').map(t => t.trim()).filter(Boolean) : (Array.isArray(tallas) ? tallas : []);
-    }
+    const tallasEstructuradas = parsearEstructuraTallas(tallas, stock);
+    
+    // Seleccionar por defecto la primera talla disponible, o la primera si todas están agotadas
+    let primeraTallaDisponible = tallasEstructuradas.find(t => !t.agotada);
+    let tallaSeleccionadaInicial = primeraTallaDisponible ? primeraTallaDisponible.nombre : (tallasEstructuradas[0] ? tallasEstructuradas[0].nombre : null);
+    let esAgotadaInicial = primeraTallaDisponible ? false : (tallasEstructuradas[0] ? tallasEstructuradas[0].agotada : agotadoGeneral);
 
     let tallasHtml = '';
-    if (tallasArray.length > 0) {
+    if (tallasEstructuradas.length > 0) {
         tallasHtml = `
             <div style="margin: 1rem 0;">
-                <label style="font-weight: 700; font-size: 0.88rem; display: block; margin-bottom: 6px;">Selecciona tu Talla:</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label style="font-weight: 700; font-size: 0.88rem;">Selecciona tu Talla:</label>
+                    <span id="quickViewTallaEstadoTxt" class="talla-estado-indicador ${esAgotadaInicial ? 'agotada' : 'disponible'}">
+                        ${esAgotadaInicial ? '🔴 Talla Agotada' : '🟢 Talla Disponible'}
+                    </span>
+                </div>
                 <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="quickViewTallasGroup">
-                    ${tallasArray.map((t, idx) => `
-                        <button type="button" class="btn-talla ${idx === 0 ? 'activo' : ''}" onclick="seleccionarTallaQuickView('${t}', this)">${t}</button>
-                    `).join('')}
+                    ${tallasEstructuradas.map(t => {
+                        const esActiva = t.nombre === tallaSeleccionadaInicial;
+                        const claseActiva = esActiva ? (t.agotada ? 'activo activo-agotada' : 'activo') : '';
+                        const claseAgotada = t.agotada ? 'agotada' : 'disponible';
+                        const titleTxt = t.agotada ? `${t.nombre} (Agotada - Clic para pedir resurtido)` : `${t.nombre} (Disponible)`;
+                        return `
+                            <button type="button" class="btn-talla ${claseAgotada} ${claseActiva}" title="${titleTxt}" onclick="seleccionarTallaQuickView('${t.nombre}', ${t.agotada}, this, '${id}', '${String(nombre).replace(/'/g, "\\'")}', ${precioNum}, '${sucursal}', '${imagen}')">
+                                ${t.nombre}${t.agotada ? ' ✕' : ''}
+                            </button>
+                        `;
+                    }).join('')}
                 </div>
             </div>`;
     }
@@ -510,7 +584,7 @@ function abrirVistaRapidaProducto(id, nombre, precio, sucursal, imagen, stock = 
             <button class="close-btn" onclick="cerrarVistaRapida()">×</button>
             <div class="quick-view-img-box">
                 <img src="${imagen}" onerror="this.onerror=null; this.src='mvr.png';" alt="${nombre}">
-                ${agotado ? '<div class="ribbon-agotado">🏷️ AGOTADO</div>' : ''}
+                ${agotadoGeneral ? '<div class="ribbon-agotado">🏷️ AGOTADO</div>' : ''}
             </div>
             <div>
                 <span class="badge-optica ${sucursal.includes('Ravali') ? 'badge-ravali' : (sucursal.includes('Marcel') ? 'badge-marcel' : 'badge-dvilla')}">${sucursal}</span>
@@ -527,31 +601,58 @@ function abrirVistaRapidaProducto(id, nombre, precio, sucursal, imagen, stock = 
 
                 ${tallasHtml}
 
-                <div style="margin-top: 1.5rem; display: flex; gap: 10px; flex-wrap: wrap;">
-                    ${agotado ? `
-                        <button onclick="cerrarVistaRapida(); solicitarResurtidoWhatsApp('${id}', '${String(nombre).replace(/'/g, "")}', '${sucursal}', window.quickViewTallaSeleccionada || '${tallasArray[0] || ''}')" class="btn-solicitar-resurtido" style="flex: 1;">
-                            📲 Solicitar Resurtido / Apartar
+                <div id="quickViewActionContainer" style="margin-top: 1.5rem; display: flex; gap: 10px; flex-wrap: wrap;">
+                    ${esAgotadaInicial ? `
+                        <button onclick="cerrarVistaRapida(); solicitarResurtidoWhatsApp('${id}', '${String(nombre).replace(/'/g, "")}', '${sucursal}', '${tallaSeleccionadaInicial || ''}')" class="btn-solicitar-resurtido" style="flex: 1;">
+                            📲 Solicitar Resurtido Talla ${tallaSeleccionadaInicial || ''} por WhatsApp
                         </button>
                     ` : `
-                        <button onclick="cerrarVistaRapida(); agregarAlCarritoGlobal('${id}', '${String(nombre).replace(/'/g, "")}', ${precioNum}, '${sucursal}', '${imagen}', window.quickViewTallaSeleccionada || '${tallasArray[0] || ''}')" class="btn btn-shimmer-shine" style="flex: 1; padding: 0.85rem; font-weight: 800; border-radius: var(--radius-sm);">
-                            🛍️ Agregar al Carrito
+                        <button onclick="cerrarVistaRapida(); agregarAlCarritoGlobal('${id}', '${String(nombre).replace(/'/g, "")}', ${precioNum}, '${sucursal}', '${imagen}', '${tallaSeleccionadaInicial || ''}')" class="btn btn-shimmer-shine" style="flex: 1; padding: 0.85rem; font-weight: 800; border-radius: var(--radius-sm);">
+                            🛍️ Agregar al Carrito (Talla ${tallaSeleccionadaInicial || ''})
                         </button>
                     `}
                 </div>
             </div>
         </div>`;
 
-    window.quickViewTallaSeleccionada = tallasArray[0] || null;
+    window.quickViewTallaSeleccionada = tallaSeleccionadaInicial;
     modal.classList.add('mostrar');
 }
 
-function seleccionarTallaQuickView(talla, btn) {
+function seleccionarTallaQuickView(talla, esAgotada, btn, id, nombre, precioNum, sucursal, imagen) {
     window.quickViewTallaSeleccionada = talla;
     const grupo = document.getElementById('quickViewTallasGroup');
     if (grupo) {
-        grupo.querySelectorAll('.btn-talla').forEach(b => b.classList.remove('activo'));
+        grupo.querySelectorAll('.btn-talla').forEach(b => {
+            b.classList.remove('activo');
+            b.classList.remove('activo-agotada');
+        });
     }
     btn.classList.add('activo');
+    if (esAgotada) btn.classList.add('activo-agotada');
+
+    const estadoTxt = document.getElementById('quickViewTallaEstadoTxt');
+    if (estadoTxt) {
+        estadoTxt.className = `talla-estado-indicador ${esAgotada ? 'agotada' : 'disponible'}`;
+        estadoTxt.innerText = esAgotada ? `🔴 Talla ${talla} Agotada (Pedir Resurtido)` : `🟢 Talla ${talla} Disponible`;
+    }
+
+    const actionContainer = document.getElementById('quickViewActionContainer');
+    if (actionContainer) {
+        if (esAgotada) {
+            actionContainer.innerHTML = `
+                <button onclick="cerrarVistaRapida(); solicitarResurtidoWhatsApp('${id}', '${String(nombre).replace(/'/g, "")}', '${sucursal}', '${talla}')" class="btn-solicitar-resurtido" style="flex: 1;">
+                    📲 Solicitar Resurtido Talla ${talla} por WhatsApp
+                </button>
+            `;
+        } else {
+            actionContainer.innerHTML = `
+                <button onclick="cerrarVistaRapida(); agregarAlCarritoGlobal('${id}', '${String(nombre).replace(/'/g, "")}', ${precioNum}, '${sucursal}', '${imagen}', '${talla}')" class="btn btn-shimmer-shine" style="flex: 1; padding: 0.85rem; font-weight: 800; border-radius: var(--radius-sm);">
+                    🛍️ Agregar al Carrito (Talla ${talla})
+                </button>
+            `;
+        }
+    }
 }
 
 function cerrarVistaRapida() {
@@ -2357,8 +2458,9 @@ function abrirModalEditarProducto(id) {
                         </select>
                     </div>
                     <div class="form-group">
-                        <label style="font-weight: bold; font-size: 0.85rem;">Tallas (si aplica):</label>
-                        <input type="text" id="editTallasProd" value="${p.tallas || ''}" placeholder="Ej. CH, M, G" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
+                        <label style="font-weight: bold; font-size: 0.85rem;">Tallas (Moda / Boutique):</label>
+                        <input type="text" id="editTallasProd" value="${p.tallas || ''}" placeholder="Ej. CH:5, M:0, G:3 o CH, M, G" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box;">
+                        <small style="color:#64748b; font-size:0.72rem; display:block; margin-top:2px;">Tip: Usa <strong>M:0</strong> o <strong>M (Agotada)</strong> para agotarla.</small>
                     </div>
                 </div>
 

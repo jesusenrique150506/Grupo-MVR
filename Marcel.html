@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#880e4f">
     
     <!-- Enlace a la hoja de estilos global -->
-    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.2">
+    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.3">
     
 </head>
 <body class="pagina-marcel">
@@ -140,7 +140,7 @@
     </footer>
 
     <!-- SCRIPT CENTRALIZADO Y LÓGICA DE MARCEL BOUTIQUE -->
-    <script src="js/api.js?v=3.2"></script>
+    <script src="js/api.js?v=3.3"></script>
     <script>
         let listaGlobalProductos = [];
         let filtroActual = 'todos';
@@ -209,14 +209,38 @@
             actualizarContadorCarrito();
         });
 
-        function seleccionarTalla(prodId, talla, btn) {
+        function seleccionarTalla(prodId, talla, esAgotada, btn, nombre, precio, imgSrc) {
             window.tallaSeleccionadaPorProducto[prodId] = talla;
             const card = btn.closest('.card-producto');
             if (card) {
-                card.querySelectorAll('.btn-talla').forEach(b => b.classList.remove('activo'));
+                card.querySelectorAll('.btn-talla').forEach(b => {
+                    b.classList.remove('activo');
+                    b.classList.remove('activo-agotada');
+                });
                 btn.classList.add('activo');
+                if (esAgotada) btn.classList.add('activo-agotada');
+
                 const txtEl = card.querySelector('.talla-seleccionada-txt');
-                if (txtEl) txtEl.innerText = talla;
+                if (txtEl) {
+                    txtEl.innerHTML = `${talla} <span class="talla-estado-indicador ${esAgotada ? 'agotada' : 'disponible'}">(${esAgotada ? '🔴 Agotada' : '🟢 Disponible'})</span>`;
+                }
+
+                // Cambiar botones dinámicamente según la disponibilidad de la talla seleccionada
+                const botonesCont = card.querySelector('.botones-card');
+                if (botonesCont) {
+                    if (esAgotada) {
+                        botonesCont.innerHTML = `
+                            <button type="button" class="btn-solicitar-resurtido" style="width: 100%;" onclick="solicitarResurtidoMarcel('${prodId}', '${nombre}', '${talla}')">
+                                📲 Solicitar Resurtido Talla ${talla} por WhatsApp
+                            </button>
+                        `;
+                    } else {
+                        botonesCont.innerHTML = `
+                            <button class="btn btn-secondary" onclick="abrirModalPagos('${nombre}', ${precio})">💳 Ver Quincenas y Promos</button>
+                            <button class="btn btn-primary" onclick="agregarProductoMarcel('${prodId}', '${nombre}', ${precio}, '${imgSrc}', '${talla}')">🛒 Agregar al Carrito</button>
+                        `;
+                    }
+                }
             }
         }
 
@@ -242,28 +266,44 @@
                 let imgSrc = (p.imagen && p.imagen.trim() !== "") ? p.imagen : 'marcel.png';
                 let stock = parseInt(p.stock) || 0;
 
-                // Definición de Tallas para Marcel Boutique (Ropa / Moda)
-                let listaTallas = ['CH', 'M', 'G', 'XG', 'Unitalla'];
-                if (p.tallas && String(p.tallas).trim() !== '') {
-                    listaTallas = String(p.tallas).split(',').map(t => t.trim());
-                }
+                // Definición y Parseo de Tallas para Marcel Boutique (Ropa / Moda)
+                let tallasDef = (p.tallas && String(p.tallas).trim() !== '') ? p.tallas : 'CH, M, G, XG, Unitalla';
+                let tallasEstructuradas = (typeof parsearEstructuraTallas === 'function') 
+                    ? parsearEstructuraTallas(tallasDef, stock)
+                    : ['CH', 'M', 'G', 'XG', 'Unitalla'].map(t => ({ nombre: t, agotada: stock <= 0, cantidad: null }));
 
-                // Talla por defecto seleccionada
+                // Talla por defecto seleccionada (primera disponible o primera existente)
+                let primeraDisponible = tallasEstructuradas.find(t => !t.agotada);
+                let tallaInicial = primeraDisponible ? primeraDisponible.nombre : (tallasEstructuradas[0] ? tallasEstructuradas[0].nombre : 'M');
+                let esAgotadaInicial = primeraDisponible ? false : (tallasEstructuradas[0] ? tallasEstructuradas[0].agotada : (stock <= 0));
+
                 if (!window.tallaSeleccionadaPorProducto[p.id]) {
-                    window.tallaSeleccionadaPorProducto[p.id] = listaTallas[0] || 'M';
+                    window.tallaSeleccionadaPorProducto[p.id] = tallaInicial;
                 }
                 let tallaActual = window.tallaSeleccionadaPorProducto[p.id];
+                let objTallaActual = tallasEstructuradas.find(t => t.nombre === tallaActual) || { nombre: tallaActual, agotada: esAgotadaInicial };
+                let estaAgotadaSeleccion = objTallaActual.agotada;
 
                 let tallasHtml = `
                     <div class="selector-tallas-box">
                         <div class="tallas-header">
                             <span class="tallas-label">📏 Talla deseada:</span>
-                            <span class="talla-seleccionada-txt">${tallaActual}</span>
+                            <span class="talla-seleccionada-txt">
+                                ${tallaActual} <span class="talla-estado-indicador ${estaAgotadaSeleccion ? 'agotada' : 'disponible'}">(${estaAgotadaSeleccion ? '🔴 Agotada' : '🟢 Disponible'})</span>
+                            </span>
                         </div>
                         <div class="tallas-list">
-                            ${listaTallas.map(t => `
-                                <button type="button" class="btn-talla ${t === tallaActual ? 'activo' : ''}" onclick="seleccionarTalla('${p.id}', '${t}', this)">${t}</button>
-                            `).join('')}
+                            ${tallasEstructuradas.map(t => {
+                                const esActivo = t.nombre === tallaActual;
+                                const claseActiva = esActivo ? (t.agotada ? 'activo activo-agotada' : 'activo') : '';
+                                const claseAgotada = t.agotada ? 'agotada' : 'disponible';
+                                const titleTxt = t.agotada ? `${t.nombre} (Agotada - Toca para pedir resurtido)` : `${t.nombre} (Disponible)`;
+                                return `
+                                    <button type="button" class="btn-talla ${claseAgotada} ${claseActiva}" title="${titleTxt}" onclick="seleccionarTalla('${p.id}', '${t.nombre}', ${t.agotada}, this, '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio || 0}, '${imgSrc}')">
+                                        ${t.nombre}${t.agotada ? ' ✕' : ''}
+                                    </button>
+                                `;
+                            }).join('')}
                         </div>
                     </div>`;
 
@@ -272,12 +312,15 @@
                 let ribbonHtml = '';
                 let claseAgotado = '';
 
-                if (stock <= 0) {
+                // Verificar si TODAS las tallas están agotadas o stock general es 0
+                let todasAgotadas = tallasEstructuradas.every(t => t.agotada) || stock <= 0;
+
+                if (todasAgotadas) {
                     claseAgotado = 'producto-agotado';
                     ribbonHtml = `<div class="ribbon-agotado">🏷️ Agotado · Próximo Resurtido</div>`;
                     badgeStockHtml = `<span class="badge-stock-agotado">🔴 Agotado</span>`;
                     botonHtml = `
-                        <button type="button" class="btn-solicitar-resurtido" onclick="solicitarResurtidoMarcel('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}')">
+                        <button type="button" class="btn-solicitar-resurtido" onclick="solicitarResurtidoMarcel('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', '${tallaActual}')">
                             📲 Solicitar Resurtido / Apartar
                         </button>
                     `;
@@ -285,25 +328,34 @@
                     if (stock <= 2) {
                         badgeStockHtml = `<span class="badge-stock-bajo">🟠 ¡Últimas ${stock} pzas!</span>`;
                     } else {
-                        badgeStockHtml = `<span class="badge-stock-disponible">🟢 Disponible (${stock} pzas)</span>`;
+                        badgeStockHtml = `<span class="badge-stock-disponible">🟢 En Stock</span>`;
                     }
 
-                    botonHtml = `
-                        <button class="btn btn-secondary" onclick="abrirModalPagos('${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio})">💳 Ver Quincenas y Promos</button>
-                        <button class="btn btn-primary" onclick="agregarProductoMarcel('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, '${imgSrc}')">🛒 Agregar al Carrito</button>
-                    `;
+                    if (estaAgotadaSeleccion) {
+                        botonHtml = `
+                            <button type="button" class="btn-solicitar-resurtido" style="width: 100%;" onclick="solicitarResurtidoMarcel('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', '${tallaActual}')">
+                                📲 Solicitar Resurtido Talla ${tallaActual} por WhatsApp
+                            </button>
+                        `;
+                    } else {
+                        botonHtml = `
+                            <button class="btn btn-secondary" onclick="abrirModalPagos('${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio})">💳 Ver Quincenas y Promos</button>
+                            <button class="btn btn-primary" onclick="agregarProductoMarcel('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, '${imgSrc}', '${tallaActual}')">🛒 Agregar al Carrito</button>
+                        `;
+                    }
                 }
 
                 let favIcon = (typeof esFavorito === 'function' && esFavorito(p.id)) ? '❤️' : '🤍';
                 let favActive = (typeof esFavorito === 'function' && esFavorito(p.id)) ? 'active' : '';
                 let compActive = (typeof estaEnComparador === 'function' && estaEnComparador(p.id)) ? 'active' : '';
+                let rawTallasStr = tallasEstructuradas.map(t => `${t.nombre}${t.agotada ? ':0' : ''}`).join(',');
 
                 contenedorCatalogo.innerHTML += `
                     <div class="card-producto ${claseAgotado}" style="position: relative;">
                         <button class="btn-compare-toggle ${compActive}" data-id="${p.id}" onclick="event.stopPropagation(); toggleComparar('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio || 0}, '${imgSrc}', 'Marcel Boutique')" title="Comparar modelo">⚖️</button>
                         <button class="btn-fav-heart ${favActive}" data-id="${p.id}" onclick="event.stopPropagation(); toggleFavorito('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio || 0}, '${imgSrc}', 'Marcel Boutique')" title="Guardar en favoritos">${favIcon}</button>
                         <div>
-                            <div class="img-container" onclick="abrirVistaRapidaProducto('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Marcel Boutique', '${imgSrc}', ${stock}, '${listaTallas.join(',')}')" style="cursor: pointer;" title="🔍 Clic para Vista Rápida y Zoom">
+                            <div class="img-container" onclick="abrirVistaRapidaProducto('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Marcel Boutique', '${imgSrc}', ${stock}, '${rawTallasStr}')" style="cursor: pointer;" title="🔍 Clic para Vista Rápida y Zoom">
                                 ${ribbonHtml}
                                 <img src="${imgSrc}" alt="${p.nombre}" onerror="this.src='marcel.png';">
                             </div>
@@ -311,7 +363,7 @@
                                 <span style="font-size: 0.8rem; color: #888; font-weight: 700;">ID: ${p.id}</span>
                                 ${badgeStockHtml}
                             </div>
-                            <h3 onclick="abrirVistaRapidaProducto('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Marcel Boutique', '${imgSrc}', ${stock}, '${listaTallas.join(',')}')" style="cursor: pointer;">${p.nombre}</h3>
+                            <h3 onclick="abrirVistaRapidaProducto('${p.id}', '${String(p.nombre).replace(/'/g, "\\'")}', ${p.precio}, 'Marcel Boutique', '${imgSrc}', ${stock}, '${rawTallasStr}')" style="cursor: pointer;">${p.nombre}</h3>
                             <p>Colección exclusiva de moda, boutique y elegancia en Marcel Boutique.</p>
                             ${tallasHtml}
                         </div>
@@ -329,13 +381,13 @@
             }
         }
 
-        function agregarProductoMarcel(id, nombre, precio, imagen) {
-            const talla = window.tallaSeleccionadaPorProducto[id] || 'M';
+        function agregarProductoMarcel(id, nombre, precio, imagen, tallaDirecta = null) {
+            const talla = tallaDirecta || window.tallaSeleccionadaPorProducto[id] || 'M';
             agregarAlCarrito(id, nombre, precio, 'Marcel Boutique', imagen, talla);
         }
 
-        function solicitarResurtidoMarcel(id, nombre) {
-            const talla = window.tallaSeleccionadaPorProducto[id] || 'M';
+        function solicitarResurtidoMarcel(id, nombre, tallaDirecta = null) {
+            const talla = tallaDirecta || window.tallaSeleccionadaPorProducto[id] || 'M';
             solicitarResurtidoWhatsApp(id, nombre, 'Marcel Boutique', talla);
         }
 

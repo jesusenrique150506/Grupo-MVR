@@ -1276,8 +1276,65 @@ footer p {
     box-shadow: 0 4px 10px rgba(var(--color-primary-rgb), 0.3);
 }
 
-.btn-talla:active {
-    transform: scale(0.94);
+/* Estilo distintivo para Talla Agotada */
+.btn-talla.agotada {
+    background: #f8fafc;
+    color: #94a3b8;
+    border: 1.5px dashed #fca5a5;
+    text-decoration: line-through;
+    text-decoration-color: #ef4444;
+    text-decoration-thickness: 2px;
+    cursor: pointer;
+    opacity: 0.85;
+    position: relative;
+}
+
+[data-theme="dark"] .btn-talla.agotada {
+    background: #111b33;
+    color: #64748b;
+    border-color: #7f1d1d;
+    text-decoration-color: #f87171;
+}
+
+.btn-talla.agotada:hover {
+    background: #fff5f5;
+    border-color: #ef4444;
+    color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(239, 68, 68, 0.15);
+}
+
+[data-theme="dark"] .btn-talla.agotada:hover {
+    background: #221217;
+    border-color: #ef4444;
+    color: #fca5a5;
+}
+
+.btn-talla.agotada.activo {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1.5px solid #dc2626;
+    transform: scale(1.06);
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+    text-decoration-color: #991b1b;
+}
+
+[data-theme="dark"] .btn-talla.agotada.activo {
+    background: #450a0a;
+    color: #fecaca;
+    border-color: #ef4444;
+}
+
+.talla-estado-indicador {
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-left: 4px;
+}
+.talla-estado-indicador.disponible {
+    color: #16a34a;
+}
+.talla-estado-indicador.agotada {
+    color: #dc2626;
 }
 
 .badge-talla {

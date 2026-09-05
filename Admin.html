@@ -6,7 +6,7 @@
     <title>Grupo MVR | Panel de Administración</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#002b55">
-    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.2">
+    <link rel="stylesheet" href="CSS/opticas-styles.css?v=3.3">
     <!-- Chart.js para Business Intelligence y Gráficas Interactivas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -167,8 +167,11 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
                         <div class="form-group"><label>ID / Código:</label><input type="text" id="nuevoId" placeholder="Ej. DV-001" required></div>
                         <div class="form-group"><label>Sucursal:</label><select id="nuevaSucursal" required><option value="Óptica D'villa">Óptica D'villa</option><option value="Óptica Ravali">Óptica Ravali</option><option value="Marcel Boutique">Marcel Boutique</option></select></div>
-                        <div class="form-group"><label>Nombre:</label><input type="text" id="nuevoNombre" placeholder="Lentes / Vestido" required></div>
-                        <div class="form-group"><label>Tallas (Marcel/Moda):</label><input type="text" id="nuevoTallas" placeholder="Ej. CH, M, G, XG, Unitalla"></div>
+                        <div class="form-group">
+                            <label>Tallas (Marcel/Moda):</label>
+                            <input type="text" id="nuevoTallas" placeholder="Ej. CH:4, M:0, G:2 o CH, M, G">
+                            <small style="color: #64748b; font-size: 0.72rem; display: block; margin-top: 2px;">Tip: Usa <strong>M:0</strong> o <strong>M (Agotada)</strong> para agotarla.</small>
+                        </div>
                         <div class="form-group"><label>Stock:</label><input type="number" id="nuevoStock" min="0" required></div>
                         <div class="form-group"><label>Precio ($):</label><input type="number" id="nuevoPrecio" step="0.01" min="0" required></div>
                         <div class="form-group" style="grid-column: 1 / -1; background: #f8f9fa; padding: 1rem; border: 1px dashed #0059b3; border-radius: 6px;">
@@ -323,7 +326,7 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
     </footer>
 
-    <script src="js/api.js?v=3.2"></script>
+    <script src="js/api.js?v=3.3"></script>
     <script>
         let listaGlobalVales = []; // Almacena temporalmente los vales para el filtro
 
