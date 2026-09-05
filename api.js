@@ -624,39 +624,7 @@ function inyectarComponentesModernos() {
         document.body.appendChild(speedDial);
     }
 
-    // 3. Barra Móvil Inferior (Sticky Bottom Nav Bar para Tienda/Catálogo)
-    if (!esPromotora && !esAdmin && !document.getElementById('mvrMobileBottomNav')) {
-        const esIndex = pathname.includes('index') || pathname.endsWith('/') || pathname.endsWith('grupomvr');
-        const esDvilla = pathname.includes('d%c2%b4villa') || pathname.includes('dvilla');
-        const esRavali = pathname.includes('ravali');
-        const esMarcel = pathname.includes('marcel');
-
-        const nav = document.createElement('nav');
-        nav.id = 'mvrMobileBottomNav';
-        nav.className = 'mobile-bottom-nav';
-        nav.innerHTML = `
-            <a href="index.html" class="bottom-nav-item ${esIndex ? 'activo' : ''}">
-                <span class="bottom-nav-icon">🏠</span> Inicio
-            </a>
-            <a href="D´villa.html" class="bottom-nav-item ${esDvilla ? 'activo' : ''}">
-                <span class="bottom-nav-icon">👓</span> D'villa
-            </a>
-            <a href="Ravali.html" class="bottom-nav-item ${esRavali ? 'activo' : ''}">
-                <span class="bottom-nav-icon">🕶️</span> Ravali
-            </a>
-            <a href="Marcel.html" class="bottom-nav-item ${esMarcel ? 'activo' : ''}">
-                <span class="bottom-nav-icon">👗</span> Marcel
-            </a>
-            <a href="javascript:void(0)" onclick="abrirModalFavoritos()" class="bottom-nav-item" style="position: relative;">
-                <span class="bottom-nav-icon">❤️</span> Favs
-                <span class="nav-badge-count" id="badgeNavFavs" style="display: none;">0</span>
-            </a>
-            <a href="javascript:void(0)" onclick="abrirCarritoGlobal()" class="bottom-nav-item" style="position: relative;">
-                <span class="bottom-nav-icon">🛍️</span> Carrito
-                <span class="nav-badge-count" id="badgeNavCart" style="display: none;">0</span>
-            </a>`;
-        document.body.appendChild(nav);
-    }
+    // 3. Barra Móvil Inferior eliminada a solicitud del usuario
 
     // 4. Agregar Botón de Modo Oscuro al Header si existe
     const navUl = document.querySelector('.main-nav ul');

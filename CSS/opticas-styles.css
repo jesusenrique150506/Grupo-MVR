@@ -2629,109 +2629,10 @@ body.pagina-promotoras #mvrSpeedDial {
     transform: scale(1.05);
 }
 
-.mobile-bottom-nav {
-    display: none;
+.mobile-bottom-nav,
+#mvrMobileBottomNav {
+    display: none !important;
 }
-
-@media screen and (max-width: 768px) {
-    .mobile-bottom-nav {
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 62px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        border-top: 1px solid var(--color-border);
-        z-index: 1500;
-        justify-content: space-around;
-        align-items: center;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-        padding: 0 4px;
-    }
-
-    [data-theme="dark"] .mobile-bottom-nav {
-        background: rgba(11, 19, 41, 0.95);
-        border-top-color: #1e294b;
-    }
-
-    .bottom-nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        text-decoration: none;
-        color: var(--color-text-muted);
-        font-size: 0.72rem;
-        font-weight: 700;
-        transition: all var(--duration-fast);
-        padding: 4px 8px;
-        border-radius: 8px;
-        min-width: 54px;
-    }
-
-    .bottom-nav-item.activo,
-    .bottom-nav-item:hover {
-        color: var(--color-primary);
-    }
-
-    .bottom-nav-icon {
-        font-size: 1.3rem;
-        line-height: 1;
-        margin-bottom: 2px;
-    }
-
-    .nav-badge-count {
-        position: absolute;
-        top: 2px;
-        right: 8px;
-        background: #e11d48;
-        color: #ffffff;
-        font-size: 0.65rem;
-        font-weight: 900;
-        padding: 1px 5px;
-        border-radius: 10px;
-        min-width: 16px;
-        text-align: center;
-        line-height: 14px;
-        border: 1.5px solid #ffffff;
-    }
-
-    /* Ocultar botones flotantes redundantes que se enciman en celular */
-    .btn-flotante-carrito, #btnFlotanteCarrito,
-    .btn-flotante-fav, #btnFlotanteFav,
-    .speed-dial-container, #mvrSpeedDial,
-    .btn-whatsapp-soporte {
-        display: none !important;
-    }
-
-    /* Mostrar exclusivamente el botón moderno de WhatsApp en el panel de Promotoras */
-    body.pagina-promotoras .speed-dial-container,
-    body.pagina-promotoras #mvrSpeedDial {
-        display: flex !important;
-        bottom: 20px !important;
-        right: 20px !important;
-    }
-
-    /* Ocultar la barra inferior de catálogo en Promotoras y Admin */
-    body.pagina-promotoras .mobile-bottom-nav,
-    body.pagina-admin .mobile-bottom-nav {
-        display: none !important;
-    }
-
-    /* Padding inferior normal en Promotoras y Admin */
-    body.pagina-promotoras,
-    body.pagina-admin {
-        padding-bottom: 20px !important;
-    }
-
-    /* Padding extra inferior en catálogos para que el dock no tape contenido */
-    body:not(.pagina-promotoras):not(.pagina-admin) {
-        padding-bottom: 75px !important;
-    }
 
     .modal-quick-view-card {
         grid-template-columns: 1fr !important;
@@ -3748,11 +3649,6 @@ body.pagina-promotoras #mvrSpeedDial {
     #mvrSpeedDial {
         bottom: 20px !important;
         right: 18px !important;
-    }
-
-    /* 12. Padding inferior de seguridad en catálogos por el dock inferior */
-    body.pagina-catalogo, body.pagina-inicio {
-        padding-bottom: 75px !important;
     }
 }
 
