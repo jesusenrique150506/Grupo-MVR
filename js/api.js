@@ -1244,9 +1244,16 @@ function mostrarTicketValeModal(vale) {
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 1rem; position: sticky; bottom: 0; background: white; padding-top: 6px;">
-                <div style="display: flex; gap: 8px;">
-                    <button onclick="imprimirTicketValeDirectoDesdeSeleccion()" class="btn" style="background: ${brand.colorPrimario}; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">🖨️ Imprimir Recibo PDF</button>
-                    <button onclick="compartirValeWhatsAppDesdeSeleccion()" class="btn" style="background: #25d366; color: white; flex: 1; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;">📲 WhatsApp</button>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                    <button onclick="descargarTicketQRDesdeSeleccion()" class="btn btn-primary" style="flex: 1.2; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; cursor: pointer;" title="Descargar como imagen en celular o computadora">
+                        📥 Guardar Imagen QR
+                    </button>
+                    <button onclick="imprimirTicketValeDirectoDesdeSeleccion()" class="btn" style="background: ${brand.colorPrimario}; color: white; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;" title="Imprimir o guardar PDF">
+                        🖨️ PDF
+                    </button>
+                    <button onclick="compartirValeWhatsAppDesdeSeleccion()" class="btn" style="background: #25d366; color: white; padding: 0.75rem; font-size: 0.88rem; font-weight: bold; border-radius: 6px; border: none; cursor: pointer;" title="Compartir vale por WhatsApp">
+                        📲 WhatsApp
+                    </button>
                 </div>
                 <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; width: 100%; padding: 0.6rem; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer;">
                     🔙 Cerrar y Volver a la Cartera
@@ -1255,6 +1262,13 @@ function mostrarTicketValeModal(vale) {
         </div>`;
 
     modal.style.display = 'flex';
+}
+
+function descargarTicketQRDesdeSeleccion() {
+    if (window.ultimoValeSeleccionado) {
+        const v = window.ultimoValeSeleccionado;
+        descargarTicketQRComoImagen(v.folio, v.promotora, v.cliente, v.monto, v.quincenas, v.sucursal, v.telefono);
+    }
 }
 
 function imprimirTicketValeDirectoDesdeSeleccion() {
@@ -2090,8 +2104,143 @@ function drawRoundRectSafe(ctx, x, y, width, height, radius) {
     }
 }
 
-function descargarPassbookComoImagen(folio, cliente, monto, sucursal, promotora, quincenas) {
+async function cargarImagenSeguraCanvas(url) {
+    if (!url) return null;
+    try {
+        const resp = await fetch(url, { mode: 'cors' });
+        if (!resp.ok) throw new Error('Status ' + resp.status);
+        const blob = await resp.blob();
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(blob);
+        });
+    } catch(e) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = () => resolve(null);
+            img.src = url;
+            setTimeout(() => resolve(null), 2500);
+        });
+    }
+}
+
+function mostrarModalVisorImagen(dataUrl, nombreArchivo) {
+    const modalId = 'modalVisorImagenDescargaMVR';
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal-overlay';
+        modal.style.zIndex = '999999';
+        document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 440px; max-height: 94vh; overflow-y: auto; padding: 1.2rem; text-align: center; background: #ffffff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative;">
+            <button type="button" aria-label="Cerrar modal" onclick="document.getElementById('${modalId}').style.display = 'none'" style="position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%; background: #e2e8f0; color: #1e293b; border: none; font-size: 1.2rem; font-weight: bold; cursor: pointer;">&times;</button>
+            <h3 style="margin: 0 0 6px 0; color: #002b55; font-size: 1.2rem;">📱 Vale Listo para Guardar</h3>
+            <p style="margin: 0 0 12px 0; font-size: 0.82rem; color: #64748b;">
+                <strong>En celular:</strong> Mantén presionada la imagen para <em>"Guardar en Fotos"</em> o compartirla en WhatsApp.
+            </p>
+            <div style="border-radius: 8px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.15); margin-bottom: 12px; background: #f8fafc;">
+                <img src="${dataUrl}" alt="${nombreArchivo}" style="width: 100%; height: auto; display: block;">
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="${dataUrl}" download="${nombreArchivo}" class="btn btn-primary" style="flex: 1; padding: 0.75rem; font-weight: bold; text-decoration: none; display: flex; align-items: center; justify-content: center; border-radius: 6px;">
+                    📥 Descargar Archivo
+                </a>
+                <button type="button" onclick="document.getElementById('${modalId}').style.display = 'none'" class="btn" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 0.75rem 1rem; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    Cerrar
+                </button>
+            </div>
+        </div>`;
+
+    modal.style.display = 'flex';
+}
+
+async function guardarCanvasComoArchivo(canvas, nombreArchivo, tituloCompartir = "Vale Grupo MVR") {
+    try {
+        let dataUrl = '';
+        try {
+            dataUrl = canvas.toDataURL('image/png');
+        } catch(e) {
+            console.error("Error al obtener DataURL:", e);
+        }
+
+        // 1. Web Share API con File (Especialmente iOS / Android)
+        if (canvas.toBlob) {
+            const blobPromise = new Promise(res => canvas.toBlob(res, 'image/png'));
+            const blob = await blobPromise;
+
+            if (blob) {
+                const file = new File([blob], nombreArchivo, { type: 'image/png' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            title: tituloCompartir,
+                            text: `${tituloCompartir} • Grupo MVR`,
+                            files: [file]
+                        });
+                        mostrarToast("¡Listo!", "Vale guardado / compartido exitosamente.");
+                        return;
+                    } catch(err) {
+                        if (err.name === 'AbortError') return;
+                        console.warn("navigator.share no completado, intentando fallback", err);
+                    }
+                }
+
+                // 2. Descarga por Blob URL
+                try {
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = nombreArchivo;
+                    link.href = blobUrl;
+                    document.body.appendChild(link);
+                    link.click();
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(blobUrl);
+                    }, 1500);
+                    mostrarToast("¡Vale Guardado!", `Descargado: ${nombreArchivo}`);
+                    return;
+                } catch(e) {}
+            }
+        }
+
+        // 3. Descarga clásica con DataURL
+        if (dataUrl) {
+            try {
+                const link = document.createElement('a');
+                link.download = nombreArchivo;
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                setTimeout(() => document.body.removeChild(link), 1000);
+                mostrarToast("¡Vale Guardado!", `Descargado: ${nombreArchivo}`);
+                return;
+            } catch(e) {}
+
+            // 4. Modal de Respaldo móvil (Press and hold)
+            mostrarModalVisorImagen(dataUrl, nombreArchivo);
+        }
+    } catch(errGeneral) {
+        console.error("Error general al guardar canvas:", errGeneral);
+        alert("No se pudo descargar automáticamente. Puedes tomar una captura de pantalla del vale.");
+    }
+}
+
+async function descargarPassbookComoImagen(folio, cliente, monto, sucursal, promotora, quincenas) {
     reproducirSonido('cash');
+    if (typeof mostrarToast === 'function') mostrarToast("Generando Imagen...", "Preparando tarjeta Passbook en alta resolución...");
+    
     const canvas = document.createElement('canvas');
     canvas.width = 600;
     canvas.height = 800;
@@ -2160,65 +2309,163 @@ function descargarPassbookComoImagen(folio, cliente, monto, sucursal, promotora,
     drawRoundRectSafe(ctx, 160, 340, 280, 340, 16);
     ctx.fill();
 
-    const ejecutarDescargaFinal = () => {
-        ctx.fillStyle = '#002b55';
-        ctx.font = 'bold 14px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Escanear en sucursal al pagar', 300, 640);
-
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.font = '13px sans-serif';
-        ctx.fillText('Presentar folio o identificación oficial al canjear.', 300, 740);
-
-        try {
-            const link = document.createElement('a');
-            link.download = `Vale_MVR_${folio}.png`;
-            link.href = canvas.toDataURL('image/png');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            mostrarToast("¡Vale Guardado!", `El vale ${folio} se descargó como imagen.`);
-        } catch (e) {
-            console.error("Error al descargar passbook", e);
-            imprimirTicketValeDirecto(folio, promotora, cliente, monto, quincenas, sucStr, '');
-        }
-    };
-
-    const qrImg = new Image();
-    qrImg.crossOrigin = 'anonymous';
+    // Cargar QR de forma segura sin contaminar el canvas
     const qrData = encodeURIComponent(`GRUPO MVR | ${folio} | $${monto} | ${cliente}`);
-    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrData}`;
-
-    let descargado = false;
-    qrImg.onload = function() {
-        if (descargado) return;
-        descargado = true;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${qrData}`;
+    const imgQR = await cargarImagenSeguraCanvas(qrUrl);
+    if (imgQR) {
         try {
-            ctx.drawImage(qrImg, 180, 360, 240, 240);
+            ctx.drawImage(imgQR, 180, 360, 240, 240);
         } catch(e) {}
-        ejecutarDescargaFinal();
-    };
-
-    qrImg.onerror = function() {
-        if (descargado) return;
-        descargado = true;
+    } else {
         ctx.fillStyle = '#002b55';
         ctx.font = 'bold 22px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(`FOLIO: ${folio}`, 300, 480);
-        ejecutarDescargaFinal();
+    }
+
+    ctx.fillStyle = '#002b55';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Escanear en sucursal al pagar', 300, 640);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '13px sans-serif';
+    ctx.fillText('Presentar folio o identificación oficial al canjear.', 300, 740);
+
+    await guardarCanvasComoArchivo(canvas, `Vale_Passbook_${folio}.png`, `Vale Passbook ${folio}`);
+}
+
+async function descargarTicketQRComoImagen(folio, promotora, cliente, monto, quincenas, sucursal, telefono) {
+    reproducirSonido('cash');
+    if (typeof mostrarToast === 'function') mostrarToast("Generando Imagen QR...", "Preparando ticket digital...");
+
+    const brand = obtenerBrandingSucursal(sucursal);
+    const canvas = document.createElement('canvas');
+    canvas.width = 600;
+    canvas.height = 920;
+    const ctx = canvas.getContext('2d');
+
+    const montoNum = parseFloat(monto) || 0;
+    const qNum = parseInt(quincenas) || 8;
+    const cuotaQuincenal = qNum > 0 ? (montoNum / qNum) : 0;
+    const cuotaFmt = `$${cuotaQuincenal.toFixed(2)} MXN`;
+    const montoFmt = `$${montoNum.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN`;
+
+    // Fondo blanco
+    ctx.fillStyle = '#ffffff';
+    drawRoundRectSafe(ctx, 0, 0, 600, 920, 24);
+    ctx.fill();
+
+    // Borde exterior
+    ctx.strokeStyle = brand.colorPrimario;
+    ctx.lineWidth = 6;
+    drawRoundRectSafe(ctx, 3, 3, 594, 914, 22);
+    ctx.stroke();
+
+    // Header institucional
+    const grad = ctx.createLinearGradient(0, 0, 600, 160);
+    grad.addColorStop(0, brand.colorPrimario);
+    grad.addColorStop(1, '#001a33');
+    ctx.fillStyle = grad;
+    drawRoundRectSafe(ctx, 6, 6, 588, 150, 18);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 28px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('GRUPO MVR', 300, 50);
+
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(brand.nombre.toUpperCase(), 300, 80);
+
+    ctx.font = '13px sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.fillText('COMPROBANTE OFICIAL DE VALE DE CRÉDITO', 300, 105);
+
+    // Folio Badge
+    ctx.fillStyle = '#ffffff';
+    drawRoundRectSafe(ctx, 180, 120, 240, 42, 21);
+    ctx.fill();
+    ctx.fillStyle = brand.colorPrimario;
+    ctx.font = '900 22px sans-serif';
+    ctx.fillText(String(folio || ''), 300, 149);
+
+    // Tabla de Datos
+    ctx.textAlign = 'left';
+    let posY = 205;
+    const dibujarFila = (label, valor, esDestacado = false, colorValor = '#1e293b') => {
+        ctx.fillStyle = '#64748b';
+        ctx.font = 'bold 15px sans-serif';
+        ctx.fillText(label, 45, posY);
+
+        ctx.fillStyle = colorValor;
+        ctx.font = esDestacado ? '900 20px sans-serif' : 'bold 16px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(String(valor), 555, posY);
+        ctx.textAlign = 'left';
+
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.setLineDash([4, 4]);
+        ctx.moveTo(45, posY + 10);
+        ctx.lineTo(555, posY + 10);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        posY += 42;
     };
 
-    setTimeout(() => {
-        if (!descargado) {
-            descargado = true;
-            ctx.fillStyle = '#002b55';
-            ctx.font = 'bold 22px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(`FOLIO: ${folio}`, 300, 480);
-            ejecutarDescargaFinal();
-        }
-    }, 1200);
+    dibujarFila('Sucursal:', sucursal, false, brand.colorPrimario);
+    dibujarFila('Cliente:', cliente, true);
+    dibujarFila('Teléfono:', telefono || '-');
+    dibujarFila('Promotora:', promotora);
+    dibujarFila('Monto Autorizado:', montoFmt, true, '#16a34a');
+    dibujarFila('Plazo de Pago:', `${quincenas} quincenas`);
+    dibujarFila('Pago Quincenal Aprox.:', cuotaFmt, true, '#0059b3');
+
+    // Recuadro del QR
+    posY += 10;
+    ctx.fillStyle = brand.fondoSuave || '#f0f7ff';
+    drawRoundRectSafe(ctx, 160, posY, 280, 250, 16);
+    ctx.fill();
+    ctx.strokeStyle = brand.bordeColor || '#cbd5e1';
+    ctx.lineWidth = 1.5;
+    drawRoundRectSafe(ctx, 160, posY, 280, 250, 16);
+    ctx.stroke();
+
+    // Cargar QR
+    const qrData = encodeURIComponent(`GRUPO MVR | ${folio} | $${montoNum} | ${cliente} | ${sucursal}`);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${qrData}&margin=2`;
+
+    const imgQR = await cargarImagenSeguraCanvas(qrUrl);
+    if (imgQR) {
+        try {
+            ctx.drawImage(imgQR, 200, posY + 15, 200, 200);
+        } catch(e) {}
+    } else {
+        ctx.fillStyle = brand.colorPrimario;
+        ctx.font = 'bold 24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`FOLIO: ${folio}`, 300, posY + 120);
+    }
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Escanea en caja al momento de canjear', 300, posY + 235);
+
+    // Pie de página
+    posY += 275;
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px sans-serif';
+    ctx.fillText('Indispensable presentar identificación oficial al momento del canje.', 300, posY);
+    ctx.fillText('✨ Grupo MVR — Pasión por tu visión y estilo', 300, posY + 20);
+
+    // Guardar imagen móvil
+    await guardarCanvasComoArchivo(canvas, `Ticket_QR_${folio}.png`, `Ticket QR Vale ${folio}`);
 }
 
 /* --------------------------------------------------------------------------
