@@ -3758,11 +3758,259 @@ body.pagina-promotoras #mvrSpeedDial {
    -------------------------------------------------------------------------- */
 @media print {
     body { background: #ffffff !important; color: #000000 !important; animation: none !important; }
-    header, footer, .hero, #valeForm, .login-promotora-container, .btn-whatsapp, .btn-whatsapp-soporte, .btn-flotante-carrito, #btnFlotanteCarrito, .btn-flotante-fav, #mvrSpeedDial, #mvrMobileBottomNav, #mvrTickerTape, .floating-compare-bar, .pwa-install-banner, .no-print { 
+    header, footer, .hero, #valeForm, .login-promotora-container, .btn-whatsapp, .btn-whatsapp-soporte, .btn-flotante-carrito, #btnFlotanteCarrito, .btn-flotante-fav, #mvrSpeedDial, #mvrMobileBottomNav, #mvrTickerTape, .floating-compare-bar, .pwa-install-banner, #mvrCookieBanner, .no-print { 
         display: none !important; 
     }
     body.imprimiendo-vale .cartera-container { display: none !important; }
     body.imprimiendo-vale .form-container { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; }
     body.imprimiendo-cartera .form-container { display: none !important; }
     body.imprimiendo-cartera .cartera-container { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; }
+}
+
+/* --------------------------------------------------------------------------
+   40. BLINDAJE DE SEGURIDAD Y CUMPLIMIENTO LEGAL (LFPDPPP / PROFECO / SSL)
+   -------------------------------------------------------------------------- */
+/* Banner de Privacidad y Cookies */
+.mvr-cookie-banner {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: 920px;
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #f8fafc;
+    padding: 1rem 1.4rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.38);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    animation: pageFadeIn 0.4s ease;
+}
+
+.mvr-cookie-text {
+    flex: 1;
+    min-width: 260px;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: #cbd5e1;
+}
+
+.mvr-cookie-text strong {
+    color: #ffffff;
+    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+}
+
+.mvr-cookie-text a {
+    color: #38bdf8;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.mvr-cookie-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-cookie-accept {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.84rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-cookie-accept:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-cookie-legal {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.58rem 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-cookie-legal:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+/* Enlaces Legales y Sellos de Seguridad en el Footer */
+.footer-legal-bar {
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 0.82rem;
+}
+
+.footer-legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 20px;
+}
+
+.footer-legal-links a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-legal-links a:hover {
+    color: #ff8c00;
+    transform: translateY(-1px);
+    text-decoration: underline;
+}
+
+.footer-security-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.badge-security-seal {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #f8fafc;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Modal Centro Legal y de Privacidad */
+.legal-modal-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
+    margin-bottom: 1rem;
+}
+
+.legal-tab-btn {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    padding: 0.55rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.legal-tab-btn.activo {
+    background: #002b55;
+    color: #ffffff;
+    border-color: #002b55;
+}
+
+.legal-doc-body {
+    max-height: 58vh;
+    overflow-y: auto;
+    padding-right: 8px;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: #334155;
+    text-align: left;
+}
+
+.legal-doc-body h4 {
+    color: #002b55;
+    margin: 1rem 0 0.4rem 0;
+    font-size: 1rem;
+    border-left: 3px solid #0059b3;
+    padding-left: 8px;
+}
+
+.legal-doc-body ul {
+    padding-left: 1.2rem;
+    margin: 0.4rem 0;
+}
+
+.legal-doc-body li {
+    margin-bottom: 0.35rem;
+}
+
+/* Casilla de Consentimiento Legal en Formularios */
+.consentimiento-legal-box {
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: #334155;
+    line-height: 1.45;
+}
+
+.consentimiento-legal-box label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 600 !important;
+    margin: 0 !important;
+}
+
+.consentimiento-legal-box input[type="checkbox"] {
+    width: 18px !important;
+    height: 18px !important;
+    min-height: 18px !important;
+    margin-top: 2px;
+    accent-color: #0059b3;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Honeypot invisible anti-bots */
+.mvr-hp-trap {
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    z-index: -1 !important;
+    pointer-events: none !important;
 }

@@ -82,18 +82,69 @@ function sincronizarInventarioConCacheLocal(data) {
     return data;
 }
 
+/* --------------------------------------------------------------------------
+   1.1 FUNCIONES CRÍTICAS DE SANITIZACIÓN ANTI-XSS Y ANTI-INYECCIÓN
+   -------------------------------------------------------------------------- */
+function sanitizarHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function sanitizarCampoPlanilla(valor) {
+    if (typeof valor !== 'string') return valor;
+    let limpio = valor.trim();
+    // Preservar Data URLs de imágenes legítimas (base64)
+    if (/^data:image\/(png|jpeg|jpg|webp|gif);base64,/i.test(limpio)) {
+        return limpio;
+    }
+    // Eliminar etiquetas <script>, eventos inline y protocolos peligrosos
+    limpio = limpio
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/javascript\s*:/gi, '')
+        .replace(/vbscript\s*:/gi, '')
+        .replace(/on\w+\s*=/gi, '')
+        .replace(/[<>]/g, '');
+    // Prevenir CSV / Google Sheets Formula Injection (=, +, -, @ al inicio de celda)
+    if (/^[=+\-@]/.test(limpio) && !/^\+?\d+(\.\d+)?$/.test(limpio)) {
+        limpio = "'" + limpio;
+    }
+    return limpio;
+}
+
+function sanitizarObjetoPayload(obj) {
+    if (obj === null || obj === undefined) return obj;
+    if (typeof obj === 'string') return sanitizarCampoPlanilla(obj);
+    if (Array.isArray(obj)) return obj.map(item => sanitizarObjetoPayload(item));
+    if (typeof obj === 'object') {
+        const resultado = {};
+        for (let clave in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, clave)) {
+                resultado[clave] = sanitizarObjetoPayload(obj[clave]);
+            }
+        }
+        return resultado;
+    }
+    return obj;
+}
+
 async function consumirAPI(accion, datosExtra = null) {
     try {
         if (datosExtra) {
+            const payloadSeguro = sanitizarObjetoPayload(datosExtra);
             let respuesta = await fetch(API_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-                body: JSON.stringify({ accion: accion, ...datosExtra })
+                body: JSON.stringify({ accion: sanitizarCampoPlanilla(accion), ...payloadSeguro })
             });
             return respuesta;
         } else {
-            let res = await fetch(`${API_URL}?accion=${accion}&nocache=${new Date().getTime()}`);
+            let res = await fetch(`${API_URL}?accion=${encodeURIComponent(accion)}&nocache=${new Date().getTime()}`);
             let data = await res.json();
             if (accion === 'obtenerInventario' && data) {
                 sincronizarInventarioConCacheLocal(data);
