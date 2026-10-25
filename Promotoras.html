@@ -363,6 +363,23 @@
 
         async function iniciarSesion(event) {
             event.preventDefault();
+
+            // 1. Verificación Honeypot Anti-Bots
+            const hpTrap = document.getElementById('hpPromTrap');
+            if (hpTrap && hpTrap.value.trim() !== '') {
+                mostrarErrorLoginProm("Solicitud bloqueada por el filtro de seguridad anti-bots.");
+                return;
+            }
+
+            // 2. Verificación Anti-Fuerza Bruta (Rate Limiting)
+            if (typeof verificarBloqueoLoginMVR === 'function') {
+                const estadoBloqueo = verificarBloqueoLoginMVR('promotora');
+                if (estadoBloqueo.bloqueado) {
+                    mostrarErrorLoginProm(`🔒 Demasiados intentos fallidos. Por seguridad, espera ${estadoBloqueo.segundos} segundos.`);
+                    return;
+                }
+            }
+
             const num = document.getElementById('loginNum').value.trim().toUpperCase();
             const pass = document.getElementById('loginPass').value.trim();
             const btn = document.getElementById('btnAcceso');
@@ -393,6 +410,7 @@
                 }
 
                 if (!datosProm) {
+                    if (typeof registrarFalloLoginMVR === 'function') registrarFalloLoginMVR('promotora');
                     mostrarErrorLoginProm("ID de promotora no registrado. Consulta a administración.");
                 } else {
                     const passwordReal = typeof datosProm === 'object' ? datosProm.password : datosProm;
@@ -401,6 +419,13 @@
                     if (estadoReal === "Bloqueada") {
                         mostrarErrorLoginProm("Acceso suspendido temporalmente por cartera vencida.");
                     } else if (String(passwordReal).trim() === pass) {
+                        if (typeof limpiarFallosLoginMVR === 'function') limpiarFallosLoginMVR('promotora');
+                        if (typeof crearSesionSeguraMVR === 'function') {
+                            crearSesionSeguraMVR('promotora', idPromReal);
+                        } else {
+                            localStorage.setItem('mvr_promotora_activa', idPromReal);
+                        }
+
                         const avatar = document.getElementById('loginAvatarProm');
                         const iconPass = document.getElementById('iconCandadoProm');
                         const card = document.getElementById('loginCardProm');
@@ -420,8 +445,6 @@
                             btnTxt.innerText = "¡Acceso Concedido! Bienvenida...";
                         }
 
-                        localStorage.setItem('mvr_promotora_activa', idPromReal);
-
                         setTimeout(() => {
                             if (card) card.style.animation = 'cardSuccessExit 0.4s var(--ease-smooth) forwards';
                             setTimeout(() => {
@@ -430,7 +453,16 @@
                         }, 550);
                         return;
                     } else {
-                        mostrarErrorLoginProm("Contraseña incorrecta. Por favor verifica tus datos.");
+                        let msgError = "Contraseña incorrecta. Por favor verifica tus datos.";
+                        if (typeof registrarFalloLoginMVR === 'function') {
+                            const fallo = registrarFalloLoginMVR('promotora');
+                            if (fallo.bloqueado) {
+                                msgError = `🔒 Cuenta protegida temporalmente por ${fallo.segundos}s tras 5 intentos fallidos.`;
+                            } else {
+                                msgError = `Contraseña incorrecta (${5 - fallo.intentos} intentos restantes).`;
+                            }
+                        }
+                        mostrarErrorLoginProm(msgError);
                     }
                 }
             } catch (error) {
@@ -453,6 +485,7 @@
         }
 
         function cerrarSesion() {
+            if (typeof cerrarSesionSeguraMVR === 'function') cerrarSesionSeguraMVR('promotora');
             localStorage.removeItem('mvr_promotora_activa');
             clearTimeout(temporizadorInactividad);
             document.getElementById('panelProtegido').style.display = 'none';
@@ -463,6 +496,17 @@
         async function generarFolio(event) {
             event.preventDefault();
             reiniciarTemporizadorInactividad();
+
+            // Verificación Honeypot y Consentimiento Legal LFPDPPP
+            const hpVale = document.getElementById('hpValeTrap');
+            if (hpVale && hpVale.value.trim() !== '') return;
+
+            const chkLegal = document.getElementById('chkConsentimientoLegalVale');
+            if (chkLegal && !chkLegal.checked) {
+                alert("⚖️ Es obligatorio confirmar el consentimiento del Aviso de Privacidad (LFPDPPP) y Términos antes de emitir el vale.");
+                return;
+            }
+
             const btn = document.getElementById('btnGenerarVale');
             btn.innerText = "Sincronizando Vale...";
             btn.disabled = true;
@@ -470,9 +514,9 @@
             const folio = "MVR-" + Math.floor(10000 + Math.random() * 90000);
             const promotora = document.getElementById('numPromotora').value.trim().toUpperCase();
             const sucursal = document.getElementById('sucursalVale').value;
-            const cliente = document.getElementById('nombreCliente').value;
-            const telefono = document.getElementById('telefonoCliente').value.trim();
-            const direccion = document.getElementById('direccionCliente').value;
+            const cliente = (typeof sanitizarCampoPlanilla === 'function') ? sanitizarCampoPlanilla(document.getElementById('nombreCliente').value) : document.getElementById('nombreCliente').value;
+            const telefono = document.getElementById('telefonoCliente').value.replace(/\D/g, '').trim();
+            const direccion = (typeof sanitizarCampoPlanilla === 'function') ? sanitizarCampoPlanilla(document.getElementById('direccionCliente').value) : document.getElementById('direccionCliente').value;
             const montoRaw = parseFloat(document.getElementById('montoVale').value) || 0;
             const quincenas = document.getElementById('quincenasVale').value;
             const numQ = parseInt(quincenas) || 8;
