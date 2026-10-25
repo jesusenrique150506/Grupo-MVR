@@ -805,9 +805,16 @@
                         let colorEstado = estado === "Bloqueada" ? "#d32f2f" : "#28a745";
                         let textoBoton = estado === "Bloqueada" ? "🟢 Desbloquear" : "🔴 Bloquear";
 
+                        let passSafe = (typeof sanitizarHTML === 'function') ? sanitizarHTML(pass) : String(pass || '');
+                        let promSafe = (typeof sanitizarHTML === 'function') ? sanitizarHTML(prom) : String(prom || '');
+
                         cuerpoProm.innerHTML += `
                             <tr>
-                                <td><strong>${prom}</strong></td><td><span class="pass-badge">${pass}</span></td>
+                                <td><strong>${promSafe}</strong></td>
+                                <td>
+                                    <span class="pass-badge" data-pass="${passSafe}" data-visible="false">••••••</span>
+                                    <button type="button" onclick="const sp = this.previousElementSibling; if(sp.dataset.visible === 'true'){ sp.innerText='••••••'; sp.dataset.visible='false'; this.innerText='👁️'; } else { sp.innerText=sp.dataset.pass; sp.dataset.visible='true'; this.innerText='🙈'; }" style="background: transparent; border: none; cursor: pointer; font-size: 0.85rem; margin-left: 4px;" title="Mostrar u ocultar contraseña">👁️</button>
+                                </td>
                                 <td><span style="background-color: ${colorEstado}; color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold;">${estado}</span></td>
                                 <td style="text-align: center;">
                                     <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;">
@@ -1087,14 +1094,20 @@
                     let canjeColor = String(v.estatusCanje).toLowerCase().includes("canjeado") ? "#0059b3" : "#888";
                     let fechaFmt = v.fecha ? new Date(v.fecha).toLocaleDateString('es-MX') : '-';
 
+                    let folioSafe = (typeof sanitizarHTML === 'function') ? sanitizarHTML(v.folio) : v.folio;
+                    let promSafe = (typeof sanitizarHTML === 'function') ? sanitizarHTML(v.promotora) : v.promotora;
+                    let cliSafe = (typeof sanitizarHTML === 'function') ? sanitizarHTML(v.cliente) : v.cliente;
+                    let telSafe = (typeof sanitizarHTML === 'function') ? sanitizarHTML(v.telefono || 'N/D') : (v.telefono || 'N/D');
+                    let dirSafe = (typeof sanitizarHTML === 'function') ? sanitizarHTML(v.direccion || 'N/D') : (v.direccion || 'N/D');
+
                     cuerpoVales.innerHTML += `
                         <tr>
-                            <td><strong>${v.folio}</strong></td>
+                            <td><strong>${folioSafe}</strong></td>
                             <td>${fechaFmt}</td>
-                            <td><strong>${v.promotora}</strong></td>
-                            <td>${v.cliente}</td>
-                            <td>${v.telefono || 'N/D'}</td>
-                            <td>${v.direccion || 'N/D'}</td>
+                            <td><strong>${promSafe}</strong></td>
+                            <td>${cliSafe}</td>
+                            <td>${telSafe}</td>
+                            <td>${dirSafe}</td>
                             <td style="font-weight: bold; color: #28a745;">${montoF}</td>
                             <td style="font-weight: bold; color: #0059b3;">${montoVentaF}</td>
                             <td>${v.quincenas}</td>

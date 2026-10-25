@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>Grupo MVR | Portal de Promotoras y Vales</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#002b55">
-    <link rel="stylesheet" href="CSS/opticas-styles.css?v=4.0">
+    <link rel="stylesheet" href="CSS/opticas-styles.css?v=4.5">
 
     <style>
         #panelProtegido { display: none; }
@@ -60,6 +63,9 @@
             </div>
 
             <form id="formLogin" onsubmit="iniciarSesion(event)">
+                <!-- Honeypot invisible anti-bots -->
+                <input type="text" id="hpPromTrap" class="mvr-hp-trap" tabindex="-1" autocomplete="off" aria-hidden="true">
+
                 <div class="form-group">
                     <label for="loginNum" style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">ID de Promotora:</label>
                     <div class="modern-field-box">
@@ -190,7 +196,21 @@
                         </select>
                     </div>
                 </div>
-                <button type="submit" id="btnGenerarVale" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 1rem; font-size: 1.1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1.5rem;">
+
+                <!-- Honeypot invisible anti-bots -->
+                <input type="text" id="hpValeTrap" class="mvr-hp-trap" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+                <!-- Consentimiento Legal Obligatorio (LFPDPPP / PROFECO) -->
+                <div class="consentimiento-legal-box">
+                    <label for="chkConsentimientoLegalVale">
+                        <input type="checkbox" id="chkConsentimientoLegalVale" required checked>
+                        <span>
+                            ⚖️ Confirmo que el cliente ha sido informado y acepta el <a onclick="event.preventDefault(); abrirCentroLegalMVR('privacidad');" style="color: #0059b3; text-decoration: underline;">Aviso de Privacidad Integral (LFPDPPP)</a> para el resguardo de sus datos personales, así como los <a onclick="event.preventDefault(); abrirCentroLegalMVR('terminos');" style="color: #0059b3; text-decoration: underline;">Términos y Condiciones del Vale Quincenal (PROFECO)</a>.
+                        </span>
+                    </label>
+                </div>
+
+                <button type="submit" id="btnGenerarVale" class="btn" style="width: 100%; background-color: #0059b3; color: white; padding: 1rem; font-size: 1.1rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1.2rem;">
                     🎟️ Generar Folio, Ticket y Código QR
                 </button>
             </form>
@@ -261,13 +281,15 @@
     </footer>
 
     <!-- SCRIPT CENTRALIZADO Y LÓGICA DE PROMOTORAS -->
-    <script src="js/api.js?v=4.2"></script>
+    <script src="js/api.js?v=4.5"></script>
     <script>
         let temporizadorInactividad;
         const TIEMPO_LIMITE_INACTIVIDAD = 10 * 60 * 1000; // 10 minutos en milisegundos
 
         window.onload = function() {
-            const activa = localStorage.getItem('mvr_promotora_activa');
+            const activa = (typeof verificarSesionSeguraMVR === 'function')
+                ? verificarSesionSeguraMVR('promotora')
+                : null;
             if (activa) {
                 activarPortal(activa);
             }
