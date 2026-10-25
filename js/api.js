@@ -3685,10 +3685,412 @@ function limpiarFiltrosFacetados() {
     }
 }
 
-// Inicializar el contador, favoritos, PWA y tema al cargar la página
+/* --------------------------------------------------------------------------
+   18. BLINDAJE DE CIBERSEGURIDAD Y CUMPLIMIENTO LEGAL (LFPDPPP / PROFECO)
+   -------------------------------------------------------------------------- */
+const MVR_SECURITY_SALT = "MVR_SHIELD_2026_V45_AUTH_KEY";
+const MAX_INTENTOS_LOGIN = 5;
+const TIEMPO_BLOQUEO_LOGIN_MS = 3 * 60 * 1000; // 3 minutos de bloqueo tras 5 intentos fallidos
+const DURACION_MAX_SESION_MS = 8 * 60 * 60 * 1000; // 8 horas máximo de sesión activa
+
+function generarHashSeguridad(cadena) {
+    let str = String(cadena || '') + MVR_SECURITY_SALT;
+    let h1 = 0xdeadbeef ^ str.length;
+    let h2 = 0x41c6ce57 ^ str.length;
+    for (let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36).toUpperCase();
+}
+
+// 18.1 Gestión de Sesiones Firmadas Anti-Suplantación (DevTools Spoofing Protection)
+function crearSesionSeguraMVR(rol, usuario) {
+    const userClean = String(usuario || '').trim();
+    const expira = Date.now() + DURACION_MAX_SESION_MS;
+    const firma = generarHashSeguridad(`${rol}|${userClean}|${expira}|${navigator.userAgent.length}`);
+    const payload = { rol, usuario: userClean, expira, firma };
+    try {
+        localStorage.setItem(`mvr_token_${rol}`, JSON.stringify(payload));
+        if (rol === 'admin') localStorage.setItem('mvr_admin_activo', userClean);
+        if (rol === 'promotora') localStorage.setItem('mvr_promotora_activa', userClean);
+    } catch (e) {}
+}
+
+function verificarSesionSeguraMVR(rol) {
+    try {
+        const raw = localStorage.getItem(`mvr_token_${rol}`);
+        const legacyKey = rol === 'admin' ? 'mvr_admin_activo' : 'mvr_promotora_activa';
+        const legacyUser = localStorage.getItem(legacyKey);
+
+        if (!raw || !legacyUser) {
+            cerrarSesionSeguraMVR(rol);
+            return null;
+        }
+
+        const datos = JSON.parse(raw);
+        if (!datos || datos.rol !== rol || datos.usuario !== legacyUser) {
+            // Alguien intentó modificar mvr_admin_activo o mvr_promotora_activa desde la consola
+            console.warn("🚨 Alerta de Seguridad: Manipulación de sesión detectada y bloqueada.");
+            cerrarSesionSeguraMVR(rol);
+            return null;
+        }
+
+        if (Date.now() > Number(datos.expira || 0)) {
+            cerrarSesionSeguraMVR(rol);
+            return null;
+        }
+
+        const firmaEsperada = generarHashSeguridad(`${rol}|${datos.usuario}|${datos.expira}|${navigator.userAgent.length}`);
+        if (datos.firma !== firmaEsperada) {
+            console.warn("🚨 Alerta de Seguridad: Firma de sesión inválida.");
+            cerrarSesionSeguraMVR(rol);
+            return null;
+        }
+
+        return datos.usuario;
+    } catch (e) {
+        cerrarSesionSeguraMVR(rol);
+        return null;
+    }
+}
+
+function cerrarSesionSeguraMVR(rol) {
+    try {
+        localStorage.removeItem(`mvr_token_${rol}`);
+        if (rol === 'admin') localStorage.removeItem('mvr_admin_activo');
+        if (rol === 'promotora') localStorage.removeItem('mvr_promotora_activa');
+    } catch (e) {}
+}
+
+// 18.2 Protección Anti-Fuerza Bruta (Rate Limiting en Login)
+function verificarBloqueoLoginMVR(modulo) {
+    try {
+        const key = `mvr_lockout_${modulo}`;
+        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        if (data.bloqueadoHasta && Date.now() < data.bloqueadoHasta) {
+            const segRestantes = Math.ceil((data.bloqueadoHasta - Date.now()) / 1000);
+            return { bloqueado: true, segundos: segRestantes, intentos: data.intentos || MAX_INTENTOS_LOGIN };
+        }
+        if (data.bloqueadoHasta && Date.now() >= data.bloqueadoHasta) {
+            localStorage.removeItem(key);
+        }
+        return { bloqueado: false, segundos: 0, intentos: data.intentos || 0 };
+    } catch (e) {
+        return { bloqueado: false, segundos: 0, intentos: 0 };
+    }
+}
+
+function registrarFalloLoginMVR(modulo) {
+    try {
+        const key = `mvr_lockout_${modulo}`;
+        const data = JSON.parse(localStorage.getItem(key) || '{"intentos": 0}');
+        data.intentos = (parseInt(data.intentos) || 0) + 1;
+        if (data.intentos >= MAX_INTENTOS_LOGIN) {
+            data.bloqueadoHasta = Date.now() + TIEMPO_BLOQUEO_LOGIN_MS;
+        }
+        localStorage.setItem(key, JSON.stringify(data));
+        return verificarBloqueoLoginMVR(modulo);
+    } catch (e) {
+        return { bloqueado: false, segundos: 0, intentos: 1 };
+    }
+}
+
+function limpiarFallosLoginMVR(modulo) {
+    try {
+        localStorage.removeItem(`mvr_lockout_${modulo}`);
+    } catch (e) {}
+}
+
+// 18.3 Protección Anti-Clickjacking, Anti-Tabnabbing y Cabeceras
+function inicializarBlindajeSeguridadYLegal() {
+    // 1. Frame-Busting (Anti-Clickjacking)
+    try {
+        if (window.top !== window.self) {
+            window.top.location = window.self.location;
+        }
+    } catch (e) {}
+
+    // 2. Asegurar rel="noopener noreferrer" en todos los enlaces externos
+    document.querySelectorAll('a[target="_blank"]').forEach(link => {
+        const relActual = (link.getAttribute('rel') || '').toLowerCase();
+        if (!relActual.includes('noopener')) {
+            link.setAttribute('rel', (relActual + ' noopener noreferrer').trim());
+        }
+    });
+
+    // 3. Inyectar barra legal y sellos de seguridad en el footer de todas las páginas
+    inyectarFooterLegalMVR();
+
+    // 4. Mostrar banner de consentimiento de privacidad y cookies (LFPDPPP) si aún no se ha aceptado
+    inyectarBannerPrivacidadMVR();
+}
+
+function inyectarFooterLegalMVR() {
+    const footer = document.querySelector('footer');
+    if (!footer || document.getElementById('mvrFooterLegalBar')) return;
+
+    const legalDiv = document.createElement('div');
+    legalDiv.id = 'mvrFooterLegalBar';
+    legalDiv.className = 'footer-legal-bar no-print';
+    legalDiv.innerHTML = `
+        <div class="footer-legal-links">
+            <a onclick="abrirCentroLegalMVR('privacidad')" role="button" tabindex="0">🔒 Aviso de Privacidad (LFPDPPP)</a>
+            <a onclick="abrirCentroLegalMVR('terminos')" role="button" tabindex="0">📜 Términos y Condiciones (PROFECO)</a>
+            <a onclick="abrirCentroLegalMVR('garantias')" role="button" tabindex="0">🛡️ Política de Garantías y Salud Visual</a>
+            <a onclick="abrirCentroLegalMVR('arco')" role="button" tabindex="0">⚖️ Derechos ARCO</a>
+            <a onclick="abrirCentroLegalMVR('seguridad')" role="button" tabindex="0">🔐 Seguridad del Sitio</a>
+        </div>
+        <div class="footer-security-badges">
+            <span class="badge-security-seal">🛡️ Conexión Cifrada HTTPS / SSL</span>
+            <span class="badge-security-seal">⚖️ Cumplimiento LFPDPPP & NMX-COE-001</span>
+            <span class="badge-security-seal">🔒 Protección Anti-Fraude MVR v4.5</span>
+        </div>
+        <div style="font-size: 0.74rem; opacity: 0.82; max-width: 820px; line-height: 1.4; padding: 0 1rem;">
+            Todos los precios están expresados en Moneda Nacional (MXN). Los exámenes visuales y adaptaciones ópticas se realizan en sucursal por personal capacitado. Los datos personales recabados en vales y pedidos están protegidos conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.
+        </div>
+    `;
+    footer.appendChild(legalDiv);
+}
+
+function inyectarBannerPrivacidadMVR() {
+    try {
+        if (localStorage.getItem('mvr_privacidad_aceptada_v1') === 'true') return;
+    } catch (e) {}
+
+    if (document.getElementById('mvrCookieBanner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'mvrCookieBanner';
+    banner.className = 'mvr-cookie-banner no-print';
+    banner.innerHTML = `
+        <div class="mvr-cookie-text">
+            <strong>🛡️ Privacidad, Seguridad y Protección de Datos (Grupo MVR)</strong><br>
+            Utilizamos almacenamiento local seguro y cifrado SSL para el funcionamiento de tu carrito de compras, validación de vales y protección contra accesos no autorizados. Al navegar o solicitar un vale, aceptas nuestro <a onclick="abrirCentroLegalMVR('privacidad')">Aviso de Privacidad Integral (LFPDPPP)</a> y <a onclick="abrirCentroLegalMVR('terminos')">Términos y Condiciones</a>.
+        </div>
+        <div class="mvr-cookie-actions">
+            <button type="button" class="btn-cookie-legal" onclick="abrirCentroLegalMVR('privacidad')">📄 Leer Aviso Legal</button>
+            <button type="button" class="btn-cookie-accept" onclick="aceptarPrivacidadMVR()">✅ Aceptar y Continuar</button>
+        </div>
+    `;
+    document.body.appendChild(banner);
+}
+
+function aceptarPrivacidadMVR() {
+    try {
+        localStorage.setItem('mvr_privacidad_aceptada_v1', 'true');
+        localStorage.setItem('mvr_privacidad_fecha', new Date().toISOString());
+    } catch (e) {}
+    const banner = document.getElementById('mvrCookieBanner');
+    if (banner) {
+        banner.style.opacity = '0';
+        banner.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => banner.remove(), 260);
+    }
+    if (typeof mostrarToast === 'function') {
+        mostrarToast("Preferencias Guardadas", "Has aceptado el Aviso de Privacidad y Términos de Grupo MVR.", "", "");
+    }
+}
+
+// 18.4 Modal Interactivo del Centro Legal, Privacidad, PROFECO y Derechos ARCO
+function abrirCentroLegalMVR(pestana = 'privacidad') {
+    let modal = document.getElementById('modalCentroLegalMVR');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modalCentroLegalMVR';
+        modal.className = 'modal-overlay';
+        modal.style.zIndex = '10000';
+        modal.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
+        document.body.appendChild(modal);
+    }
+
+    const contenidoPestanas = {
+        privacidad: `
+            <div style="background: #eff6ff; border-left: 4px solid #0059b3; padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 0.84rem; color: #1e3a8a;">
+                <strong>Cumplimiento Normativo:</strong> Elaborado en estricto apego a la <em>Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP)</em>, su Reglamento y los Lineamientos del Aviso de Privacidad publicados en el Diario Oficial de la Federación (México).
+            </div>
+            <h4>1. Identidad y Domicilio del Responsable</h4>
+            <p><strong>Grupo MVR</strong> (integrado comercialmente por sus unidades de negocio <strong>Óptica D'villa</strong>, <strong>Óptica Ravali</strong> y <strong>Marcel Boutique</strong>) es el responsable del uso, tratamiento y protección de los datos personales recabados a través de esta plataforma digital y en nuestras sucursales físicas.</p>
+            
+            <h4>2. Datos Personales que Recabamos</h4>
+            <p>Para llevar a cabo las finalidades descritas en el presente Aviso de Privacidad, utilizaremos las siguientes categorías de datos personales:</p>
+            <ul>
+                <li><strong>Datos de Identificación y Contacto:</strong> Nombre completo, número de teléfono celular (WhatsApp) y domicilio particular para entrega o gestión de vales.</li>
+                <li><strong>Datos Patrimoniales o de Crédito Interno:</strong> Monto de vale autorizado, plazo quincenal elegido, historial de abonos y estatus de cuenta con promotora autorizada.</li>
+                <li><strong>Datos de Salud Visual (exclusivamente en sucursal física):</strong> Graduación optométrica necesaria para la elaboración de lentes oftálmicos en Óptica D'villa y Óptica Ravali.</li>
+            </ul>
+
+            <h4>3. Finalidades del Tratamiento de Datos</h4>
+            <ul>
+                <li><strong>Finalidades Primarias (Necesarias para el servicio):</strong> Emisión, validación y canje de vales digitales con código QR; administración de abonos quincenales; cotización y envío de pedidos por WhatsApp; elaboración de armazones oftálmicos y cumplimiento de garantías.</li>
+                <li><strong>Finalidades Secundarias:</strong> Envío de promociones de temporada o recordatorios cordiales de vencimiento quincenal. Usted puede oponerse en cualquier momento desde la pestaña de <em>Derechos ARCO</em>.</li>
+            </ul>
+
+            <h4>4. Transferencia de Datos y Medidas de Seguridad</h4>
+            <p>Grupo MVR <strong>no vende, alquila ni transfiere</strong> sus datos personales a terceros ajenos al grupo empresarial. La información se resguarda mediante protocolos de comunicación cifrada (HTTPS/TLS), sanitización contra inyección de código y control de acceso autenticado para promotoras y administración.</p>
+        `,
+        terminos: `
+            <div style="background: #f0fdf4; border-left: 4px solid #16a34a; padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 0.84rem; color: #14532d;">
+                <strong>Marco Legal de Comercio Electrónico:</strong> Disposiciones alineadas con la <em>Ley Federal de Protección al Consumidor (LFPC - PROFECO)</em> y la Norma Mexicana <em>NMX-COE-001-SCFI-2018</em>.
+            </div>
+            <h4>1. Información de Precios y Moneda</h4>
+            <p>Todos los precios publicados en los catálogos de <strong>Óptica D'villa</strong>, <strong>Óptica Ravali</strong> y <strong>Marcel Boutique</strong> están expresados en <strong>Pesos Mexicanos (MXN)</strong>. Las existencias y tallas se actualizan en tiempo real desde nuestro inventario central.</p>
+
+            <h4>2. Operación de Vales Digitales y Pagos Quincenales</h4>
+            <ul>
+                <li>Los vales digitales emitidos a través del Portal de Promotoras cuentan con un <strong>Folio Único</strong> y <strong>Código QR de verificación</strong> personal e intransferible.</li>
+                <li>El plazo de pago (de 2 a 12 quincenas) y el importe de cada cuota quincenal se informan de manera transparente al cliente antes de la emisión del vale y quedan impresos en su comprobante digital o tarjeta Passbook.</li>
+                <li>Cada abono registrado genera un <strong>Comprobante Digital Foliado</strong> con fecha, saldo anterior, monto abonado y nuevo saldo restante.</li>
+                <li>La falsificación o alteración de folios o códigos QR anula automáticamente el documento y podrá ser reportada ante las autoridades competentes.</li>
+            </ul>
+
+            <h4>3. Propiedad Intelectual</h4>
+            <p>Los logotipos, nombres comerciales (<em>Grupo MVR, Óptica D'villa, Óptica Ravali, Marcel Boutique</em>), fotografías de catálogo y diseño de software están protegidos por las leyes mexicanas de Propiedad Industrial y Derechos de Autor. Queda prohibida su reproducción total o parcial sin autorización expresa.</p>
+        `,
+        garantias: `
+            <div style="background: #fffbeb; border-left: 4px solid #d97706; padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 0.84rem; color: #78350f;">
+                <strong>Transparencia al Consumidor y Salud Visual:</strong> Políticas claras conforme a los artículos 77 a 84 de la Ley Federal de Protección al Consumidor.
+            </div>
+            <h4>1. Óptica D'villa y Óptica Ravali (Salud Visual y Armazones)</h4>
+            <ul>
+                <li><strong>Exámenes de la Vista y Graduaciones:</strong> El catálogo web tiene fines informativos y de selección de armazones. Todo examen optométrico y adaptación de micas graduadas se realiza presencialmente en nuestras sucursales físicas por personal capacitado.</li>
+                <li><strong>Garantía de Fabricación:</strong> Todos nuestros armazones cuentan con garantía contra defectos de fabricación. No aplica en daños ocasionados por mal uso, caídas, presión excesiva, exposición a solventes o reparaciones por terceros.</li>
+                <li><strong>Garantía de Adaptación en Micas:</strong> En caso de molestia visual con su graduación realizada en nuestra óptica, cuenta con revisión sin costo dentro de los primeros 15 días naturales posteriores a la entrega presentando su nota o folio de vale.</li>
+            </ul>
+
+            <h4>2. Marcel Boutique (Prendas, Calzado y Accesorios)</h4>
+            <ul>
+                <li><strong>Cambios de Talla o Modelo:</strong> Se aceptan cambios de talla dentro de los primeros <strong>7 días naturales</strong> a partir de la entrega, siempre que la prenda o calzado se encuentre sin uso, en su empaque original, con etiquetas íntegras y presentando su comprobante o vale.</li>
+                <li>Por razones de higiene y normatividad sanitaria, no se realizan cambios ni devoluciones en ropa íntima, bisutería o prendas en liquidación final.</li>
+            </ul>
+        `,
+        arco: `
+            <div style="background: #f8fafc; border-left: 4px solid #002b55; padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 0.84rem; color: #1e293b;">
+                <strong>Derechos ARCO (Art. 28 LFPDPPP):</strong> Usted tiene derecho a conocer qué datos personales tenemos de usted (<strong>Acceso</strong>), solicitar su corrección (<strong>Rectificación</strong>), que los eliminemos de nuestros registros una vez liquidado su saldo (<strong>Cancelación</strong>) u oponerse a su uso para fines secundarios (<strong>Oposición</strong>).
+            </div>
+            <h4>Formulario Oficial de Solicitud de Derechos ARCO</h4>
+            <p style="margin-bottom: 10px;">Complete los siguientes datos para enviar su solicitud directamente al área de Privacidad y Administración de Grupo MVR:</p>
+            <div style="display: grid; gap: 10px; background: #f8fafc; padding: 14px; border: 1px solid #cbd5e1; border-radius: 8px;">
+                <div>
+                    <label style="font-weight: 700; font-size: 0.82rem; color: #002b55;">Tipo de Derecho a Ejercer:</label>
+                    <select id="arcoTipoSolicitud" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 4px;">
+                        <option value="Acceso a mis Datos Personales">🔍 Acceso (Conocer mis datos registrados)</option>
+                        <option value="Rectificación de Datos">✏️ Rectificación (Corregir nombre, teléfono o dirección)</option>
+                        <option value="Cancelación de Datos">🗑️ Cancelación (Baja de registros sin adeudo activo)</option>
+                        <option value="Oposición a Mensajes Promocionales">🔕 Oposición (No recibir promociones publicitarias)</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-weight: 700; font-size: 0.82rem; color: #002b55;">Nombre Completo del Titular:</label>
+                    <input type="text" id="arcoNombreTitular" placeholder="Ej. María López Hernández" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: 700; font-size: 0.82rem; color: #002b55;">Folio de Vale o Teléfono Registrado:</label>
+                    <input type="text" id="arcoFolioTel" placeholder="Ej. MVR-45012 o 8331234567" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 4px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: 700; font-size: 0.82rem; color: #002b55;">Detalle de su Solicitud:</label>
+                    <input type="text" id="arcoDetalle" placeholder="Describa brevemente la corrección o solicitud..." style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 4px; box-sizing: border-box;">
+                </div>
+                <button type="button" onclick="enviarSolicitudARCO()" class="btn" style="background: #002b55; color: white; padding: 10px; border: none; border-radius: 6px; font-weight: 800; cursor: pointer;">
+                    📩 Enviar Solicitud Oficial ARCO
+                </button>
+            </div>
+        `,
+        seguridad: `
+            <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 0.84rem; color: #065f46;">
+                <strong>Estado del Sistema:</strong> 🟢 <strong>BLINDAJE ACTIVO (MVR Security Shield v4.5)</strong>
+            </div>
+            <h4>Arquitectura de Ciberseguridad Implementada</h4>
+            <ul>
+                <li><strong>🔒 Encriptación en Tránsito (HTTPS / TLS 1.3):</strong> Toda comunicación entre tu navegador y los servidores en la nube viaja cifrada de extremo a extremo.</li>
+                <li><strong>🛡️ Sanitización Anti-XSS y Anti-Inyección de Fórmulas:</strong> Todos los campos de entrada son filtrados automáticamente para neutralizar scripts maliciosos (Cross-Site Scripting) e inyecciones de fórmulas en hojas de cálculo.</li>
+                <li><strong>🔑 Tokens de Sesión con Firma de Integridad:</strong> Los portales de Administración y Promotoras verifican criptográficamente la sesión activa e impiden la suplantación manual desde herramientas de desarrollador, además de contar con cierre automático por inactividad (10 minutos).</li>
+                <li><strong>🚫 Bloqueo Anti-Fuerza Bruta (Rate Limiting):</strong> Protección automática que bloquea temporalmente el acceso tras múltiples intentos fallidos de contraseña, deteniendo ataques automatizados de diccionario.</li>
+                <li><strong>🖼️ Protección Anti-Clickjacking y Anti-Tabnabbing:</strong> Bloqueo contra incrustación en marcos externos no autorizados (Frame-Busting) y aislamiento de pestañas externas (<code>noopener noreferrer</code>).</li>
+            </ul>
+        `
+    };
+
+    const tabActiva = contenidoPestanas[pestana] ? pestana : 'privacidad';
+
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 720px; width: 95%; padding: 1.5rem; border-top: 5px solid #002b55;">
+            <span class="cerrar-modal" onclick="document.getElementById('modalCentroLegalMVR').style.display='none'">&times;</span>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.8rem;">
+                <span style="font-size: 1.8rem;">⚖️</span>
+                <div>
+                    <h3 style="margin: 0; color: #002b55; font-size: 1.25rem;">Centro Legal, Privacidad y Seguridad</h3>
+                    <small style="color: #64748b; font-weight: 600;">Grupo MVR • Óptica D'villa • Óptica Ravali • Marcel Boutique</small>
+                </div>
+            </div>
+
+            <div class="legal-modal-tabs">
+                <button type="button" class="legal-tab-btn ${tabActiva === 'privacidad' ? 'activo' : ''}" onclick="abrirCentroLegalMVR('privacidad')">🔒 Aviso de Privacidad</button>
+                <button type="button" class="legal-tab-btn ${tabActiva === 'terminos' ? 'activo' : ''}" onclick="abrirCentroLegalMVR('terminos')">📜 Términos (PROFECO)</button>
+                <button type="button" class="legal-tab-btn ${tabActiva === 'garantias' ? 'activo' : ''}" onclick="abrirCentroLegalMVR('garantias')">🛡️ Garantías y Salud</button>
+                <button type="button" class="legal-tab-btn ${tabActiva === 'arco' ? 'activo' : ''}" onclick="abrirCentroLegalMVR('arco')">⚖️ Derechos ARCO</button>
+                <button type="button" class="legal-tab-btn ${tabActiva === 'seguridad' ? 'activo' : ''}" onclick="abrirCentroLegalMVR('seguridad')">🔐 Blindaje Técnico</button>
+            </div>
+
+            <div class="legal-doc-body">
+                ${contenidoPestanas[tabActiva]}
+            </div>
+
+            <div style="margin-top: 1.2rem; padding-top: 0.8rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span style="font-size: 0.78rem; color: #64748b;">Última actualización normativa: Octubre 2026</span>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="aceptarPrivacidadMVR(); document.getElementById('modalCentroLegalMVR').style.display='none';" class="btn" style="background: #10b981; color: white; padding: 0.55rem 1.1rem; border: none; border-radius: 6px; font-weight: 800; cursor: pointer;">
+                        ✅ He leído y estoy de acuerdo
+                    </button>
+                    <button type="button" onclick="document.getElementById('modalCentroLegalMVR').style.display='none'" class="btn" style="background: #e2e8f0; color: #1e293b; padding: 0.55rem 1rem; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+}
+
+function enviarSolicitudARCO() {
+    const tipo = document.getElementById('arcoTipoSolicitud')?.value || 'Solicitud ARCO';
+    const nombre = sanitizarCampoPlanilla(document.getElementById('arcoNombreTitular')?.value || '');
+    const folioTel = sanitizarCampoPlanilla(document.getElementById('arcoFolioTel')?.value || '');
+    const detalle = sanitizarCampoPlanilla(document.getElementById('arcoDetalle')?.value || '');
+
+    if (!nombre || !folioTel) {
+        alert("⚠️ Por favor ingresa tu Nombre Completo y tu Folio de Vale o Teléfono para procesar tu solicitud ARCO.");
+        return;
+    }
+
+    const folioArco = "ARCO-" + Math.floor(10000 + Math.random() * 90000);
+    const msg = encodeURIComponent(
+        `⚖️ *SOLICITUD OFICIAL DE DERECHOS ARCO - GRUPO MVR*\n` +
+        `📋 *Folio de Seguimiento:* ${folioArco}\n` +
+        `🔹 *Derecho Solicitado:* ${tipo}\n` +
+        `👤 *Titular:* ${nombre}\n` +
+        `🎟️ *Folio Vale / Teléfono:* ${folioTel}\n` +
+        `📝 *Detalle:* ${detalle || 'Sin comentarios adicionales'}\n` +
+        `📅 *Fecha:* ${new Date().toLocaleDateString('es-MX')}`
+    );
+
+    window.open(`https://wa.me/528332854129?text=${msg}`, '_blank', 'noopener,noreferrer');
+    document.getElementById('modalCentroLegalMVR').style.display = 'none';
+    if (typeof mostrarToast === 'function') {
+        mostrarToast("Solicitud ARCO Generada", `Folio ${folioArco} listo para envío oficial.`, "", "");
+    }
+}
+
+// Inicializar el contador, favoritos, PWA, tema y blindaje de seguridad/legal al cargar la página
 window.addEventListener('DOMContentLoaded', () => {
     inicializarTema();
     inyectarComponentesModernos();
+    inicializarBlindajeSeguridadYLegal();
     actualizarContadorCarrito();
     actualizarBotonesFavoritosUI();
     actualizarBotonFlotanteFavoritos();

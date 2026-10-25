@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>Grupo MVR | Panel de Administración</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#002b55">
-    <link rel="stylesheet" href="CSS/opticas-styles.css?v=4.0">
+    <link rel="stylesheet" href="CSS/opticas-styles.css?v=4.5">
     <!-- Chart.js para Business Intelligence y Gráficas Interactivas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -59,6 +62,9 @@
             </div>
 
             <form id="formLoginAdmin" onsubmit="iniciarSesionAdmin(event)">
+                <!-- Honeypot invisible anti-bots -->
+                <input type="text" id="hpAdminTrap" class="mvr-hp-trap" tabindex="-1" autocomplete="off" aria-hidden="true">
+
                 <div class="form-group">
                     <label for="loginUsuarioAdmin" style="font-weight: 700; color: #1e293b; font-size: 0.88rem;">Usuario Administrador:</label>
                     <div class="modern-field-box">
@@ -327,14 +333,33 @@
         <p style="margin: 0; font-size: 0.95rem;">&copy; 2026 Grupo MVR. Todos los derechos reservados.</p>
     </footer>
 
-    <script src="js/api.js?v=4.2"></script>
+    <script src="js/api.js?v=4.5"></script>
     <script>
         let listaGlobalVales = []; // Almacena temporalmente los vales para el filtro
+        let temporizadorInactividadAdmin;
+        const TIEMPO_LIMITE_INACTIVIDAD_ADMIN = 10 * 60 * 1000; // 10 minutos
 
         window.onload = function() {
-            const adminActivo = localStorage.getItem('mvr_admin_activo');
-            if (adminActivo) activarPanelAdmin(adminActivo);
+            const adminVerificado = (typeof verificarSesionSeguraMVR === 'function')
+                ? verificarSesionSeguraMVR('admin')
+                : null;
+            if (adminVerificado) {
+                activarPanelAdmin(adminVerificado);
+            }
         };
+
+        function reiniciarTemporizadorInactividadAdmin() {
+            if (!localStorage.getItem('mvr_admin_activo')) return;
+            clearTimeout(temporizadorInactividadAdmin);
+            temporizadorInactividadAdmin = setTimeout(() => {
+                alert("⏱️ Por seguridad, tu sesión administrativa ha expirado tras 10 minutos de inactividad.");
+                cerrarSesionAdmin();
+            }, TIEMPO_LIMITE_INACTIVIDAD_ADMIN);
+        }
+
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(ev => {
+            window.addEventListener(ev, reiniciarTemporizadorInactividadAdmin);
+        });
 
         function toggleSeccion(idSeccion) {
             const seccion = document.getElementById(idSeccion);
@@ -427,6 +452,23 @@
 
         async function iniciarSesionAdmin(event) {
             event.preventDefault();
+
+            // 1. Verificación Honeypot Anti-Bots
+            const hpTrap = document.getElementById('hpAdminTrap');
+            if (hpTrap && hpTrap.value.trim() !== '') {
+                mostrarErrorLoginAdmin("Solicitud bloqueada por el filtro de seguridad anti-bots.");
+                return;
+            }
+
+            // 2. Verificación Anti-Fuerza Bruta (Rate Limiting)
+            if (typeof verificarBloqueoLoginMVR === 'function') {
+                const estadoBloqueo = verificarBloqueoLoginMVR('admin');
+                if (estadoBloqueo.bloqueado) {
+                    mostrarErrorLoginAdmin(`🔒 Demasiados intentos fallidos. Por seguridad, espera ${estadoBloqueo.segundos} segundos.`);
+                    return;
+                }
+            }
+
             const usuarioInput = document.getElementById('loginUsuarioAdmin').value.trim();
             const passInput = document.getElementById('loginPassAdmin').value.trim();
             const btn = document.getElementById('btnAccesoAdmin');
@@ -452,6 +494,13 @@
                 }
 
                 if (accesoConcedido) {
+                    if (typeof limpiarFallosLoginMVR === 'function') limpiarFallosLoginMVR('admin');
+                    if (typeof crearSesionSeguraMVR === 'function') {
+                        crearSesionSeguraMVR('admin', usuarioAutenticado);
+                    } else {
+                        localStorage.setItem('mvr_admin_activo', usuarioAutenticado);
+                    }
+
                     const avatar = document.getElementById('loginAvatarAdmin');
                     const iconPass = document.getElementById('iconCandadoAdmin');
                     const card = document.getElementById('loginCardAdmin');
@@ -471,8 +520,6 @@
                         btnTxt.innerText = "¡Acceso Concedido! Bienvenido...";
                     }
 
-                    localStorage.setItem('mvr_admin_activo', usuarioAutenticado);
-
                     setTimeout(() => {
                         if (card) card.style.animation = 'cardSuccessExit 0.4s var(--ease-smooth) forwards';
                         setTimeout(() => {
@@ -481,7 +528,16 @@
                     }, 550);
                     return;
                 } else {
-                    mostrarErrorLoginAdmin("Acceso denegado. Usuario o contraseña incorrectos.");
+                    let msgError = "Acceso denegado. Usuario o contraseña incorrectos.";
+                    if (typeof registrarFalloLoginMVR === 'function') {
+                        const fallo = registrarFalloLoginMVR('admin');
+                        if (fallo.bloqueado) {
+                            msgError = `🔒 Cuenta protegida temporalmente por ${fallo.segundos}s tras 5 intentos fallidos.`;
+                        } else {
+                            msgError = `Credenciales incorrectas (${5 - fallo.intentos} intentos restantes).`;
+                        }
+                    }
+                    mostrarErrorLoginAdmin(msgError);
                 }
             } catch (error) {
                 mostrarErrorLoginAdmin("Error de conexión al verificar con la base de datos.");
@@ -495,11 +551,14 @@
             document.getElementById('panelLoginAdmin').style.display = 'none';
             document.getElementById('panelProtegidoAdmin').style.display = 'block';
             document.getElementById('adminActivoLabel').innerText = usuario;
+            reiniciarTemporizadorInactividadAdmin();
             cargarTodoDesdeLaNube();
         }
 
         function cerrarSesionAdmin() {
+            if (typeof cerrarSesionSeguraMVR === 'function') cerrarSesionSeguraMVR('admin');
             localStorage.removeItem('mvr_admin_activo');
+            clearTimeout(temporizadorInactividadAdmin);
             document.getElementById('panelProtegidoAdmin').style.display = 'none';
             document.getElementById('panelLoginAdmin').style.display = 'block';
             document.getElementById('formLoginAdmin').reset();
